@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "title": "Ameen Haieck — Graphic Designer",
+    "titleShort": "Ameen Haieck",
+    "description": "Ameen Haieck is a graphic designer building visual identities that people remember — branding, editorial design and digital experiences since 2015."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "skills": "Skills",
+    "portfolio": "Portfolio",
+    "experience": "Experience",
+    "partners": "Partners",
+    "contact": "Contact",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "hero": {
+    "eyebrow": "Graphic Designer",
+    "status": "Available for new projects",
+    "headingLines": ["Building visual identities", "that people remember."],
+    "tagline": "Since 2015, I've helped businesses, institutions and organizations transform ideas into meaningful visual identities through branding, editorial design and digital experiences.",
+    "ctaPrimary": "View Portfolio",
+    "ctaSecondary": "Contact Me",
+    "scrollHint": "Scroll"
+  },
+  "ticker": {
+    "items": ["Brand Identity", "Arabic Typography", "Social Media", "Print Production", "Visual Systems", "Art Direction"]
+  },
+  "about": {
+    "eyebrow": "About",
+    "heading": "More than a decade of visual storytelling",
+    "paragraph1": "Since 2015, I've worked with companies, institutions and organizations across different industries, creating visual identities that combine strategy, aesthetics and functionality. Every project is approached with precision, consistency and long-term thinking.",
+    "sinceLabel": "Since"
+  },
+  "stats": {
+    "eyebrow": "Impact",
+    "heading": "Experience in Numbers",
+    "subheading": "A decade of practice, distilled into a few honest numbers.",
+    "items": {
+      "years": "Years of Practice",
+      "projects": "Projects Delivered",
+      "clients": "Clients Served",
+      "satisfaction": "Client Satisfaction"
+    }
+  },
+  "skills": {
+    "eyebrow": "Skills",
+    "heading": "Design Services",
+    "subheading": "A practical, real-world skill set built over a decade of hands-on work.",
+    "items": {
+      "identitySystems": "Building cohesive, lasting visual identity systems",
+      "socialMedia": "Professional social media design",
+      "archivalRestoration": "Restoring and enhancing historical archival photographs",
+      "aiAssisted": "Practical use of AI design tools to speed up production and improve quality",
+      "clarity": "Turning complex ideas into clear, impactful visual solutions"
+    }
+  },
+  "currentWork": {
+    "eyebrow": "Current Work",
+    "organization": "Al-Mustafa Institute for Religious Guidance and Awareness",
+    "period": "2025 — Present",
+    "subheading": "Three ongoing projects, three different visual languages.",
+    "projects": {
+      "mujeebCenter": "Al-Mujeeb Center for Religious Knowledge",
+      "najafPodcast": "Najaf Time Podcast",
+      "iliaApp": "Ilia App"
+    }
+  },
+  "portfolio": {
+    "eyebrow": "Portfolio",
+    "heading": "Featured Projects",
+    "subheading": "A curated collection of branding, editorial and visual communication projects.",
+    "viewProject": "View project",
+    "openLink": "Visit link",
+    "categories": {
+      "brandIdentity": "Brand Identity",
+      "restoration": "Photo Restoration",
+      "colorization": "Colorization",
+      "logoDesign": "Logo Design",
+      "print": "Print Production"
+    }
+  },
+  "experience": {
+    "eyebrow": "Experience",
+    "heading": "Professional Journey",
+    "subheading": "Seven roles, one thread: visual communication that works.",
+    "present": "Present",
+    "items": {
+      "mtn": { "company": "MTN Telecom", "role": "Advertising campaign design" },
+      "syrianAirlines": { "company": "Syrian Arab Airlines", "role": "Advertising campaign design, print design" },
+      "alJamali": { "company": "Al-Jamali Import & Export", "role": "Advertising campaign design, print production" },
+      "unknownSports": { "company": "\"What You Don't Know About Sports\"", "role": "Social media design" },
+      "homClub": { "company": "HOM Sports Club", "role": "Social media design" },
+      "doaaAlKhair": { "company": "Doaa Al-Khair Trading Co.", "role": "HR & financial management, quality control, print design" },
+      "darAlDiyaa": { "company": "Dar Al-Diyaa Printing House", "role": "Print design & production" }
+    }
+  },
+  "certifications": {
+    "eyebrow": "Certifications",
+    "heading": "Continuous learning",
+    "subheading": "Formal training behind the practical experience.",
+    "items": {
+      "graphicDesignDiploma": { "title": "Graphic Design Diploma", "issuer": "Dr. Nour Homsi Academy, Turkey", "honor": "Honors" },
+      "proofreading": { "title": "Arabic Proofreading Certificate", "issuer": "Arabic Language Academy, Damascus", "honor": "" },
+      "hrFinance": { "title": "HR & Financial Management", "issuer": "Qafilat Al-Uloom Academy", "honor": "" }
+    }
+  },
+  "partners": {
+    "eyebrow": "Partners",
+    "heading": "Trusted by leading brands",
+    "subheading": "A selection of the companies and institutions I've had the privilege to work with."
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "heading": "Let's build something people will remember.",
+    "subheading": "Whether you're launching a new brand or refreshing an existing one, let's create work that stands the test of time.",
+    "emailLabel": "Email",
+    "whatsappLabel": "WhatsApp",
+    "socialLabel": "Follow",
+    "formNote": "Prefer email or WhatsApp — I read every message personally."
+  },
+  "footer": {
+    "tagline": "Graphic Designer — Brand Identity & Visual Communication",
+    "rights": "All rights reserved.",
+    "backToTop": "Back to top"
+  }
+}
