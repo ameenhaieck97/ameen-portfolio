@@ -35,8 +35,8 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
-        scrolled ? "glass-strong" : "bg-transparent",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-700 ease-luxury",
+        scrolled ? "glass-strong" : "glass rounded-none border-x-0 border-t-0",
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
@@ -70,7 +70,7 @@ export default function Header() {
           <LanguageSwitcher />
           <a
             href="#contact"
-            className="rounded-full bg-gold px-5 py-2.5 text-sm font-medium text-canvas transition-all duration-300 hover:bg-gold-soft hover:shadow-[0_0_28px_rgba(238,223,122,0.3)]"
+            className="rounded-full bg-gold px-5 py-2.5 text-sm font-medium text-canvas transition-all duration-500 ease-luxury hover:-translate-y-0.5 hover:bg-gold-soft hover:shadow-[0_0_28px_rgba(238,223,122,0.3)]"
           >
             {t("contact")}
           </a>

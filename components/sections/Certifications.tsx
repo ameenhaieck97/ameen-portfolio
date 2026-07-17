@@ -14,7 +14,7 @@ export default function Certifications() {
           eyebrow={t("eyebrow")}
           heading={t("heading")}
           subheading={t("subheading")}
-          index={7}
+          index={5}
         />
 
         <RevealGroup
@@ -25,7 +25,10 @@ export default function Certifications() {
             const honor = t(`items.${id}.honor`);
             return (
               <RevealItem key={id} className="h-full">
-                <GlassCard className="group flex h-full flex-col gap-4 p-7 transition-all duration-500 hover:-translate-y-1.5 hover:border-gold/25">
+                <GlassCard
+                  variant="reveal"
+                  className="group flex h-full flex-col gap-4 p-7 transition-all duration-700 ease-luxury hover:-translate-y-1.5"
+                >
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gold/10 text-gold">
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>

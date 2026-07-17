@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
@@ -25,8 +26,8 @@ const itemVariants: Record<RevealVariant, Variants> = {
     visible: { opacity: 1, transition: { duration: 0.8, ease: EASE } },
   },
   scaleIn: {
-    hidden: { opacity: 0, scale: 0.94 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE } },
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: EASE } },
   },
   fadeRight: {
     hidden: { opacity: 0, x: 36 },
@@ -46,25 +47,19 @@ const itemVariants: Record<RevealVariant, Variants> = {
     },
   },
   liftScale: {
-    hidden: { opacity: 0, y: 44, scale: 0.95 },
+    hidden: { opacity: 0, y: 32 },
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
-      transition: { duration: 0.75, ease: EASE },
+      transition: { duration: 0.9, ease: EASE },
     },
   },
   clipReveal: {
-    hidden: {
-      opacity: 1,
-      scale: 0.97,
-      clipPath: "inset(0 0 100% 0 round 1.5rem)",
-    },
+    hidden: { opacity: 0, y: 28 },
     visible: {
       opacity: 1,
-      scale: 1,
-      clipPath: "inset(0 0 0% 0 round 1.5rem)",
-      transition: { duration: 0.85, ease: EASE },
+      y: 0,
+      transition: { duration: 0.9, ease: EASE },
     },
   },
 };
@@ -98,23 +93,21 @@ export function Reveal({
   );
 }
 
-export function RevealGroup({
-  children,
-  className,
-  stagger = 0.12,
-  delay = 0,
-  once = true,
-}: {
-  children: ReactNode;
-  className?: string;
-  stagger?: number;
-  delay?: number;
-  once?: boolean;
-}) {
+export const RevealGroup = forwardRef<
+  HTMLDivElement,
+  {
+    children: ReactNode;
+    className?: string;
+    stagger?: number;
+    delay?: number;
+    once?: boolean;
+  }
+>(function RevealGroup({ children, className, stagger = 0.12, delay = 0, once = true }, ref) {
   const reduceMotion = useReducedMotion();
 
   return (
     <motion.div
+      ref={ref}
       className={className}
       initial="hidden"
       whileInView="visible"
@@ -131,7 +124,7 @@ export function RevealGroup({
       {children}
     </motion.div>
   );
-}
+});
 
 export function RevealItem({
   children,

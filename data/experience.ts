@@ -1,23 +1,14 @@
 export type ExperienceItem = {
-  id:
-    | "mtn"
-    | "syrianAirlines"
-    | "alJamali"
-    | "unknownSports"
-    | "homClub"
-    | "doaaAlKhair"
-    | "darAlDiyaa";
+  id: "start" | "hudaBeauty" | "printEditorial" | "almustafa";
   start: number;
   end: number | "present";
 };
 
-// Chronological, oldest to newest.
+// A curated set of milestones, not a full job history — chronological,
+// oldest to newest.
 export const experience: ExperienceItem[] = [
-  { id: "mtn", start: 2016, end: 2018 },
-  { id: "syrianAirlines", start: 2016, end: 2018 },
-  { id: "alJamali", start: 2018, end: 2019 },
-  { id: "unknownSports", start: 2018, end: 2020 },
-  { id: "homClub", start: 2018, end: "present" },
-  { id: "doaaAlKhair", start: 2019, end: 2023 },
-  { id: "darAlDiyaa", start: 2023, end: 2025 },
+  { id: "start", start: 2015, end: 2015 },
+  { id: "hudaBeauty", start: 2020, end: 2020 },
+  { id: "printEditorial", start: 2023, end: 2023 },
+  { id: "almustafa", start: 2025, end: "present" },
 ];

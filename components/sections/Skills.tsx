@@ -14,7 +14,7 @@ export default function Skills() {
           eyebrow={t("eyebrow")}
           heading={t("heading")}
           subheading={t("subheading")}
-          index={3}
+          index={2}
         />
 
         <RevealGroup
@@ -23,13 +23,16 @@ export default function Skills() {
         >
           {skills.map(({ key, icon: Icon }, index) => (
             <RevealItem key={key} variant="liftScale" className="h-full">
-              <GlassCard className="group flex h-full flex-col gap-5 p-7 transition-all duration-500 hover:-translate-y-1.5 hover:border-gold/25">
+              <GlassCard
+                variant="reveal"
+                className="group flex h-full flex-col gap-5 p-7 transition-all duration-700 ease-luxury hover:-translate-y-1.5"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-display text-sm text-gold/70">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <Icon
-                    className="h-5 w-5 text-ivory/45 transition-colors duration-500 group-hover:text-gold"
+                    className="h-5 w-5 text-ivory/45 transition-colors duration-700 ease-luxury group-hover:text-gold"
                     aria-hidden
                   />
                 </div>
@@ -37,7 +40,7 @@ export default function Skills() {
                   {t(`items.${key}`)}
                 </p>
                 <span
-                  className="mt-auto h-px w-0 bg-gold transition-all duration-500 group-hover:w-12"
+                  className="mt-auto h-px w-0 bg-gold transition-all duration-700 ease-luxury group-hover:w-12"
                   aria-hidden
                 />
               </GlassCard>

@@ -1,5 +1,4 @@
 import { useLocale, useTranslations } from "next-intl";
-import { GlassCard } from "@/components/ui/GlassCard";
 import { Marquee } from "@/components/ui/Marquee";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { Reveal } from "@/components/motion/Reveal";
@@ -18,7 +17,7 @@ export default function Partners() {
           heading={t("heading")}
           subheading={t("subheading")}
           align="center"
-          index={8}
+          index={6}
         />
       </div>
 
@@ -27,22 +26,22 @@ export default function Partners() {
           {partners.map((partner) => {
             const name = partner.name[locale];
             return (
-              <GlassCard
+              <div
                 key={partner.id}
-                className="group flex h-44 w-80 flex-none items-center justify-center px-10 text-center transition-all duration-500 hover:-translate-y-1.5 hover:scale-[1.03] hover:border-gold/25 hover:shadow-[0_0_40px_rgba(238,223,122,0.14)]"
+                className="glass-reveal group flex h-44 w-80 flex-none items-center justify-center rounded-[1.75rem] px-10 text-center hover:-translate-y-1 hover:scale-[1.02]"
               >
                 {partner.logo ? (
                   <MonoLogo
                     src={partner.logo}
                     label={name}
-                    className="h-24 w-full opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+                    className="h-16 w-[80%] opacity-80 transition-opacity duration-700 ease-luxury group-hover:opacity-100"
                   />
                 ) : (
-                  <span className="font-display text-lg tracking-wide text-ivory/65 transition-colors duration-500 group-hover:text-gold">
+                  <span className="font-display text-lg tracking-wide text-ivory/65 transition-colors duration-700 ease-luxury group-hover:text-gold">
                     {name}
                   </span>
                 )}
-              </GlassCard>
+              </div>
             );
           })}
         </Marquee>

@@ -9,6 +9,7 @@ import { siteConfig } from "@/data/site";
 import { contact } from "@/data/contact";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { SiteBackground } from "@/components/layout/SiteBackground";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import "./globals.css";
 
@@ -121,14 +122,15 @@ export default async function LocaleLayout({
       lang={locale}
       dir={dir}
       data-scroll-behavior="smooth"
-      className={`${fontVars} h-full antialiased`}
+      className={`${fontVars} h-full overflow-x-hidden antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-canvas text-ivory">
+      <body className="flex min-h-full w-full flex-col overflow-x-hidden bg-canvas text-ivory">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
         <div className="grain" aria-hidden />
+        <SiteBackground />
         <NextIntlClientProvider messages={messages}>
           <a href="#main-content" className="skip-link">
             {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}

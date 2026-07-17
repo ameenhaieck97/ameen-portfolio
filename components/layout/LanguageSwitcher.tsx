@@ -1,19 +1,18 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/cn";
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale();
   const pathname = usePathname();
-  const router = useRouter();
   const nextLocale = locale === "ar" ? "en" : "ar";
 
   return (
-    <button
-      type="button"
-      onClick={() => router.replace(pathname, { locale: nextLocale })}
+    <Link
+      href={pathname}
+      locale={nextLocale}
       className={cn(
         "glass flex h-10 items-center gap-1 rounded-full px-1 text-xs font-semibold uppercase tracking-wide",
         className,
@@ -36,6 +35,6 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       >
         AR
       </span>
-    </button>
+    </Link>
   );
 }

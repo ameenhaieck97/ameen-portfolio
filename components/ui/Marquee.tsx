@@ -22,8 +22,9 @@ export function Marquee({
 
   return (
     <div
+      dir="ltr"
       className={cn(
-        "group relative overflow-hidden",
+        "group relative -my-6 w-full max-w-full overflow-hidden py-6",
         "[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]",
         className,
       )}

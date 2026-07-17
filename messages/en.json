@@ -2,7 +2,7 @@
   "meta": {
     "title": "Ameen Haieck — Graphic Designer",
     "titleShort": "Ameen Haieck",
-    "description": "Ameen Haieck is a graphic designer building visual identities that people remember — branding, editorial design and digital experiences since 2015."
+    "description": "Ameen Haieck designs visual identities that hold up — branding, editorial design and digital work since 2015."
   },
   "nav": {
     "home": "Home",
@@ -29,14 +29,11 @@
   },
   "about": {
     "eyebrow": "About",
-    "heading": "More than a decade of visual storytelling",
-    "paragraph1": "Since 2015, I've worked with companies, institutions and organizations across different industries, creating visual identities that combine strategy, aesthetics and functionality. Every project is approached with precision, consistency and long-term thinking.",
+    "heading": "A decade shaping how brands are seen",
+    "paragraph1": "Since 2015, I've worked with companies, institutions and organizations across many industries — always starting from the same place: understand the story, then give it a shape that lasts.",
     "sinceLabel": "Since"
   },
   "stats": {
-    "eyebrow": "Impact",
-    "heading": "Experience in Numbers",
-    "subheading": "A decade of practice, distilled into a few honest numbers.",
     "items": {
       "years": "Years of Practice",
       "projects": "Projects Delivered",
@@ -46,21 +43,22 @@
   },
   "skills": {
     "eyebrow": "Skills",
-    "heading": "Design Services",
-    "subheading": "A practical, real-world skill set built over a decade of hands-on work.",
+    "heading": "What I Do",
+    "subheading": "Skills built on a decade of real projects, not theory.",
     "items": {
-      "identitySystems": "Building cohesive, lasting visual identity systems",
-      "socialMedia": "Professional social media design",
-      "archivalRestoration": "Restoring and enhancing historical archival photographs",
-      "aiAssisted": "Practical use of AI design tools to speed up production and improve quality",
-      "clarity": "Turning complex ideas into clear, impactful visual solutions"
+      "identitySystems": "Visual identity systems that hold together",
+      "socialMedia": "Social media design, ready to publish",
+      "archivalRestoration": "Restoring historical photographs, frame by frame",
+      "aiAssisted": "AI tools, used to work faster without cutting corners",
+      "clarity": "Turning complicated ideas into simple visuals"
     }
   },
   "currentWork": {
-    "eyebrow": "Current Work",
     "organization": "Al-Mustafa Institute for Religious Guidance and Awareness",
     "period": "2025 — Present",
-    "subheading": "Three ongoing projects, three different visual languages.",
+    "subheading": "Three projects. Three different visual languages.",
+    "comingSoon": "Designs coming soon",
+    "categoryLabel": "Project",
     "projects": {
       "mujeebCenter": "Al-Mujeeb Center for Religious Knowledge",
       "najafPodcast": "Najaf Time Podcast",
@@ -69,10 +67,17 @@
   },
   "portfolio": {
     "eyebrow": "Portfolio",
-    "heading": "Featured Projects",
-    "subheading": "A curated collection of branding, editorial and visual communication projects.",
+    "heading": "Selected Work",
+    "subheading": "A selection of branding, editorial and visual communication work.",
     "viewProject": "View project",
     "openLink": "Visit link",
+    "viewAll": "View all",
+    "showLess": "Show less",
+    "groups": {
+      "brandIdentity": "Brand Identity",
+      "graphicDesign": "Graphic Design",
+      "other": "Other"
+    },
     "categories": {
       "brandIdentity": "Brand Identity",
       "restoration": "Photo Restoration",
@@ -81,19 +86,18 @@
       "print": "Print Production"
     }
   },
-  "experience": {
+  "experienceImpact": {
     "eyebrow": "Experience",
-    "heading": "Professional Journey",
-    "subheading": "Seven roles, one thread: visual communication that works.",
+    "heading": "Experience & Impact",
+    "subheading": "A few milestones, and the numbers behind them."
+  },
+  "experience": {
     "present": "Present",
     "items": {
-      "mtn": { "company": "MTN Telecom", "role": "Advertising campaign design" },
-      "syrianAirlines": { "company": "Syrian Arab Airlines", "role": "Advertising campaign design, print design" },
-      "alJamali": { "company": "Al-Jamali Import & Export", "role": "Advertising campaign design, print production" },
-      "unknownSports": { "company": "\"What You Don't Know About Sports\"", "role": "Social media design" },
-      "homClub": { "company": "HOM Sports Club", "role": "Social media design" },
-      "doaaAlKhair": { "company": "Doaa Al-Khair Trading Co.", "role": "HR & financial management, quality control, print design" },
-      "darAlDiyaa": { "company": "Dar Al-Diyaa Printing House", "role": "Print design & production" }
+      "start": { "company": "Started Professional Design Career", "role": "Freelance design work, project by project." },
+      "hudaBeauty": { "company": "International Huda Beauty Project", "role": "Visual design for a global beauty brand." },
+      "printEditorial": { "company": "Print Production & Editorial Design", "role": "Catalogs, campaigns and brand publications." },
+      "almustafa": { "company": "Senior Graphic Designer", "role": "Al-Mustafa Institute" }
     }
   },
   "certifications": {
@@ -108,17 +112,16 @@
   },
   "partners": {
     "eyebrow": "Partners",
-    "heading": "Trusted by leading brands",
-    "subheading": "A selection of the companies and institutions I've had the privilege to work with."
+    "heading": "Companies I've Worked With",
+    "subheading": "A selection of the companies and institutions I've worked with over the years."
   },
   "contact": {
     "eyebrow": "Contact",
     "heading": "Let's build something people will remember.",
-    "subheading": "Whether you're launching a new brand or refreshing an existing one, let's create work that stands the test of time.",
+    "subheading": "Whether you're starting from scratch or refreshing what you have, let's build something worth keeping.",
     "emailLabel": "Email",
     "whatsappLabel": "WhatsApp",
-    "socialLabel": "Follow",
-    "formNote": "Prefer email or WhatsApp — I read every message personally."
+    "socialLabel": "Follow"
   },
   "footer": {
     "tagline": "Graphic Designer — Brand Identity & Visual Communication",

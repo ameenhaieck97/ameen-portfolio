@@ -30,4 +30,39 @@ export const partners: Partner[] = [
     name: { en: "Syrian Ministry of Health", ar: "وزارة الصحة السورية" },
     logo: "/images/partners/syria-ministry-of-health.svg",
   },
+  {
+    id: "pa06",
+    name: { en: "La Luna", ar: "La Luna" },
+    logo: "/images/partners/la-luna.svg",
+  },
+  {
+    id: "pa07",
+    name: { en: "Lali", ar: "Lali" },
+    logo: "/images/partners/lali.svg",
+  },
+  {
+    id: "pa08",
+    name: { en: "Ragu", ar: "Ragu" },
+    logo: "/images/partners/ragu.svg",
+  },
+  {
+    id: "pa09",
+    name: { en: "Rammal", ar: "رمّال" },
+    logo: "/images/partners/rammal.svg",
+  },
+  {
+    id: "pa10",
+    name: { en: "Fly Sham", ar: "فلاي شام" },
+    logo: "/images/partners/fly-sham.svg",
+  },
+  {
+    id: "pa11",
+    name: { en: "Sultan Saray", ar: "Sultan Saray" },
+    logo: "/images/partners/ss.svg",
+  },
+  {
+    id: "pa12",
+    name: { en: "Ushqimi i Nxehtë", ar: "Ushqimi i Nxehtë" },
+    logo: "/images/partners/un.svg",
+  },
 ];

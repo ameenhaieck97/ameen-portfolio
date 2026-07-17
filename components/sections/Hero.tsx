@@ -8,7 +8,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { MonoLogo } from "@/components/ui/MonoLogo";
@@ -46,6 +46,7 @@ const particles = [
 export default function Hero() {
   const t = useTranslations("hero");
   const tMeta = useTranslations("meta");
+  const locale = useLocale();
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -89,14 +90,10 @@ export default function Hero() {
       className="relative flex min-h-[100vh] items-center overflow-hidden pt-28"
     >
       <motion.div style={{ y: bgY }} className="pointer-events-none absolute inset-0">
-        {/* Cinematic black → deep-blue → brand-canvas gradient, scoped to Hero */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, #08090d 0%, #12131a 32%, #201f24 62%, var(--color-canvas) 100%)",
-          }}
-        />
+        {/* No local gradient here — Hero sits on the same fixed SiteBackground
+            as every other section, so there's no seam where Hero ends and
+            the next section begins. Only extra atmosphere (grid, glow,
+            particles, watermark) layers on top. */}
         <motion.div
           style={{ x: mouseX, y: mouseY }}
           className="absolute inset-0 scale-110"
@@ -112,9 +109,10 @@ export default function Hero() {
                 "radial-gradient(ellipse 60% 55% at 50% 40%, black 0%, transparent 75%)",
             }}
           />
-          <div className="absolute left-1/2 top-[28%] h-[70vh] w-[70vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4a5578]/15 blur-[150px]" />
-          <div className="absolute left-1/2 top-[38%] h-[50vh] w-[50vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/8 blur-[130px]" />
-          <div className="absolute -right-32 bottom-0 h-[50vh] w-[50vh] rounded-full bg-gold/5 blur-[120px]" />
+          {/* No local glow blobs here — SiteBackground's fixed ambient glow
+              already covers this area. Hero-local blobs used to drift with
+              scroll/cursor parallax independently of that fixed layer,
+              visibly misaligning near Hero's bottom edge. */}
           <MonoLogo
             decorative
             src={siteConfig.logo}
@@ -167,12 +165,22 @@ export default function Hero() {
           </RevealItem>
 
           <RevealItem>
-            <h1 className="flex items-center gap-4 font-display text-[15vw] font-medium leading-[0.94] sm:text-[10vw] lg:text-[7.5vw]">
+            <h1
+              className={cn(
+                "flex items-start gap-5 font-display text-[15vw] font-medium sm:text-[10vw] lg:text-[7.5vw]",
+                locale === "ar"
+                  ? "mt-8 leading-[1.15] sm:mt-10"
+                  : "mt-2 leading-[0.94]",
+              )}
+            >
               <MonoLogo
                 src={siteConfig.logo}
                 label=""
                 decorative
-                className="hidden h-[0.6em] w-[0.6em] flex-none sm:block"
+                className={cn(
+                  "flex-none",
+                  locale === "ar" ? "h-[2.3em] w-[2.3em]" : "h-[1.88em] w-[1.88em]",
+                )}
               />
               <motion.span
                 initial="hidden"
