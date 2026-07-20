@@ -10,9 +10,10 @@ import Partners from "@/components/sections/Partners";
 import Contact from "@/components/sections/Contact";
 import { getPortfolioItems } from "@/lib/portfolio-data";
 
-// Revalidate hourly so CMS edits appear without a redeploy, while pages stay
-// statically served for speed.
-export const revalidate = 3600;
+// The studio calls /api/revalidate right after every save, so this is only
+// a safety net in case that call is ever missed — pages still stay static
+// (and fast) between edits, refreshed on-demand rather than on a timer.
+export const revalidate = 86400;
 
 export default async function HomePage({
   params,

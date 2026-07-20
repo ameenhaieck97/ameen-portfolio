@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { revalidatePublicSite } from "@/lib/revalidate-public-site";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ImageUploader } from "./ImageUploader";
 import { TextAreaField, TextField, Toggle } from "./FormControls";
@@ -123,6 +124,7 @@ export function EntityManager({
     setFormOpen(false);
     setEditingId(null);
     reload();
+    revalidatePublicSite();
   };
 
   const confirmDelete = async () => {
@@ -137,6 +139,7 @@ export function EntityManager({
     }
     toast(`${singular} deleted.`);
     reload();
+    revalidatePublicSite();
   };
 
   const summaryFields = useMemo(

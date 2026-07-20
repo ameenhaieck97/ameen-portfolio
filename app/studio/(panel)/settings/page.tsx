@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { revalidatePublicSite } from "@/lib/revalidate-public-site";
 import type { Settings, SocialLinks } from "@/types/admin";
 import { TextAreaField, TextField } from "@/components/admin/FormControls";
 import { Skeleton } from "@/components/admin/Skeleton";
@@ -87,6 +88,7 @@ export default function SettingsPage() {
       return;
     }
     toast("Settings saved.");
+    revalidatePublicSite();
   };
 
   return (

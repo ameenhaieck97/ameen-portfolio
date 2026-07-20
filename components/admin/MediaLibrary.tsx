@@ -29,10 +29,17 @@ export function MediaGrid({
   mode,
   onSelect,
   reloadSignal,
+  multiple = false,
+  selected = [],
+  onToggle,
 }: {
   mode: "manage" | "select";
   onSelect?: (url: string) => void;
   reloadSignal?: number;
+  /** When true (select mode only), clicking toggles selection instead of resolving immediately. */
+  multiple?: boolean;
+  selected?: string[];
+  onToggle?: (url: string) => void;
 }) {
   const { toast } = useToast();
   const [items, setItems] = useState<MediaItem[] | null>(null);
@@ -140,15 +147,24 @@ export function MediaGrid({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {filtered.map((item) => (
+            {filtered.map((item) => {
+              const isSelected = selected.includes(item.url);
+              return (
               <div
                 key={item.path}
-                className="group relative overflow-hidden rounded-xl border border-white/10 bg-canvas/60"
+                className={cn(
+                  "group relative overflow-hidden rounded-xl border bg-canvas/60 transition-colors",
+                  multiple && isSelected ? "border-gold/70" : "border-white/10",
+                )}
               >
                 <button
                   type="button"
                   disabled={mode === "manage"}
-                  onClick={() => onSelect?.(item.url)}
+                  onClick={() => {
+                    if (mode !== "select") return;
+                    if (multiple) onToggle?.(item.url);
+                    else onSelect?.(item.url);
+                  }}
                   className={cn(
                     "relative block aspect-square w-full",
                     mode === "select" && "cursor-pointer",
@@ -162,7 +178,25 @@ export function MediaGrid({
                     sizes="240px"
                     className="object-contain p-2"
                   />
-                  {mode === "select" ? (
+                  {mode === "select" && multiple ? (
+                    <span
+                      className={cn(
+                        "absolute inset-0 flex items-start justify-end p-2 transition-colors",
+                        isSelected ? "bg-gold/15" : "bg-black/0 group-hover:bg-black/20",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-6 w-6 items-center justify-center rounded-full border transition-colors",
+                          isSelected
+                            ? "border-gold bg-gold text-canvas"
+                            : "border-white/40 bg-black/40 text-transparent",
+                        )}
+                      >
+                        <Check size={13} aria-hidden />
+                      </span>
+                    </span>
+                  ) : mode === "select" ? (
                     <span className="absolute inset-0 flex items-center justify-center bg-gold/0 opacity-0 transition-all group-hover:bg-canvas/70 group-hover:opacity-100">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-gold px-3 py-1.5 text-xs font-semibold text-canvas">
                         <Check size={13} aria-hidden />
@@ -201,7 +235,8 @@ export function MediaGrid({
                   ) : null}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -223,15 +258,31 @@ export function MediaPicker({
   open,
   onClose,
   onSelect,
+  multiple = false,
+  onSelectMultiple,
 }: {
   open: boolean;
   onClose: () => void;
-  onSelect: (url: string) => void;
+  /** Single-select mode: resolves and closes immediately on click. */
+  onSelect?: (url: string) => void;
+  /** Multi-select mode: user checks images then confirms with a footer button. */
+  multiple?: boolean;
+  onSelectMultiple?: (urls: string[]) => void;
 }) {
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const handleClose = () => {
+    setSelected([]);
+    onClose();
+  };
+
   useEffect(() => {
     if (!open) return;
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        setSelected([]);
+        onClose();
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -249,7 +300,7 @@ export function MediaPicker({
           <button
             type="button"
             aria-label="Close"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute inset-0 bg-black/60"
           />
           <motion.div
@@ -263,11 +314,18 @@ export function MediaPicker({
             className="glass-strong relative flex max-h-[85dvh] w-full max-w-3xl flex-col rounded-3xl p-6"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-xl text-ivory">Media Library</h2>
+              <div>
+                <h2 className="font-display text-xl text-ivory">Media Library</h2>
+                {multiple ? (
+                  <p className="mt-0.5 text-xs text-ivory/50">
+                    Select one or more images to add.
+                  </p>
+                ) : null}
+              </div>
               <button
                 type="button"
                 aria-label="Close"
-                onClick={onClose}
+                onClick={handleClose}
                 className="flex h-10 w-10 items-center justify-center rounded-full text-ivory/70 hover:bg-white/5"
               >
                 <X size={18} aria-hidden />
@@ -276,12 +334,37 @@ export function MediaPicker({
             <div className="min-h-0 flex-1 overflow-y-auto pe-1">
               <MediaGrid
                 mode="select"
+                multiple={multiple}
+                selected={selected}
+                onToggle={(url) =>
+                  setSelected((current) =>
+                    current.includes(url)
+                      ? current.filter((item) => item !== url)
+                      : [...current, url],
+                  )
+                }
                 onSelect={(url) => {
-                  onSelect(url);
-                  onClose();
+                  onSelect?.(url);
+                  handleClose();
                 }}
               />
             </div>
+            {multiple ? (
+              <div className="mt-4 flex justify-end border-t border-white/8 pt-4">
+                <button
+                  type="button"
+                  disabled={selected.length === 0}
+                  onClick={() => {
+                    onSelectMultiple?.(selected);
+                    handleClose();
+                  }}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold px-5 text-sm font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-40"
+                >
+                  Add {selected.length > 0 ? selected.length : ""} image
+                  {selected.length === 1 ? "" : "s"}
+                </button>
+              </div>
+            ) : null}
           </motion.div>
         </motion.div>
       ) : null}

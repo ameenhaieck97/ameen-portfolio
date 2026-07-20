@@ -54,26 +54,43 @@ export function AdminChrome({ children }: { children: ReactNode }) {
 
   const nav = (
     <nav className="flex flex-1 flex-col gap-1">
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-        <Link
-          key={href}
-          href={href}
-          onClick={() => setMobileOpen(false)}
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
-            isActive(pathname, href)
-              ? "bg-gold/12 text-gold"
-              : "text-ivory/65 hover:bg-white/5 hover:text-ivory",
-          )}
-        >
-          <Icon size={17} aria-hidden />
-          {label}
-        </Link>
-      ))}
+      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        const active = isActive(pathname, href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              "group relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-luxury",
+              active
+                ? "bg-gold/10 text-gold"
+                : "text-ivory/60 hover:translate-x-0.5 hover:bg-white/[0.04] hover:text-ivory",
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "absolute inset-y-1.5 start-0 w-[3px] rounded-full bg-gold transition-all duration-300 ease-luxury",
+                active ? "opacity-100" : "opacity-0",
+              )}
+            />
+            <Icon
+              size={17}
+              aria-hidden
+              className={cn(
+                "transition-transform duration-300 ease-luxury",
+                active ? "" : "group-hover:scale-110",
+              )}
+            />
+            {label}
+          </Link>
+        );
+      })}
       <button
         type="button"
         onClick={signOut}
-        className="mt-auto flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-ivory/65 transition-colors hover:bg-white/5 hover:text-red-300"
+        className="mt-auto flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-ivory/60 transition-colors hover:bg-red-400/8 hover:text-red-300"
       >
         <LogOut size={17} aria-hidden />
         Logout
@@ -84,10 +101,11 @@ export function AdminChrome({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh w-64 flex-none flex-col border-e border-white/8 bg-canvas-soft/40 p-5 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh w-64 flex-none flex-col border-e border-white/8 bg-gradient-to-b from-canvas-soft/55 via-canvas-soft/35 to-canvas-soft/45 p-5 backdrop-blur-xl lg:flex">
         <Link href="/studio" className="mb-8 block px-2">
           <span className="font-display text-xl text-ivory">Ameen Haieck</span>
-          <span className="mt-0.5 block text-[11px] uppercase tracking-[0.25em] text-gold">
+          <span className="mt-0.5 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.25em] text-gold">
+            <span className="h-1 w-1 rounded-full bg-gold" aria-hidden />
             Admin Panel
           </span>
         </Link>
@@ -122,7 +140,7 @@ export function AdminChrome({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 flex-none items-center justify-between gap-4 border-b border-white/8 bg-canvas/80 px-4 backdrop-blur-md sm:px-6">
+        <header className="sticky top-0 z-40 flex h-16 flex-none items-center justify-between gap-4 border-b border-white/8 bg-canvas/75 px-4 backdrop-blur-2xl backdrop-saturate-150 sm:px-6">
           <button
             type="button"
             aria-label="Open menu"

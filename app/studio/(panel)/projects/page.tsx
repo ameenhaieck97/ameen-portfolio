@@ -1,70 +1,160 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsUpDown,
+  Copy,
+  Eye,
+  EyeOff,
+  GripVertical,
   ImageOff,
   Loader2,
-  Pencil,
   Plus,
   RefreshCw,
   Search,
   SlidersHorizontal,
+  Star,
   Trash2,
-  X,
 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { revalidatePublicSite } from "@/lib/revalidate-public-site";
 import type { Category, ProjectWithCategory } from "@/types/admin";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { TableSkeleton } from "@/components/admin/Skeleton";
-import { TextField } from "@/components/admin/FormControls";
+import { SortableGrid } from "@/components/admin/SortableGrid";
 import { useToast } from "@/components/admin/Toast";
 import { cn } from "@/lib/cn";
 
-const PAGE_SIZE = 8;
-
 type StatusFilter = "all" | "published" | "draft" | "featured";
-type SortKey = "sort_order" | "created_at" | "title" | "year";
 
-type QuickDraft = {
-  title: string;
-  client: string;
-  year: string;
-  sort_order: string;
-};
-
-function TogglePill({
+function IconButton({
+  label,
   active,
-  activeLabel,
-  inactiveLabel,
+  activeClass,
   onClick,
-  tone,
+  busy,
+  children,
 }: {
-  active: boolean;
-  activeLabel: string;
-  inactiveLabel: string;
+  label: string;
+  active?: boolean;
+  activeClass?: string;
   onClick: () => void;
-  tone: "gold" | "ivory";
+  busy?: boolean;
+  children: ReactNode;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
+      aria-label={label}
+      disabled={busy}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
       className={cn(
-        "h-8 rounded-full border px-3 text-xs font-medium transition-colors",
-        active
-          ? tone === "gold"
-            ? "border-gold/60 bg-gold/15 text-gold"
-            : "border-emerald-400/50 bg-emerald-400/10 text-emerald-300"
-          : "border-white/10 text-ivory/45 hover:border-white/25 hover:text-ivory/70",
+        "flex h-9 w-9 items-center justify-center rounded-lg bg-black/55 backdrop-blur-sm transition-colors disabled:opacity-60",
+        active ? (activeClass ?? "text-gold") : "text-ivory/70 hover:text-ivory",
       )}
     >
-      {active ? activeLabel : inactiveLabel}
+      {busy ? <Loader2 size={14} className="animate-spin" aria-hidden /> : children}
     </button>
+  );
+}
+
+function ProjectCard({
+  row,
+  draggable,
+  busy,
+  onTogglePublished,
+  onToggleFeatured,
+  onDuplicate,
+  onDelete,
+}: {
+  row: ProjectWithCategory;
+  draggable: boolean;
+  busy: boolean;
+  onTogglePublished: () => void;
+  onToggleFeatured: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <Link
+      href={`/studio/projects/${row.id}`}
+      className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-2xl border border-white/8 bg-canvas-raised transition-colors hover:border-gold/25"
+    >
+      <div className="absolute inset-0">
+        {row.cover_image ? (
+          <Image
+            src={row.cover_image}
+            alt=""
+            fill
+            unoptimized
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            className="object-cover transition-transform duration-700 ease-luxury group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-ivory/20">
+            <ImageOff size={28} aria-hidden />
+          </div>
+        )}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-canvas/95 via-canvas/50 to-transparent" />
+
+      {draggable ? (
+        <span
+          aria-hidden
+          className="absolute start-2.5 top-2.5 flex h-9 w-9 cursor-grab items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+        >
+          <GripVertical size={15} aria-hidden />
+        </span>
+      ) : null}
+
+      <div className="absolute end-2.5 top-2.5 flex flex-col items-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <IconButton
+          label={row.published ? "Unpublish" : "Publish"}
+          active={row.published}
+          activeClass="text-emerald-300"
+          busy={busy}
+          onClick={onTogglePublished}
+        >
+          {row.published ? <Eye size={14} aria-hidden /> : <EyeOff size={14} aria-hidden />}
+        </IconButton>
+        <IconButton
+          label={row.featured ? "Remove from featured" : "Mark as featured"}
+          active={row.featured}
+          busy={busy}
+          onClick={onToggleFeatured}
+        >
+          <Star size={14} aria-hidden fill={row.featured ? "currentColor" : "none"} />
+        </IconButton>
+        <IconButton label="Duplicate project" busy={busy} onClick={onDuplicate}>
+          <Copy size={14} aria-hidden />
+        </IconButton>
+        <IconButton label="Delete project" busy={busy} onClick={onDelete}>
+          <Trash2 size={14} aria-hidden />
+        </IconButton>
+      </div>
+
+      <div className="relative mt-auto flex flex-col gap-1 p-4">
+        <span
+          className={cn(
+            "inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em]",
+            row.published
+              ? "bg-emerald-400/15 text-emerald-300"
+              : "bg-white/10 text-ivory/60",
+          )}
+        >
+          {row.published ? "Published" : "Draft"}
+        </span>
+        <p className="mt-1 truncate text-xs uppercase tracking-[0.15em] text-gold">
+          {row.categories?.name ?? "Uncategorized"}
+        </p>
+        <p className="truncate font-display text-base text-ivory">{row.title}</p>
+        <p className="truncate text-xs text-ivory/50">{row.client || "—"}</p>
+      </div>
+    </Link>
   );
 }
 
@@ -77,18 +167,8 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [categoryId, setCategoryId] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("sort_order");
-  const [sortAsc, setSortAsc] = useState(true);
-  const [page, setPage] = useState(1);
 
-  const [quickEditId, setQuickEditId] = useState<string | null>(null);
-  const [quickDraft, setQuickDraft] = useState<QuickDraft>({
-    title: "",
-    client: "",
-    year: "",
-    sort_order: "0",
-  });
-  const [quickSaving, setQuickSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProjectWithCategory | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -103,7 +183,7 @@ export default function ProjectsPage() {
         supabase
           .from("projects")
           .select("*, categories(id, name)")
-          .order("created_at", { ascending: false }),
+          .order("sort_order", { ascending: true }),
         supabase.from("categories").select("*").order("sort_order"),
       ]);
       if (cancelled) return;
@@ -121,10 +201,12 @@ export default function ProjectsPage() {
     };
   }, [reloadKey]);
 
+  const filtersActive = search.trim() !== "" || status !== "all" || categoryId !== "";
+
   const filtered = useMemo(() => {
     if (!rows) return [];
     const query = search.trim().toLowerCase();
-    let result = rows.filter((row) => {
+    return rows.filter((row) => {
       if (query) {
         const haystack = `${row.title} ${row.client} ${row.slug}`.toLowerCase();
         if (!haystack.includes(query)) return false;
@@ -135,89 +217,91 @@ export default function ProjectsPage() {
       if (categoryId && row.category_id !== categoryId) return false;
       return true;
     });
-    result = [...result].sort((a, b) => {
-      let compare = 0;
-      if (sortKey === "title") compare = a.title.localeCompare(b.title);
-      else if (sortKey === "year") compare = (a.year ?? 0) - (b.year ?? 0);
-      else if (sortKey === "created_at")
-        compare = a.created_at.localeCompare(b.created_at);
-      else compare = a.sort_order - b.sort_order;
-      return sortAsc ? compare : -compare;
-    });
-    return result;
-  }, [rows, search, status, categoryId, sortKey, sortAsc]);
+  }, [rows, search, status, categoryId]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount);
-  const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const patchRow = async (
+  const patch = async (
     row: ProjectWithCategory,
-    patch: Partial<ProjectWithCategory>,
+    patchValue: { published: boolean } | { featured: boolean },
     successMessage: string,
   ) => {
+    setBusyId(row.id);
     setRows((current) =>
-      current
-        ? current.map((item) => (item.id === row.id ? { ...item, ...patch } : item))
-        : current,
+      current ? current.map((item) => (item.id === row.id ? { ...item, ...patchValue } : item)) : current,
     );
     const { error } = await getSupabaseClient()
       .from("projects")
-      .update(patch)
+      .update(patchValue)
       .eq("id", row.id);
+    setBusyId(null);
     if (error) {
       setRows((current) =>
-        current
-          ? current.map((item) => (item.id === row.id ? row : item))
-          : current,
+        current ? current.map((item) => (item.id === row.id ? row : item)) : current,
       );
       toast(error.message, "error");
-    } else {
-      toast(successMessage);
-    }
-  };
-
-  const openQuickEdit = (row: ProjectWithCategory) => {
-    setQuickEditId(row.id);
-    setQuickDraft({
-      title: row.title,
-      client: row.client,
-      year: row.year === null ? "" : String(row.year),
-      sort_order: String(row.sort_order),
-    });
-  };
-
-  const saveQuickEdit = async () => {
-    if (!quickEditId) return;
-    if (quickDraft.title.trim() === "") {
-      toast("Title is required.", "error");
       return;
     }
-    setQuickSaving(true);
-    const patch = {
-      title: quickDraft.title.trim(),
-      client: quickDraft.client,
-      year: quickDraft.year.trim() === "" ? null : Number(quickDraft.year),
-      sort_order: Number(quickDraft.sort_order) || 0,
-    };
-    const { error } = await getSupabaseClient()
-      .from("projects")
-      .update(patch)
-      .eq("id", quickEditId);
-    setQuickSaving(false);
-    if (error) {
-      toast(error.message, "error");
-      return;
+    toast(successMessage);
+    revalidatePublicSite();
+  };
+
+  const duplicateProject = async (row: ProjectWithCategory) => {
+    setBusyId(row.id);
+    try {
+      const supabase = getSupabaseClient();
+      const maxSort =
+        rows && rows.length > 0 ? Math.max(...rows.map((item) => item.sort_order)) : 0;
+      const { data: links } = await supabase
+        .from("project_services")
+        .select("service_id")
+        .eq("project_id", row.id);
+      const payload = {
+        title: `${row.title} (Copy)`,
+        title_ar: row.title_ar,
+        slug: `${row.slug}-copy-${crypto.randomUUID().slice(0, 8)}`,
+        short_description: row.short_description,
+        short_description_ar: row.short_description_ar,
+        full_description: row.full_description,
+        full_description_ar: row.full_description_ar,
+        client: row.client,
+        year: row.year,
+        category_id: row.category_id,
+        group_key: row.group_key,
+        category_key: row.category_key,
+        preserve_color: row.preserve_color,
+        technologies: row.technologies,
+        featured: false,
+        published: false,
+        cover_image: row.cover_image,
+        gallery_images: row.gallery_images,
+        sort_order: maxSort + 1,
+      };
+      const insertResult = await supabase
+        .from("projects")
+        .insert(payload)
+        .select("*, categories(id, name)")
+        .single();
+      if (insertResult.error || !insertResult.data) {
+        toast(insertResult.error?.message ?? "Could not duplicate the project.", "error");
+        return;
+      }
+      if (links && links.length > 0) {
+        await supabase.from("project_services").insert(
+          links.map((link) => ({
+            project_id: insertResult.data.id,
+            service_id: link.service_id,
+          })),
+        );
+      }
+      setRows((current) =>
+        current ? [...current, insertResult.data as ProjectWithCategory] : current,
+      );
+      toast("Project duplicated as a draft.");
+      revalidatePublicSite();
+    } catch {
+      toast("Could not duplicate the project.", "error");
+    } finally {
+      setBusyId(null);
     }
-    setRows((current) =>
-      current
-        ? current.map((item) =>
-            item.id === quickEditId ? { ...item, ...patch } : item,
-          )
-        : current,
-    );
-    setQuickEditId(null);
-    toast("Project updated.");
   };
 
   const confirmDelete = async () => {
@@ -237,14 +321,25 @@ export default function ProjectsPage() {
       current ? current.filter((item) => item.id !== deleteTarget.id) : current,
     );
     toast("Project deleted.");
+    revalidatePublicSite();
   };
 
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortAsc((current) => !current);
-    else {
-      setSortKey(key);
-      setSortAsc(true);
+  const handleReorder = async (next: ProjectWithCategory[]) => {
+    const reordered = next.map((row, index) => ({ ...row, sort_order: index }));
+    setRows(reordered);
+    const supabase = getSupabaseClient();
+    const results = await Promise.all(
+      reordered.map((row) =>
+        supabase.from("projects").update({ sort_order: row.sort_order }).eq("id", row.id),
+      ),
+    );
+    const failed = results.find((result) => result.error);
+    if (failed?.error) {
+      toast(failed.error.message, "error");
+      reload();
+      return;
     }
+    revalidatePublicSite();
   };
 
   return (
@@ -277,10 +372,7 @@ export default function ProjectsPage() {
             type="search"
             placeholder="Search title, client or slug…"
             value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
+            onChange={(event) => setSearch(event.target.value)}
             className="h-11 w-full rounded-xl border border-white/10 bg-canvas/60 ps-10 pe-4 text-sm text-ivory outline-none transition-colors placeholder:text-ivory/30 focus:border-gold/50"
           />
         </div>
@@ -290,10 +382,7 @@ export default function ProjectsPage() {
             <button
               key={option}
               type="button"
-              onClick={() => {
-                setStatus(option);
-                setPage(1);
-              }}
+              onClick={() => setStatus(option)}
               className={cn(
                 "h-9 rounded-full border px-3.5 text-xs font-medium capitalize transition-colors",
                 status === option
@@ -308,10 +397,7 @@ export default function ProjectsPage() {
         <select
           aria-label="Filter by category"
           value={categoryId}
-          onChange={(event) => {
-            setCategoryId(event.target.value);
-            setPage(1);
-          }}
+          onChange={(event) => setCategoryId(event.target.value)}
           className="h-11 rounded-xl border border-white/10 bg-canvas/60 px-3 text-sm text-ivory outline-none focus:border-gold/50"
         >
           <option value="">All categories</option>
@@ -323,10 +409,20 @@ export default function ProjectsPage() {
         </select>
       </div>
 
-      {/* Table */}
+      {!filtersActive && rows && rows.length > 1 ? (
+        <p className="mt-3 text-xs text-ivory/40">
+          Drag a card to reorder — clear filters and search to enable dragging.
+        </p>
+      ) : null}
+
+      {/* Gallery */}
       <div className="mt-5">
         {rows === null ? (
-          <TableSkeleton rows={8} />
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }, (_, index) => (
+              <div key={index} className="aspect-[4/5] animate-pulse rounded-2xl bg-white/6" />
+            ))}
+          </div>
         ) : loadError ? (
           <div className="glass rounded-3xl p-8 text-center">
             <p className="text-sm text-red-300">{loadError}</p>
@@ -342,260 +438,68 @@ export default function ProjectsPage() {
               Retry
             </button>
           </div>
-        ) : (
-          <div className="glass overflow-hidden rounded-3xl">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-sm">
-                <thead>
-                  <tr className="border-b border-white/8 text-start text-xs uppercase tracking-[0.12em] text-ivory/45">
-                    <th className="px-5 py-4 text-start font-medium">
-                      <button
-                        type="button"
-                        onClick={() => toggleSort("title")}
-                        className={cn(
-                          "inline-flex items-center gap-1 transition-colors hover:text-gold",
-                          sortKey === "title" && "text-gold",
-                        )}
-                      >
-                        Project
-                        <ChevronsUpDown size={12} aria-hidden />
-                      </button>
-                    </th>
-                    {(
-                      [
-                        ["year", "Year"],
-                        ["created_at", "Created"],
-                        ["sort_order", "Order"],
-                      ] as const
-                    ).map(([key, label]) => (
-                      <th key={key} className="px-3 py-4 text-start font-medium">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort(key)}
-                          className={cn(
-                            "inline-flex items-center gap-1 transition-colors hover:text-gold",
-                            sortKey === key && "text-gold",
-                          )}
-                        >
-                          {label}
-                          <ChevronsUpDown size={12} aria-hidden />
-                        </button>
-                      </th>
-                    ))}
-                    <th className="px-3 py-4 text-start font-medium">Status</th>
-                    <th className="px-5 py-4 text-end font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-5 py-12 text-center text-ivory/50">
-                        No projects match the current filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    pageRows.map((row) => (
-                      <Fragment key={row.id}>
-                        <tr className="border-b border-white/5 transition-colors last:border-b-0 hover:bg-white/[0.03]">
-                          <td className="px-5 py-3">
-                            <div className="flex items-center gap-3">
-                              <span className="relative h-11 w-11 flex-none overflow-hidden rounded-lg border border-white/10 bg-canvas/60">
-                                {row.cover_image ? (
-                                  <Image
-                                    src={row.cover_image}
-                                    alt=""
-                                    fill
-                                    unoptimized
-                                    sizes="44px"
-                                    className="object-cover"
-                                  />
-                                ) : (
-                                  <span className="flex h-full w-full items-center justify-center text-ivory/25">
-                                    <ImageOff size={15} aria-hidden />
-                                  </span>
-                                )}
-                              </span>
-                              <div className="min-w-0">
-                                <p className="truncate font-medium text-ivory">{row.title}</p>
-                                <p className="truncate text-xs text-ivory/45">
-                                  {[row.client, row.categories?.name]
-                                    .filter(Boolean)
-                                    .join(" · ") || row.slug}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-3 py-3 tabular-nums text-ivory/70">
-                            {row.year ?? "—"}
-                          </td>
-                          <td className="px-3 py-3 tabular-nums text-ivory/70">
-                            {new Date(row.created_at).toLocaleDateString("en-GB")}
-                          </td>
-                          <td className="px-3 py-3 tabular-nums text-ivory/70">
-                            {row.sort_order}
-                          </td>
-                          <td className="px-3 py-3">
-                            <div className="flex items-center gap-1.5">
-                              <TogglePill
-                                active={row.published}
-                                activeLabel="Published"
-                                inactiveLabel="Draft"
-                                tone="ivory"
-                                onClick={() =>
-                                  void patchRow(
-                                    row,
-                                    { published: !row.published },
-                                    row.published ? "Moved to drafts." : "Published.",
-                                  )
-                                }
-                              />
-                              <TogglePill
-                                active={row.featured}
-                                activeLabel="Featured"
-                                inactiveLabel="Feature"
-                                tone="gold"
-                                onClick={() =>
-                                  void patchRow(
-                                    row,
-                                    { featured: !row.featured },
-                                    row.featured ? "Removed from featured." : "Marked as featured.",
-                                  )
-                                }
-                              />
-                            </div>
-                          </td>
-                          <td className="px-5 py-3">
-                            <div className="flex items-center justify-end gap-1">
-                              <button
-                                type="button"
-                                aria-label="Quick edit"
-                                onClick={() =>
-                                  quickEditId === row.id
-                                    ? setQuickEditId(null)
-                                    : openQuickEdit(row)
-                                }
-                                className="flex h-9 w-9 items-center justify-center rounded-lg text-ivory/55 transition-colors hover:bg-white/5 hover:text-gold"
-                              >
-                                {quickEditId === row.id ? (
-                                  <X size={15} aria-hidden />
-                                ) : (
-                                  <Pencil size={15} aria-hidden />
-                                )}
-                              </button>
-                              <Link
-                                href={`/studio/projects/${row.id}`}
-                                className="rounded-lg px-2.5 py-2 text-xs font-medium text-ivory/70 transition-colors hover:bg-white/5 hover:text-gold"
-                              >
-                                Edit
-                              </Link>
-                              <button
-                                type="button"
-                                aria-label="Delete project"
-                                onClick={() => setDeleteTarget(row)}
-                                className="flex h-9 w-9 items-center justify-center rounded-lg text-ivory/55 transition-colors hover:bg-white/5 hover:text-red-300"
-                              >
-                                <Trash2 size={15} aria-hidden />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        {quickEditId === row.id ? (
-                          <tr key={`${row.id}-quick`} className="border-b border-white/5 bg-white/[0.02]">
-                            <td colSpan={7} className="px-5 py-4">
-                              <div className="grid gap-4 sm:grid-cols-4">
-                                <TextField
-                                  label="Title"
-                                  value={quickDraft.title}
-                                  onChange={(event) =>
-                                    setQuickDraft((d) => ({ ...d, title: event.target.value }))
-                                  }
-                                />
-                                <TextField
-                                  label="Client"
-                                  value={quickDraft.client}
-                                  onChange={(event) =>
-                                    setQuickDraft((d) => ({ ...d, client: event.target.value }))
-                                  }
-                                />
-                                <TextField
-                                  label="Year"
-                                  type="number"
-                                  value={quickDraft.year}
-                                  onChange={(event) =>
-                                    setQuickDraft((d) => ({ ...d, year: event.target.value }))
-                                  }
-                                />
-                                <TextField
-                                  label="Sort order"
-                                  type="number"
-                                  value={quickDraft.sort_order}
-                                  onChange={(event) =>
-                                    setQuickDraft((d) => ({
-                                      ...d,
-                                      sort_order: event.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                              <div className="mt-4 flex justify-end gap-3">
-                                <button
-                                  type="button"
-                                  onClick={() => setQuickEditId(null)}
-                                  className="h-10 rounded-xl border border-white/10 px-4 text-sm text-ivory/80 hover:border-white/25"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => void saveQuickEdit()}
-                                  disabled={quickSaving}
-                                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-gold px-4 text-sm font-semibold text-canvas hover:bg-gold-soft disabled:opacity-60"
-                                >
-                                  {quickSaving ? (
-                                    <Loader2 size={14} className="animate-spin" aria-hidden />
-                                  ) : null}
-                                  Save
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ) : null}
-                      </Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {pageCount > 1 ? (
-              <div className="flex items-center justify-between border-t border-white/8 px-5 py-3.5 text-sm text-ivory/55">
-                <span>
-                  Page {safePage} of {pageCount} · {filtered.length} projects
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    aria-label="Previous page"
-                    disabled={safePage <= 1}
-                    onClick={() => setPage(safePage - 1)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ivory/70 transition-colors hover:border-white/25 disabled:opacity-40"
-                  >
-                    <ChevronLeft size={15} aria-hidden />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Next page"
-                    disabled={safePage >= pageCount}
-                    onClick={() => setPage(safePage + 1)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-ivory/70 transition-colors hover:border-white/25 disabled:opacity-40"
-                  >
-                    <ChevronRight size={15} aria-hidden />
-                  </button>
-                </div>
-              </div>
-            ) : null}
+        ) : filtered.length === 0 ? (
+          <div className="glass rounded-3xl p-14 text-center text-sm text-ivory/55">
+            {rows.length === 0
+              ? "No projects yet. Create the first one above."
+              : "No projects match the current filters."}
           </div>
+        ) : filtersActive ? (
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+            {filtered.map((row) => (
+              <ProjectCard
+                key={row.id}
+                row={row}
+                draggable={false}
+                busy={busyId === row.id}
+                onTogglePublished={() =>
+                  void patch(
+                    row,
+                    { published: !row.published },
+                    row.published ? "Moved to drafts." : "Published.",
+                  )
+                }
+                onToggleFeatured={() =>
+                  void patch(
+                    row,
+                    { featured: !row.featured },
+                    row.featured ? "Removed from featured." : "Marked as featured.",
+                  )
+                }
+                onDuplicate={() => void duplicateProject(row)}
+                onDelete={() => setDeleteTarget(row)}
+              />
+            ))}
+          </div>
+        ) : (
+          <SortableGrid
+            items={filtered}
+            onReorder={(next) => void handleReorder(next)}
+            className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+            renderItem={(row) => (
+              <ProjectCard
+                row={row}
+                draggable
+                busy={busyId === row.id}
+                onTogglePublished={() =>
+                  void patch(
+                    row,
+                    { published: !row.published },
+                    row.published ? "Moved to drafts." : "Published.",
+                  )
+                }
+                onToggleFeatured={() =>
+                  void patch(
+                    row,
+                    { featured: !row.featured },
+                    row.featured ? "Removed from featured." : "Marked as featured.",
+                  )
+                }
+                onDuplicate={() => void duplicateProject(row)}
+                onDelete={() => setDeleteTarget(row)}
+              />
+            )}
+          />
         )}
       </div>
 

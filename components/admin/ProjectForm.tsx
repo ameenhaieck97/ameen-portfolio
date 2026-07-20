@@ -3,10 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ArrowUpRight, ChevronDown, ImageOff, Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { revalidatePublicSite } from "@/lib/revalidate-public-site";
 import type { Category, Project, Service } from "@/types/admin";
 import { ImageUploader } from "./ImageUploader";
+import { GalleryEditor } from "./GalleryEditor";
 import {
   SelectField,
   TagInput,
@@ -109,6 +113,90 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * Mirrors the real public-site PortfolioCard's visual language (same
+ * gradient, eyebrow + title + pill treatment) so the "live preview" is
+ * genuinely representative — not a mock — while staying free of that
+ * component's next-intl/PortfolioItem coupling, which the studio doesn't
+ * have wired up.
+ */
+function LivePreviewCard({
+  coverImage,
+  title,
+  categoryLabel,
+  client,
+}: {
+  coverImage: string;
+  title: string;
+  categoryLabel: string;
+  client: string;
+}) {
+  return (
+    <div className="group relative flex aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] border border-white/8 bg-canvas-raised">
+      <div className="absolute inset-0">
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt=""
+            fill
+            unoptimized
+            sizes="420px"
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-ivory/20">
+            <ImageOff size={32} aria-hidden />
+          </div>
+        )}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-canvas/95 via-canvas/55 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-gold">
+            {categoryLabel || "Category"}
+          </p>
+          <p className="mt-1 font-display text-xl leading-snug text-ivory">
+            {title.trim() || "Untitled project"}
+          </p>
+          {client.trim() ? (
+            <p className="mt-1 text-sm text-ivory/55">{client}</p>
+          ) : null}
+        </div>
+        <span className="glass inline-flex h-10 flex-none items-center gap-1.5 rounded-full px-4 text-xs font-medium uppercase tracking-[0.1em] text-ivory">
+          View project
+          <ArrowUpRight size={14} aria-hidden />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function LangTabs({
+  lang,
+  onChange,
+}: {
+  lang: "en" | "ar";
+  onChange: (next: "en" | "ar") => void;
+}) {
+  return (
+    <div className="inline-flex flex-none rounded-full border border-white/10 bg-canvas/40 p-1">
+      {(["en", "ar"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          className={cn(
+            "h-8 rounded-full px-4 text-xs font-medium transition-colors",
+            lang === option ? "bg-gold text-canvas" : "text-ivory/55 hover:text-ivory",
+          )}
+        >
+          {option === "en" ? "English" : "العربية"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function ProjectForm({
   projectId,
   initialDraft,
@@ -127,6 +215,8 @@ export function ProjectForm({
   const [categories, setCategories] = useState<Category[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [saving, setSaving] = useState(false);
+  const [lang, setLang] = useState<"en" | "ar">("en");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -149,6 +239,12 @@ export function ProjectForm({
     () => (slugTouched ? draft.slug : slugify(draft.title)),
     [slugTouched, draft.slug, draft.title],
   );
+
+  const categoryLabel = useMemo(() => {
+    const category = categories.find((item) => item.id === draft.category_id);
+    if (category) return category.name;
+    return CATEGORY_KEY_OPTIONS.find((option) => option.value === draft.category_key)?.label ?? "";
+  }, [categories, draft.category_id, draft.category_key]);
 
   const save = async () => {
     if (draft.title.trim() === "") {
@@ -228,23 +324,20 @@ export function ProjectForm({
     } else {
       toast(projectId ? "Project updated." : "Project created.");
     }
+    revalidatePublicSite();
     router.push("/studio/projects");
   };
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <Link
-        href="/studio/projects"
-        className="inline-flex items-center gap-2 text-sm text-ivory/55 transition-colors hover:text-gold"
-      >
-        <ArrowLeft size={15} aria-hidden />
-        Back to projects
-      </Link>
-
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-3xl text-ivory">
-          {projectId ? "Edit Project" : "New Project"}
-        </h1>
+    <div className="mx-auto max-w-6xl">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Link
+          href="/studio/projects"
+          className="inline-flex items-center gap-2 text-sm text-ivory/55 transition-colors hover:text-gold"
+        >
+          <ArrowLeft size={15} aria-hidden />
+          Back to projects
+        </Link>
         <button
           type="button"
           onClick={() => void save()}
@@ -256,167 +349,35 @@ export function ProjectForm({
         </button>
       </div>
 
-      <div className="mt-6 space-y-6">
-        <section className="glass rounded-3xl p-6">
-          <h2 className="font-display text-lg text-ivory">Basics</h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <TextField
-              label="Title (English)"
-              required
-              value={draft.title}
-              onChange={(event) => set("title", event.target.value)}
-            />
-            <TextField
-              label="Title (Arabic)"
-              dir="rtl"
-              value={draft.title_ar}
-              onChange={(event) => set("title_ar", event.target.value)}
-            />
-            <TextField
-              label="Slug"
-              required
-              value={effectiveSlug}
-              onChange={(event) => {
-                setSlugTouched(true);
-                set("slug", event.target.value);
-              }}
-            />
-            <TextField
-              label="Client"
-              value={draft.client}
-              onChange={(event) => set("client", event.target.value)}
-            />
-            <TextField
-              label="Year"
-              type="number"
-              placeholder="2026"
-              value={draft.year}
-              onChange={(event) => set("year", event.target.value)}
-            />
-            <TextAreaField
-              label="Short description (English)"
-              rows={2}
-              value={draft.short_description}
-              onChange={(event) => set("short_description", event.target.value)}
-            />
-            <TextAreaField
-              label="Short description (Arabic)"
-              dir="rtl"
-              rows={2}
-              value={draft.short_description_ar}
-              onChange={(event) => set("short_description_ar", event.target.value)}
-            />
-            <TextAreaField
-              label="Full description (English)"
-              rows={5}
-              value={draft.full_description}
-              onChange={(event) => set("full_description", event.target.value)}
-            />
-            <TextAreaField
-              label="Full description (Arabic)"
-              dir="rtl"
-              rows={5}
-              value={draft.full_description_ar}
-              onChange={(event) => set("full_description_ar", event.target.value)}
-            />
-          </div>
-        </section>
+      <h1 className="mt-4 font-display text-3xl text-ivory">
+        {projectId ? "Edit Project" : "New Project"}
+      </h1>
 
-        <section className="glass rounded-3xl p-6">
-          <h2 className="font-display text-lg text-ivory">Classification</h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <SelectField
-              label="Portfolio group"
-              value={draft.group_key}
-              onChange={(event) => set("group_key", event.target.value)}
-            >
-              {GROUP_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SelectField>
-            <SelectField
-              label="Card label"
-              value={draft.category_key}
-              onChange={(event) => set("category_key", event.target.value)}
-            >
-              {CATEGORY_KEY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SelectField>
-            <SelectField
-              label="Category"
-              value={draft.category_id}
-              onChange={(event) => set("category_id", event.target.value)}
-            >
-              <option value="">— None —</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </SelectField>
-            <TextField
-              label="Sort order"
-              type="number"
-              value={draft.sort_order}
-              onChange={(event) => set("sort_order", event.target.value)}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
+        {/* Live preview column */}
+        <div className="space-y-4 lg:sticky lg:top-6">
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-ivory/50">
+              Live preview
+            </p>
+            <LivePreviewCard
+              coverImage={draft.cover_image}
+              title={lang === "en" ? draft.title : draft.title_ar}
+              categoryLabel={categoryLabel}
+              client={draft.client}
             />
-            <div className="sm:col-span-2">
-              <p className="mb-2 block text-xs font-medium uppercase tracking-[0.15em] text-ivory/60">
-                Services
-              </p>
-              {services.length === 0 ? (
-                <p className="text-sm text-ivory/45">
-                  No services defined yet — add them in the Services module.
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {services.map((service) => {
-                    const selected = serviceIds.includes(service.id);
-                    return (
-                      <button
-                        key={service.id}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() =>
-                          setServiceIds((current) =>
-                            selected
-                              ? current.filter((id) => id !== service.id)
-                              : [...current, service.id],
-                          )
-                        }
-                        className={cn(
-                          "h-10 rounded-full border px-4 text-sm transition-colors",
-                          selected
-                            ? "border-gold/60 bg-gold/12 text-gold"
-                            : "border-white/10 text-ivory/65 hover:border-white/25",
-                        )}
-                      >
-                        {service.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <div className="sm:col-span-2">
-              <TagInput
-                label="Technologies"
-                value={draft.technologies}
-                onChange={(next) => set("technologies", next)}
-                placeholder="Type and press Enter — e.g. Photoshop, Illustrator"
-              />
-            </div>
-            <Toggle
-              label="Featured"
-              description="Highlight this project"
-              checked={draft.featured}
-              onChange={(next) => set("featured", next)}
-            />
+            <a
+              href="/en#portfolio"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-ivory/55 transition-colors hover:text-gold"
+            >
+              View public site
+              <ArrowUpRight size={14} aria-hidden />
+            </a>
+          </div>
+
+          <div className="glass space-y-3 rounded-2xl p-4">
             <Toggle
               label="Published"
               description="Visible to the public"
@@ -424,32 +385,254 @@ export function ProjectForm({
               onChange={(next) => set("published", next)}
             />
             <Toggle
-              label="Preserve logo colors"
-              description="Keep an SVG logo's original colors instead of the gold mono-mask"
-              checked={draft.preserve_color}
-              onChange={(next) => set("preserve_color", next)}
+              label="Featured"
+              description="Highlight this project"
+              checked={draft.featured}
+              onChange={(next) => set("featured", next)}
             />
           </div>
-        </section>
+        </div>
 
-        <section className="glass rounded-3xl p-6">
-          <h2 className="font-display text-lg text-ivory">Images</h2>
-          <div className="mt-5 space-y-6">
-            <ImageUploader
-              label="Cover image"
-              folder="projects/covers"
-              value={draft.cover_image ? [draft.cover_image] : []}
-              onChange={(urls) => set("cover_image", urls[0] ?? "")}
-            />
-            <ImageUploader
-              label="Gallery images"
-              folder="projects/gallery"
-              multiple
-              value={draft.gallery_images}
-              onChange={(urls) => set("gallery_images", urls)}
-            />
-          </div>
-        </section>
+        {/* Fields column */}
+        <div className="space-y-6">
+          <section className="glass rounded-3xl p-6">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-display text-lg text-ivory">Project</h2>
+              <LangTabs lang={lang} onChange={setLang} />
+            </div>
+            <div className="mt-5 space-y-5">
+              <ImageUploader
+                label="Project image"
+                folder="projects/covers"
+                value={draft.cover_image ? [draft.cover_image] : []}
+                onChange={(urls) => set("cover_image", urls[0] ?? "")}
+              />
+
+              {lang === "en" ? (
+                <TextField
+                  label="Title"
+                  required
+                  value={draft.title}
+                  onChange={(event) => set("title", event.target.value)}
+                />
+              ) : (
+                <TextField
+                  label="Title (Arabic)"
+                  dir="rtl"
+                  value={draft.title_ar}
+                  onChange={(event) => set("title_ar", event.target.value)}
+                />
+              )}
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <TextField
+                  label="Client"
+                  value={draft.client}
+                  onChange={(event) => set("client", event.target.value)}
+                />
+                <SelectField
+                  label="Category"
+                  value={draft.category_id}
+                  onChange={(event) => set("category_id", event.target.value)}
+                >
+                  <option value="">— None —</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
+
+              {lang === "en" ? (
+                <TextAreaField
+                  label="Short description"
+                  rows={3}
+                  value={draft.short_description}
+                  onChange={(event) => set("short_description", event.target.value)}
+                />
+              ) : (
+                <TextAreaField
+                  label="Short description (Arabic)"
+                  dir="rtl"
+                  rows={3}
+                  value={draft.short_description_ar}
+                  onChange={(event) => set("short_description_ar", event.target.value)}
+                />
+              )}
+            </div>
+          </section>
+
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">Gallery</h2>
+            <p className="mt-1 text-sm text-ivory/50">
+              Drag images to reorder — the order here is the display order.
+            </p>
+            <div className="mt-5">
+              <GalleryEditor
+                label="Gallery images"
+                folder="projects/gallery"
+                value={draft.gallery_images}
+                onChange={(next) => set("gallery_images", next)}
+              />
+            </div>
+          </section>
+
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">Services &amp; technologies</h2>
+            <div className="mt-5 space-y-5">
+              <div>
+                <p className="mb-2 block text-xs font-medium uppercase tracking-[0.15em] text-ivory/60">
+                  Services
+                </p>
+                {services.length === 0 ? (
+                  <p className="text-sm text-ivory/45">
+                    No services defined yet — add them in the Services module.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {services.map((service) => {
+                      const selected = serviceIds.includes(service.id);
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() =>
+                            setServiceIds((current) =>
+                              selected
+                                ? current.filter((id) => id !== service.id)
+                                : [...current, service.id],
+                            )
+                          }
+                          className={cn(
+                            "h-10 rounded-full border px-4 text-sm transition-colors",
+                            selected
+                              ? "border-gold/60 bg-gold/12 text-gold"
+                              : "border-white/10 text-ivory/65 hover:border-white/25",
+                          )}
+                        >
+                          {service.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <TagInput
+                label="Technologies"
+                value={draft.technologies}
+                onChange={(next) => set("technologies", next)}
+                placeholder="Type and press Enter — e.g. Photoshop, Illustrator"
+              />
+            </div>
+          </section>
+
+          <section className="glass overflow-hidden rounded-3xl">
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen((open) => !open)}
+              className="flex w-full items-center justify-between gap-4 p-6 text-start"
+            >
+              <div>
+                <h2 className="font-display text-lg text-ivory">Advanced</h2>
+                <p className="mt-1 text-xs text-ivory/50">
+                  Slug, sort order, classification — most projects don&apos;t need these.
+                </p>
+              </div>
+              <ChevronDown
+                size={18}
+                aria-hidden
+                className={cn(
+                  "flex-none text-ivory/50 transition-transform duration-300",
+                  advancedOpen && "rotate-180",
+                )}
+              />
+            </button>
+            <AnimatePresence initial={false}>
+              {advancedOpen ? (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="grid gap-5 border-t border-white/8 p-6 sm:grid-cols-2">
+                    <TextField
+                      label="Slug"
+                      required
+                      value={effectiveSlug}
+                      onChange={(event) => {
+                        setSlugTouched(true);
+                        set("slug", event.target.value);
+                      }}
+                    />
+                    <TextField
+                      label="Year"
+                      type="number"
+                      placeholder="2026"
+                      value={draft.year}
+                      onChange={(event) => set("year", event.target.value)}
+                    />
+                    <SelectField
+                      label="Portfolio group"
+                      value={draft.group_key}
+                      onChange={(event) => set("group_key", event.target.value)}
+                    >
+                      {GROUP_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <SelectField
+                      label="Card label"
+                      value={draft.category_key}
+                      onChange={(event) => set("category_key", event.target.value)}
+                    >
+                      {CATEGORY_KEY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </SelectField>
+                    <TextField
+                      label="Sort order"
+                      type="number"
+                      value={draft.sort_order}
+                      onChange={(event) => set("sort_order", event.target.value)}
+                    />
+                    <Toggle
+                      label="Preserve logo colors"
+                      description="Keep an SVG logo's original colors instead of the gold mono-mask"
+                      checked={draft.preserve_color}
+                      onChange={(next) => set("preserve_color", next)}
+                    />
+                    {lang === "en" ? (
+                      <TextAreaField
+                        label="Full description"
+                        rows={5}
+                        className="sm:col-span-2"
+                        value={draft.full_description}
+                        onChange={(event) => set("full_description", event.target.value)}
+                      />
+                    ) : (
+                      <TextAreaField
+                        label="Full description (Arabic)"
+                        dir="rtl"
+                        rows={5}
+                        className="sm:col-span-2"
+                        value={draft.full_description_ar}
+                        onChange={(event) => set("full_description_ar", event.target.value)}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </section>
+        </div>
       </div>
     </div>
   );
