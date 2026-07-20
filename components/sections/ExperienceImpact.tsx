@@ -223,7 +223,7 @@ export default function ExperienceImpact() {
   const lineScale = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [0, 1]);
 
   return (
-    <section id="experience" className="relative py-28 sm:py-36">
+    <section id="experience" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-4xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={tImpact("eyebrow")}

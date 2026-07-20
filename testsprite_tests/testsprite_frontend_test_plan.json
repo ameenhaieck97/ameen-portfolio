@@ -1,0 +1,1268 @@
+[
+  {
+    "id": "TC001",
+    "title": "Open the contact email link",
+    "description": "This verifies that visitors can use the contact section to open the email contact option.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Contact link in the header navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the email contact link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the email application link is opened"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Reach the contact methods from the contact section",
+    "description": "A visitor can reach the contact section and open email, WhatsApp, and social profile links from the portfolio page.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the contact link in the header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the email contact link"
+      },
+      {
+        "type": "action",
+        "description": "Click the WhatsApp contact link"
+      },
+      {
+        "type": "action",
+        "description": "Click a social profile link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact methods are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Open the site on the English landing page",
+    "description": "This verifies that visitors arriving at the site reach the English homepage and can immediately see the hero content.",
+    "category": "Hero Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hero section is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the English landing experience is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Open the site in English and review the hero entry",
+    "description": "A visitor can land on the English experience, scan the hero, and see the main entry content that introduces the portfolio.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hero content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the primary entry action is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Open the English portfolio landing page from the root route",
+    "description": "This verifies that visitors starting at the root reach the default English experience and can begin browsing the portfolio site.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the English hero content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the main single-page sections are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Jump to About from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the About section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the About link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the About section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Arrive on the site and view the hero entry",
+    "description": "A returning or prospective visitor can land on the default locale and see the hero section that introduces the portfolio.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the English portfolio landing page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hero section is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Reach contact options from the page",
+    "description": "A visitor can navigate to the contact area and find the available ways to reach Ameen.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Contact section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify contact links are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Open contact links from the contact section",
+    "description": "This verifies that visitors can reach Ameen through the primary contact options shown on the site.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Contact section"
+      },
+      {
+        "type": "action",
+        "description": "Click the email contact link"
+      },
+      {
+        "type": "action",
+        "description": "Click the WhatsApp contact link"
+      },
+      {
+        "type": "action",
+        "description": "Click one social profile link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact actions are available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the social profile area is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Jump to Contact from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the Contact section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Contact link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Contact section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Jump between anchor sections from the header",
+    "description": "A visitor can use the sticky header to move to key sections and confirm the page scrolls to the requested content.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the About section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the About section is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Portfolio section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Jump between key sections from the sticky header",
+    "description": "This verifies that visitors can use the header to move around the page and reach the main content sections they need.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the About section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Contact section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page scrolls to the requested sections"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Use header navigation to jump through the main sections",
+    "description": "A visitor can use the sticky header to jump to key sections of the one-page portfolio and land on the expected content.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the about section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the skills section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the experience section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the partners section"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the contact section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Use the hero call to action to reach the next section",
+    "description": "This verifies that the primary hero call to action takes a visitor from the introduction to the next content section.",
+    "category": "Hero Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the primary call to action in the hero"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page scrolls to the next destination section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the destination section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Switch from English to Arabic while staying on the same page",
+    "description": "This verifies that the language switcher changes the site to Arabic and preserves the current page context.",
+    "category": "Language Switcher",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Arabic language switcher"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the site content is displayed in Arabic"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify RTL layout is applied"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Jump to Portfolio from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the Portfolio section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Portfolio link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Portfolio section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Open the mobile menu and navigate to a section",
+    "description": "A mobile visitor can open the hamburger menu, choose a section, and land on the correct content.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Set the viewport to a mobile size"
+      },
+      {
+        "type": "action",
+        "description": "Open the hamburger menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the Portfolio section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Portfolio section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Switch to Arabic and keep the same page context",
+    "description": "This verifies that visitors can change languages while staying on the same section and see the translated RTL experience.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the language switcher to Arabic"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Arabic translated content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the layout is right to left"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Switch to Arabic and preserve the current section context",
+    "description": "A visitor can switch from English to Arabic and keep using the same page context with translated content and RTL layout.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the language switcher to Arabic"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Arabic content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify RTL layout is applied"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Open the WhatsApp contact link",
+    "description": "This verifies that visitors can use the contact section to open the WhatsApp contact option.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Contact link in the header navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the WhatsApp contact link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the WhatsApp contact destination is opened"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Reach contact from the mobile menu",
+    "description": "A mobile visitor can use the hamburger menu to jump to contact details without leaving the page.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Set the viewport to a mobile size"
+      },
+      {
+        "type": "action",
+        "description": "Open the hamburger menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the Contact section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Jump to Skills from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the Skills section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Skills link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Skills section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Open portfolio images in the lightbox and move through them",
+    "description": "This verifies that visitors can preview portfolio images in the lightbox, navigate between images, and close the viewer.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "action",
+        "description": "Open a portfolio image preview"
+      },
+      {
+        "type": "action",
+        "description": "Move to the next image in the lightbox"
+      },
+      {
+        "type": "action",
+        "description": "Move to the previous image in the lightbox"
+      },
+      {
+        "type": "action",
+        "description": "Close the lightbox"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the image viewer opens and closes successfully"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the portfolio content is visible again"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Jump to Experience from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the Experience section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Experience link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Experience section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Open a portfolio category and inspect a project in the lightbox",
+    "description": "A visitor can expand a portfolio category, open a project image in the lightbox, move between images, and close the viewer.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the portfolio link in the header"
+      },
+      {
+        "type": "action",
+        "description": "Expand a portfolio category"
+      },
+      {
+        "type": "action",
+        "description": "Open a project thumbnail"
+      },
+      {
+        "type": "action",
+        "description": "Go to the next image in the lightbox"
+      },
+      {
+        "type": "action",
+        "description": "Close the lightbox"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the portfolio gallery remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Use Arabic section links after switching languages",
+    "description": "A visitor can switch to Arabic and still use section anchors to move through the same single-page experience.",
+    "category": "Single-page browsing essentials",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ar"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the About section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the About section is displayed in Arabic"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the Contact section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is displayed in Arabic"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Browse portfolio categories by expanding and collapsing items",
+    "description": "This verifies that visitors can expand a portfolio category to inspect more work and then collapse it again to keep the page manageable.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "action",
+        "description": "Expand a portfolio category"
+      },
+      {
+        "type": "action",
+        "description": "Collapse the same portfolio category"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the category list expands and collapses as expected"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the portfolio grid remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Use the mobile menu to reach page sections",
+    "description": "This verifies that mobile visitors can open the hamburger menu and navigate to key sections on the single-page site.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Resize to a mobile viewport"
+      },
+      {
+        "type": "action",
+        "description": "Open the mobile navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the About section link"
+      },
+      {
+        "type": "action",
+        "description": "Open the mobile navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the Portfolio section link"
+      },
+      {
+        "type": "action",
+        "description": "Open the mobile navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Click the Contact section link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page scrolls to the selected sections on mobile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the contact section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Return to the top using the logo",
+    "description": "This verifies that clicking the site logo returns a visitor to the top of the page.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to a lower section of the page"
+      },
+      {
+        "type": "action",
+        "description": "Click the site logo in the header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hero section is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Open an external project link from the portfolio gallery",
+    "description": "A visitor can open a project link from the portfolio gallery in a new tab to view the external project.",
+    "category": "Contact Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the portfolio link in the header"
+      },
+      {
+        "type": "action",
+        "description": "Expand a portfolio category"
+      },
+      {
+        "type": "action",
+        "description": "Open an external project link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the external project link is available"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the portfolio category remains expanded"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Open an external portfolio project in a new tab",
+    "description": "This verifies that visitors can launch an external project link from the portfolio gallery when a project includes one.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the header link to the Portfolio section"
+      },
+      {
+        "type": "action",
+        "description": "Open a portfolio item that has an external project link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the external project is opened in a new tab"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the portfolio page remains available in the current tab"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Open a social profile from the contact section",
+    "description": "This verifies that visitors can reach a social profile from the contact section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Contact link in the header navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click a social profile link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the social profile destination is opened"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Reveal the credibility sections by scrolling through the page",
+    "description": "This verifies that visitors can scroll through the site and see the About, Skills, Experience, Certifications, Partners, and ticker content reveal correctly.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the About section"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the Skills section"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the Experience section"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the Certifications section"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the Partners section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the credibility sections are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the client ticker is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Jump to Partners from the desktop navigation",
+    "description": "This verifies that desktop navigation links let a visitor jump directly to the Partners section.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Click the Partners link in the header navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Partners section is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Reach the partners section while scrolling the page",
+    "description": "A visitor can scroll through the page and see the partners section reveal with its credibility content.",
+    "category": "Partners Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the partners section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the partners section is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify partner brand content is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Scroll through the About section reveal",
+    "description": "A visitor can scroll to the About section and see the biography content reveal as expected.",
+    "category": "About Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the About section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the About content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the section reveal animation completes"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Scroll through the Skills section reveal",
+    "description": "A visitor can scroll to the Skills section and see the competency content reveal as expected.",
+    "category": "Skills Section",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the Skills section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Skills content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the section reveal animation completes"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Open and close the mobile navigation menu",
+    "description": "This verifies that mobile visitors can open the hamburger menu and close it again without leaving the page.",
+    "category": "Global Navigation Header",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Open the mobile navigation menu"
+      },
+      {
+        "type": "action",
+        "description": "Close the mobile navigation menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page remains on the landing view"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "View the partner and client logo ticker",
+    "description": "A visitor can see the logo marquee moving continuously as social proof on the page.",
+    "category": "Logo/Client Ticker",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the logo ticker"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify partner or client logos are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the logos move continuously"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "See the desktop-only cursor and animated background",
+    "description": "This verifies that desktop visitors get the intended visual polish while browsing the portfolio site.",
+    "category": "Portfolio Gallery",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the custom cursor is displayed on desktop"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the animated background is displayed on desktop"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "View the footer at the end of the page",
+    "description": "A visitor can scroll to the bottom of the portfolio and see the footer information and links.",
+    "category": "Footer",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the footer is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify footer navigation or informational links are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "See the custom cursor on desktop",
+    "description": "This verifies that a desktop visitor can see the decorative custom cursor follow pointer movement on the site.",
+    "category": "Custom Cursor & Site Background",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Move the pointer around the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the custom cursor is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the decorative background is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "Animate the site background while browsing",
+    "description": "This verifies that the global animated background remains present as the visitor explores the page.",
+    "category": "Custom Cursor & Site Background",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Scroll the page"
+      },
+      {
+        "type": "action",
+        "description": "Move the pointer around the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the animated background is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the background remains present while scrolling"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC044",
+    "title": "Keep the custom cursor out of the mobile experience",
+    "description": "This verifies that the desktop-only cursor enhancement does not appear for a mobile visitor.",
+    "category": "Custom Cursor & Site Background",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Resize the viewport to a mobile size"
+      },
+      {
+        "type": "action",
+        "description": "Scroll the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the custom cursor is not visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the site content remains visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC045",
+    "title": "Show the custom cursor after interacting with the page",
+    "description": "This verifies that moving the pointer after loading the site reveals the custom cursor behavior on desktop.",
+    "category": "Custom Cursor & Site Background",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /en"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the page to finish loading"
+      },
+      {
+        "type": "action",
+        "description": "Move the pointer across the main content area"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the custom cursor follows pointer movement"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the site background remains visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "Load the site from the root path",
+    "description": "This verifies that a returning visitor reaching the root path is taken into the default localized experience.",
+    "category": "Custom Cursor & Site Background",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the English localized experience is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the hero section is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

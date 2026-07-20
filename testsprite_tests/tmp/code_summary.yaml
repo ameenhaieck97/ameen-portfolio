@@ -1,0 +1,165 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - Next.js 16 (App Router)
+  - React 19
+  - next-intl (i18n routing, en/ar)
+  - Tailwind CSS 4
+  - Framer Motion
+  - lucide-react icons
+  - yet-another-react-lightbox
+routes:
+  - path: /
+    file: app/[locale]/page.tsx
+    auth_required: false
+    description: Root path, redirects to default locale (/en) via next-intl middleware
+  - path: /en
+    file: app/[locale]/page.tsx
+    auth_required: false
+    description: Single-page English portfolio site with all sections (Hero, About, Skills, Portfolio, Experience, Certifications, Partners, Contact)
+  - path: /ar
+    file: app/[locale]/page.tsx
+    auth_required: false
+    description: Single-page Arabic (RTL) portfolio site, same sections as /en with translated content and RTL layout
+features:
+  - name: Global Navigation Header
+    description: Sticky/glass header with in-page anchor links to sections, desktop and mobile (hamburger) nav
+    files:
+      - components/layout/Header.tsx
+    entry_route: /en
+    user_interactions:
+      - Click logo to scroll to top
+      - Click nav links (About, Skills, Portfolio, Experience, Partners) to jump to section anchors
+      - Click Contact button to jump to #contact
+      - Open/close mobile menu via hamburger button
+      - Header background changes style on scroll
+    api_calls: []
+    auth_required: false
+  - name: Language Switcher
+    description: Toggle site language/locale between English and Arabic, preserving current path
+    files:
+      - components/layout/LanguageSwitcher.tsx
+      - i18n/routing.ts
+      - i18n/navigation.ts
+    entry_route: /en
+    user_interactions:
+      - Click EN/AR toggle to switch locale and reload translated content with correct text direction (ltr/rtl)
+    api_calls: []
+    auth_required: false
+  - name: Hero Section
+    description: Landing hero with headline, intro copy, and call-to-action
+    files:
+      - components/sections/Hero.tsx
+    entry_route: /en
+    user_interactions:
+      - View animated entrance content
+      - Click any CTA links/buttons present
+    api_calls: []
+    auth_required: false
+  - name: About Section
+    description: About/bio section describing the designer
+    files:
+      - components/sections/About.tsx
+    entry_route: /en#about
+    user_interactions:
+      - Scroll into view to trigger reveal animation
+    api_calls: []
+    auth_required: false
+  - name: Skills Section
+    description: Displays designer's skills/competencies
+    files:
+      - components/sections/Skills.tsx
+    entry_route: /en#skills
+    user_interactions:
+      - Scroll into view to trigger reveal animation
+    api_calls: []
+    auth_required: false
+  - name: Logo/Client Ticker
+    description: Scrolling marquee of partner/client logos
+    files:
+      - components/sections/Ticker.tsx
+      - components/ui/Marquee.tsx
+    entry_route: /en
+    user_interactions:
+      - Passive viewing of auto-scrolling marquee
+    api_calls: []
+    auth_required: false
+  - name: Portfolio Gallery
+    description: Categorized portfolio grid (Brand Identity, Graphic Design, Other) with expandable lists and an image lightbox viewer
+    files:
+      - components/sections/Portfolio.tsx
+      - components/portfolio/PortfolioCard.tsx
+      - components/portfolio/Lightbox.tsx
+      - data/portfolio.ts
+    entry_route: /en#portfolio
+    user_interactions:
+      - Click "View all/Show less" to expand/collapse extra items per category
+      - Click a portfolio card image to open lightbox
+      - Navigate next/previous slides inside lightbox
+      - Close lightbox via close button, backdrop click, or Escape key
+      - Click a portfolio card with an external href to navigate to external project link in new tab
+    api_calls: []
+    auth_required: false
+  - name: Experience & Impact Section
+    description: Timeline or stats showcasing professional experience and measurable impact
+    files:
+      - components/sections/ExperienceImpact.tsx
+    entry_route: /en#experience
+    user_interactions:
+      - Scroll into view to trigger reveal animation
+    api_calls: []
+    auth_required: false
+  - name: Certifications Section
+    description: Lists professional certifications
+    files:
+      - components/sections/Certifications.tsx
+    entry_route: /en
+    user_interactions:
+      - Scroll into view to trigger reveal animation
+    api_calls: []
+    auth_required: false
+  - name: Partners Section
+    description: Displays partner/client brands
+    files:
+      - components/sections/Partners.tsx
+    entry_route: /en#partners
+    user_interactions:
+      - Scroll into view to trigger reveal animation
+    api_calls: []
+    auth_required: false
+  - name: Contact Section
+    description: Contact options via email, WhatsApp, and social links
+    files:
+      - components/sections/Contact.tsx
+      - data/contact.ts
+    entry_route: /en#contact
+    user_interactions:
+      - Click email link to open mail client (mailto:)
+      - Click WhatsApp link to open wa.me chat in new tab
+      - Click social icons (Instagram, Behance, LinkedIn) to open profiles in new tab
+    api_calls: []
+    auth_required: false
+  - name: Footer
+    description: Site footer with closing info/links
+    files:
+      - components/layout/Footer.tsx
+    entry_route: /en
+    user_interactions:
+      - Click footer links if present
+    api_calls: []
+    auth_required: false
+  - name: Custom Cursor & Site Background
+    description: Decorative custom cursor and animated background layer applied globally
+    files:
+      - components/ui/CustomCursor.tsx
+      - components/layout/SiteBackground.tsx
+    entry_route: /en
+    user_interactions:
+      - Mouse movement drives custom cursor position (desktop only)
+    api_calls: []
+    auth_required: false
+known_limitations:
+  - issue: Purely static/presentational site with no backend, forms, or authentication
+    location: app/[locale]/page.tsx
+    impact: No API calls to test; testing scope is limited to navigation, i18n, responsiveness, animations, and accessibility

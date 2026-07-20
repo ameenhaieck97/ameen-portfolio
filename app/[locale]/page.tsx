@@ -8,6 +8,11 @@ import ExperienceImpact from "@/components/sections/ExperienceImpact";
 import Certifications from "@/components/sections/Certifications";
 import Partners from "@/components/sections/Partners";
 import Contact from "@/components/sections/Contact";
+import { getPortfolioItems } from "@/lib/portfolio-data";
+
+// Revalidate hourly so CMS edits appear without a redeploy, while pages stay
+// statically served for speed.
+export const revalidate = 3600;
 
 export default async function HomePage({
   params,
@@ -17,13 +22,15 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const portfolioItems = await getPortfolioItems();
+
   return (
     <>
       <Hero />
       <About />
       <Skills />
       <Ticker />
-      <Portfolio />
+      <Portfolio items={portfolioItems} />
       <ExperienceImpact />
       <Certifications />
       <Partners />

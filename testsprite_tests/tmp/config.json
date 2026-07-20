@@ -1,0 +1,17 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "AmeenHaieckWebsite",
+    "projectPath": "C:\\Users\\Marvel\\Desktop\\AmeenHaieckWebsite",
+    "testIds": [],
+    "additionalInstruction": "Focus on: navigation (header links, anchor scrolling, mobile menu), responsiveness across mobile/tablet/desktop viewports, broken links (internal anchors, external social/contact links, language switcher), browser console errors/warnings, and accessibility issues (contrast, aria labels, keyboard navigation, focus states).",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-YstqE7obw1X4xvPaRX32dvyy8aA9YVas81QMMEqByjG89-WWBaVcgGHS8wF-VlVJKtdsRLom2UfvgeKf4Vr7yAJh8xyH4A9FlUy7Dghi8F_Nsa3wcMjRd9ld_W0v9yyPLGc"
+    }
+  },
+  "serverPort": 54418
+}

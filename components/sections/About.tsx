@@ -9,7 +9,7 @@ export default function About() {
   const t = useTranslations("about");
 
   return (
-    <section id="about" className="relative py-28 sm:py-36">
+    <section id="about" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-20 lg:px-10">
         <Reveal variant="scaleIn">
           <GlassCard className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden">

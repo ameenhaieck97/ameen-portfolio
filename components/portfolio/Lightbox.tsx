@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import Lightbox, { type SlideImage } from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -23,26 +23,42 @@ export function PortfolioLightbox({
   index: number;
   onClose: () => void;
 }) {
-  // The lightbox library locks scroll by setting `overflow: hidden` on
-  // <body>. Because our <body> is the page's actual scroll container (a
-  // flex column sized with min-h-full, not a fixed-height wrapper around a
-  // separately-scrolling <html>), hiding its overflow collapses its
-  // scrollable height and resets scrollY to 0 the instant the lightbox
-  // opens — silently, before any close/exit logic runs. Save the position
-  // ourselves on open and restore it once the lock is released on close.
-  const savedScrollY = useRef<number | null>(null);
+  // Scroll lock that never moves the page. The library's own lock (body
+  // overflow:hidden) collapses this layout's scrollable height, snapping
+  // scrollY to 0 the instant it opens — and restoring afterwards animates
+  // visibly because the site uses CSS scroll-behavior: smooth. So the
+  // library lock is disabled below (noScroll) and replaced with the
+  // body-freeze pattern: pin <body> with position:fixed at an offset that
+  // keeps the exact same pixels on screen, then on close put the offset
+  // back with an explicitly instant (non-smooth) scroll. The page behind
+  // the lightbox never visually moves at any point.
   const open = index >= 0;
 
   useEffect(() => {
-    if (open) {
-      savedScrollY.current = window.scrollY;
-      return;
-    }
-    if (savedScrollY.current !== null) {
-      const y = savedScrollY.current;
-      savedScrollY.current = null;
-      requestAnimationFrame(() => window.scrollTo(0, y));
-    }
+    if (!open) return;
+
+    const body = document.body;
+    const html = document.documentElement;
+    const scrollY = window.scrollY;
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    // Keep the scrollbar track while the page can't scroll, so content
+    // doesn't shift sideways when the document scrollbar disappears.
+    html.style.overflowY = "scroll";
+
+    return () => {
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      html.style.overflowY = "";
+      window.scrollTo({ top: scrollY, left: 0, behavior: "instant" });
+    };
   }, [open]);
 
   return (
@@ -51,6 +67,7 @@ export function PortfolioLightbox({
       close={onClose}
       index={index}
       slides={slides}
+      noScroll={{ disabled: true }}
       styles={{
         container: {
           "--yarl__color_backdrop": "rgba(41, 39, 38, 0.95)",

@@ -7,7 +7,14 @@
       "Bash(mkdir -p ~/.claude/skills/frontend-design)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(curl *)",
+      "mcp__TestSprite__testsprite_bootstrap",
+      "mcp__TestSprite__testsprite_generate_code_summary",
+      "mcp__TestSprite__testsprite_generate_standardized_prd",
+      "mcp__TestSprite__testsprite_generate_frontend_test_plan",
+      "mcp__TestSprite__testsprite_generate_code_and_execute",
+      "Bash(node \"C:\\\\Users\\\\Marvel\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\8ddf6bea01b2519d\\\\node_modules\\\\@testsprite\\\\testsprite-mcp\\\\dist\\\\index.js\" generateCodeAndExecute)"
     ]
   }
 }

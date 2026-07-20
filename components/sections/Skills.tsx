@@ -8,7 +8,7 @@ export default function Skills() {
   const t = useTranslations("skills");
 
   return (
-    <section id="skills" className="relative py-28 sm:py-36">
+    <section id="skills" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
@@ -19,13 +19,13 @@ export default function Skills() {
 
         <RevealGroup
           stagger={0.06}
-          className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3"
         >
           {skills.map(({ key, icon: Icon }, index) => (
             <RevealItem key={key} variant="liftScale" className="h-full">
               <GlassCard
                 variant="reveal"
-                className="group flex h-full flex-col gap-5 p-7 transition-all duration-700 ease-luxury hover:-translate-y-1.5"
+                className="group flex h-full flex-col gap-4 p-5 transition-all duration-700 ease-luxury hover:-translate-y-1.5 sm:gap-5 sm:p-7"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-display text-sm text-gold/70">
@@ -36,7 +36,7 @@ export default function Skills() {
                     aria-hidden
                   />
                 </div>
-                <p className="font-display text-lg leading-snug text-ivory">
+                <p className="font-display text-base leading-snug text-ivory sm:text-lg">
                   {t(`items.${key}`)}
                 </p>
                 <span

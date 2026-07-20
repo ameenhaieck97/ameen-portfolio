@@ -212,15 +212,28 @@ html.cursor-none * {
   cursor: none !important;
 }
 
+/* Visually hidden without any off-screen offset: the classic left:-9999px
+   trick silently breaks RTL pages — leftward overflow is ignored in LTR but
+   IS part of the scrollable region when dir="rtl", so the hidden link was
+   adding ~10000px of horizontal scroll to every Arabic page. A clipped
+   1x1 box creates zero overflow in either direction. */
 .skip-link {
   position: absolute;
-  left: -9999px;
   top: 0;
+  inset-inline-start: 0;
   z-index: 100;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .skip-link:focus {
-  left: 1rem;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  inset-inline-start: 1rem;
   top: 1rem;
   padding: 0.5rem 1rem;
   background: var(--color-gold);

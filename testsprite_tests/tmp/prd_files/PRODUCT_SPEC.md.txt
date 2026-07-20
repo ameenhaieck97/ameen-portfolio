@@ -1,0 +1,54 @@
+# Ameen Haieck Portfolio
+
+## Overview
+
+A premium portfolio website for Ameen Haieck, a senior graphic designer.
+
+The website showcases branding, typography, editorial design, print design, and creative projects.
+
+The website is bilingual (English and Arabic), fully responsive, and optimized for desktop, tablet, and mobile devices.
+
+---
+
+## Main Pages
+
+- Home
+- Portfolio
+- Services
+- About
+- Contact
+
+---
+
+## Main Goals
+
+- Present Ameen's professional work.
+- Allow visitors to browse portfolio projects.
+- Provide contact information.
+- Build credibility and attract clients.
+
+---
+
+## Functional Requirements
+
+- Navigation must work correctly.
+- All buttons must be clickable.
+- No broken links.
+- No JavaScript console errors.
+- Images should load correctly.
+- Responsive on all screen sizes.
+- Smooth scrolling and animations.
+- Contact section must be reachable.
+- Portfolio items must display correctly.
+
+---
+
+## Quality Requirements
+
+- Fast loading.
+- Accessible UI.
+- Mobile-friendly.
+- Modern luxury dark theme.
+- No layout shifts.
+- No overlapping elements.
+- Good performance.

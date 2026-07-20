@@ -6,7 +6,11 @@ import { ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { portfolioItems, type PortfolioGroup } from "@/data/portfolio";
+import {
+  portfolioItems,
+  type PortfolioGroup,
+  type PortfolioItem,
+} from "@/data/portfolio";
 import { PortfolioCard } from "@/components/portfolio/PortfolioCard";
 import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/Lightbox";
 import { cn } from "@/lib/cn";
@@ -16,9 +20,11 @@ const VISIBLE_COUNT = 3;
 
 function CategoryBlock({
   group,
+  allItems,
   onOpen,
 }: {
   group: PortfolioGroup;
+  allItems: PortfolioItem[];
   onOpen: (id: string) => void;
 }) {
   const t = useTranslations("portfolio");
@@ -26,8 +32,8 @@ function CategoryBlock({
   const [expanded, setExpanded] = useState(false);
 
   const items = useMemo(
-    () => portfolioItems.filter((item) => item.group === group),
-    [group],
+    () => allItems.filter((item) => item.group === group),
+    [allItems, group],
   );
   const visible = items.slice(0, VISIBLE_COUNT);
   const rest = items.slice(VISIBLE_COUNT);
@@ -101,14 +107,19 @@ function CategoryBlock({
   );
 }
 
-export default function Portfolio() {
+export default function Portfolio({
+  items = portfolioItems,
+}: {
+  /** Supplied by the server from the CMS; falls back to bundled static data. */
+  items?: PortfolioItem[];
+}) {
   const t = useTranslations("portfolio");
   const locale = useLocale() as "en" | "ar";
   const [openId, setOpenId] = useState<string | null>(null);
 
   const imageItems = useMemo(
-    () => portfolioItems.filter((item) => !item.href),
-    [],
+    () => items.filter((item) => !item.href),
+    [items],
   );
 
   const slides: PortfolioSlide[] = imageItems.map((item, i) => ({
@@ -123,7 +134,7 @@ export default function Portfolio() {
   const openIndex = openId ? imageItems.findIndex((item) => item.id === openId) : -1;
 
   return (
-    <section id="portfolio" className="relative py-28 sm:py-36">
+    <section id="portfolio" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
@@ -134,7 +145,12 @@ export default function Portfolio() {
 
         <div className="mt-16 space-y-16">
           {GROUPS.map((group) => (
-            <CategoryBlock key={group} group={group} onOpen={setOpenId} />
+            <CategoryBlock
+              key={group}
+              group={group}
+              allItems={items}
+              onOpen={setOpenId}
+            />
           ))}
         </div>
       </div>

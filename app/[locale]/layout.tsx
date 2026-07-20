@@ -58,6 +58,7 @@ export async function generateMetadata({
       template: `%s · ${t("titleShort")}`,
     },
     description: t("description"),
+    manifest: "/manifest.webmanifest",
     alternates: {
       canonical: `/${locale}`,
       languages: {
@@ -122,6 +123,10 @@ export default async function LocaleLayout({
       lang={locale}
       dir={dir}
       data-scroll-behavior="smooth"
+      // Browser extensions (e.g. LanguageTool) stamp extra attributes onto
+      // <html> before React hydrates; suppress attribute-mismatch warnings
+      // for this element only — one level deep, children still validated.
+      suppressHydrationWarning
       className={`${fontVars} h-full overflow-x-hidden antialiased`}
     >
       <body className="flex min-h-full w-full flex-col overflow-x-hidden bg-canvas text-ivory">
