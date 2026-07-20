@@ -41,7 +41,11 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
 
-    if (error || !data || data.length === 0) return portfolioItems;
+    if (error) {
+      console.error("getPortfolioItems: Supabase query failed, using static fallback:", error.message);
+      return portfolioItems;
+    }
+    if (!data || data.length === 0) return portfolioItems;
 
     return (data as ProjectRow[]).map((row) => ({
       id: row.id,
@@ -51,7 +55,8 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
       image: row.cover_image || undefined,
       preserveColor: row.preserve_color || undefined,
     }));
-  } catch {
+  } catch (error) {
+    console.error("getPortfolioItems: unexpected error, using static fallback:", error);
     return portfolioItems;
   }
 }
