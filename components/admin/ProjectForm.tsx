@@ -7,7 +7,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, ChevronDown, ImageOff, Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { revalidatePublicSite } from "@/lib/revalidate-public-site";
+import { safeRevalidate } from "@/lib/revalidate";
 import type { Category, Project, Service } from "@/types/admin";
 import { ImageUploader } from "./ImageUploader";
 import { GalleryEditor } from "./GalleryEditor";
@@ -324,15 +324,15 @@ export function ProjectForm({
     } else {
       toast(projectId ? "Project updated." : "Project created.");
     }
-    revalidatePublicSite();
-    router.push("/studio/projects");
+    void safeRevalidate(toast);
+    router.push("/studio/website/portfolio");
   };
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          href="/studio/projects"
+          href="/studio/website/portfolio"
           className="inline-flex items-center gap-2 text-sm text-ivory/55 transition-colors hover:text-gold"
         >
           <ArrowLeft size={15} aria-hidden />

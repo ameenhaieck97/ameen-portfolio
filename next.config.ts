@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
     return [
       { source: "/admin", destination: "/studio", permanent: true },
       { source: "/admin/:path*", destination: "/studio/:path*", permanent: true },
+      // The CMS sidebar was reorganized to mirror the public website's
+      // structure instead of the database — old table-named routes redirect
+      // to their new website-structured locations.
+      {
+        source: "/studio/projects",
+        destination: "/studio/website/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/studio/projects/:path*",
+        destination: "/studio/website/portfolio/:path*",
+        permanent: true,
+      },
+      { source: "/studio/testimonials", destination: "/studio/clients", permanent: true },
     ];
   },
 };

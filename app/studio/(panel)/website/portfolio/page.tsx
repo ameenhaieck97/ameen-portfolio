@@ -9,17 +9,21 @@ import {
   EyeOff,
   GripVertical,
   ImageOff,
+  Layers,
   Loader2,
   Plus,
   RefreshCw,
+  Save,
   Search,
   SlidersHorizontal,
   Star,
+  Tag,
   Trash2,
 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { revalidatePublicSite } from "@/lib/revalidate-public-site";
+import { safeRevalidate } from "@/lib/revalidate";
 import type { Category, ProjectWithCategory } from "@/types/admin";
+import { GROUP_OPTIONS } from "@/components/admin/ProjectForm";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { SortableGrid } from "@/components/admin/SortableGrid";
 import { useToast } from "@/components/admin/Toast";
@@ -81,7 +85,7 @@ function ProjectCard({
 }) {
   return (
     <Link
-      href={`/studio/projects/${row.id}`}
+      href={`/studio/website/portfolio/${row.id}`}
       className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-2xl border border-white/8 bg-canvas-raised transition-colors hover:border-gold/25"
     >
       <div className="absolute inset-0">
@@ -158,7 +162,148 @@ function ProjectCard({
   );
 }
 
-export default function ProjectsPage() {
+/**
+ * One independently-ordered portfolio section. Dragging only ever changes
+ * this component's own local state — nothing is written to Supabase until
+ * "Save Order" is clicked, and that write only ever touches this group's
+ * rows, so reordering Brand Identity can never affect Graphic Design.
+ */
+function PortfolioGroupSection({
+  groupKey,
+  label,
+  rows,
+  filtersActive,
+  busyId,
+  onTogglePublished,
+  onToggleFeatured,
+  onDuplicate,
+  onDelete,
+  onOrderSaved,
+}: {
+  groupKey: string;
+  label: string;
+  rows: ProjectWithCategory[];
+  filtersActive: boolean;
+  busyId: string | null;
+  onTogglePublished: (row: ProjectWithCategory) => void;
+  onToggleFeatured: (row: ProjectWithCategory) => void;
+  onDuplicate: (row: ProjectWithCategory) => void;
+  onDelete: (row: ProjectWithCategory) => void;
+  onOrderSaved: (groupKey: string, next: ProjectWithCategory[]) => void;
+}) {
+  const { toast } = useToast();
+  const [prevRows, setPrevRows] = useState(rows);
+  const [order, setOrder] = useState(rows);
+  const [savedOrderIds, setSavedOrderIds] = useState(() => rows.map((row) => row.id));
+  const [saving, setSaving] = useState(false);
+
+  // Adjust local state when the incoming `rows` prop changes, computed
+  // directly during render (React's documented pattern for this) rather
+  // than in an effect — avoids an extra commit/cascading re-render.
+  if (rows !== prevRows) {
+    setPrevRows(rows);
+    const currentIds = new Set(order.map((row) => row.id));
+    const nextIds = new Set(rows.map((row) => row.id));
+    const sameMembers =
+      currentIds.size === nextIds.size && [...currentIds].every((id) => nextIds.has(id));
+    if (sameMembers) {
+      // Membership unchanged (e.g. a publish/feature toggle) — refresh each
+      // item's data in place without disturbing any unsaved local drag order.
+      const byId = new Map(rows.map((row) => [row.id, row]));
+      setOrder(order.map((row) => byId.get(row.id) ?? row));
+    } else {
+      // A project was added to or removed from this group (create/duplicate/
+      // delete) — any unsaved local reorder is discarded in favor of the
+      // server's current order for this group.
+      setOrder(rows);
+      setSavedOrderIds(rows.map((row) => row.id));
+    }
+  }
+
+  const dirty = order.map((row) => row.id).join(",") !== savedOrderIds.join(",");
+
+  const saveOrder = async () => {
+    setSaving(true);
+    const supabase = getSupabaseClient();
+    const results = await Promise.all(
+      order.map((row, index) =>
+        supabase.from("projects").update({ sort_order: index }).eq("id", row.id),
+      ),
+    );
+    setSaving(false);
+    const failed = results.find((result) => result.error);
+    if (failed?.error) {
+      toast(failed.error.message, "error");
+      return;
+    }
+    const reordered = order.map((row, index) => ({ ...row, sort_order: index }));
+    setSavedOrderIds(reordered.map((row) => row.id));
+    onOrderSaved(groupKey, reordered);
+    toast(`${label} order saved.`);
+    void safeRevalidate(toast);
+  };
+
+  if (filtersActive && order.length === 0) return null;
+
+  return (
+    <section className="glass rounded-3xl p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-xl text-ivory">{label}</h2>
+        <button
+          type="button"
+          disabled={!dirty || saving}
+          onClick={() => void saveOrder()}
+          className="inline-flex h-10 items-center gap-2 rounded-xl border border-gold/40 px-4 text-sm font-medium text-gold transition-colors hover:bg-gold/10 disabled:cursor-not-allowed disabled:border-white/10 disabled:text-ivory/30"
+        >
+          {saving ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Save size={14} aria-hidden />}
+          Save Order
+        </button>
+      </div>
+
+      <div className="mt-5">
+        {order.length === 0 ? (
+          <div className="rounded-2xl border border-white/8 py-10 text-center text-sm text-ivory/50">
+            No projects here yet.
+          </div>
+        ) : filtersActive ? (
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+            {order.map((row) => (
+              <ProjectCard
+                key={row.id}
+                row={row}
+                draggable={false}
+                busy={busyId === row.id}
+                onTogglePublished={() => onTogglePublished(row)}
+                onToggleFeatured={() => onToggleFeatured(row)}
+                onDuplicate={() => onDuplicate(row)}
+                onDelete={() => onDelete(row)}
+              />
+            ))}
+          </div>
+        ) : (
+          <SortableGrid
+            items={order}
+            onReorder={setOrder}
+            className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+            renderItem={(row) => (
+              <ProjectCard
+                row={row}
+                draggable
+                busy={busyId === row.id}
+                onTogglePublished={() => onTogglePublished(row)}
+                onToggleFeatured={() => onToggleFeatured(row)}
+                onDuplicate={() => onDuplicate(row)}
+                onDelete={() => onDelete(row)}
+              />
+            )}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default function PortfolioPage() {
   const { toast } = useToast();
   const [rows, setRows] = useState<ProjectWithCategory[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -219,6 +364,17 @@ export default function ProjectsPage() {
     });
   }, [rows, search, status, categoryId]);
 
+  const groupedRows = useMemo(() => {
+    const groups = new Map<string, ProjectWithCategory[]>();
+    for (const option of GROUP_OPTIONS) groups.set(option.value, []);
+    const fallback = groups.get("other")!;
+    for (const row of filtered) {
+      const bucket = groups.get(row.group_key) ?? fallback;
+      bucket.push(row);
+    }
+    return groups;
+  }, [filtered]);
+
   const patch = async (
     row: ProjectWithCategory,
     patchValue: { published: boolean } | { featured: boolean },
@@ -241,15 +397,15 @@ export default function ProjectsPage() {
       return;
     }
     toast(successMessage);
-    revalidatePublicSite();
+    void safeRevalidate(toast);
   };
 
   const duplicateProject = async (row: ProjectWithCategory) => {
     setBusyId(row.id);
     try {
       const supabase = getSupabaseClient();
-      const maxSort =
-        rows && rows.length > 0 ? Math.max(...rows.map((item) => item.sort_order)) : 0;
+      const groupRows = (rows ?? []).filter((item) => item.group_key === row.group_key);
+      const maxSort = groupRows.length > 0 ? Math.max(...groupRows.map((item) => item.sort_order)) : 0;
       const { data: links } = await supabase
         .from("project_services")
         .select("service_id")
@@ -296,7 +452,7 @@ export default function ProjectsPage() {
         current ? [...current, insertResult.data as ProjectWithCategory] : current,
       );
       toast("Project duplicated as a draft.");
-      revalidatePublicSite();
+      void safeRevalidate(toast);
     } catch {
       toast("Could not duplicate the project.", "error");
     } finally {
@@ -321,43 +477,50 @@ export default function ProjectsPage() {
       current ? current.filter((item) => item.id !== deleteTarget.id) : current,
     );
     toast("Project deleted.");
-    revalidatePublicSite();
+    void safeRevalidate(toast);
   };
 
-  const handleReorder = async (next: ProjectWithCategory[]) => {
-    const reordered = next.map((row, index) => ({ ...row, sort_order: index }));
-    setRows(reordered);
-    const supabase = getSupabaseClient();
-    const results = await Promise.all(
-      reordered.map((row) =>
-        supabase.from("projects").update({ sort_order: row.sort_order }).eq("id", row.id),
-      ),
-    );
-    const failed = results.find((result) => result.error);
-    if (failed?.error) {
-      toast(failed.error.message, "error");
-      reload();
-      return;
-    }
-    revalidatePublicSite();
+  const handleOrderSaved = (groupKey: string, next: ProjectWithCategory[]) => {
+    setRows((current) => {
+      if (!current) return current;
+      const byId = new Map(next.map((row) => [row.id, row]));
+      return current.map((row) => (row.group_key === groupKey ? (byId.get(row.id) ?? row) : row));
+    });
   };
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-ivory">Projects</h1>
+          <h1 className="font-display text-3xl text-ivory">Portfolio</h1>
           <p className="mt-1.5 text-sm text-ivory/55">
-            {rows ? `${rows.length} total` : "Loading…"}
+            {rows ? `${rows.length} total` : "Loading…"} — organized exactly as it appears on
+            the website.
           </p>
         </div>
-        <Link
-          href="/studio/projects/new"
-          className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold px-4 text-sm font-semibold text-canvas transition-colors hover:bg-gold-soft"
-        >
-          <Plus size={16} aria-hidden />
-          New project
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/studio/categories"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-sm text-ivory/70 transition-colors hover:border-white/25"
+          >
+            <Layers size={14} aria-hidden />
+            Categories
+          </Link>
+          <Link
+            href="/studio/services"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-sm text-ivory/70 transition-colors hover:border-white/25"
+          >
+            <Tag size={14} aria-hidden />
+            Services
+          </Link>
+          <Link
+            href="/studio/website/portfolio/new"
+            className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold px-4 text-sm font-semibold text-canvas transition-colors hover:bg-gold-soft"
+          >
+            <Plus size={16} aria-hidden />
+            New project
+          </Link>
+        </div>
       </div>
 
       {/* Search + filters */}
@@ -411,11 +574,11 @@ export default function ProjectsPage() {
 
       {!filtersActive && rows && rows.length > 1 ? (
         <p className="mt-3 text-xs text-ivory/40">
-          Drag a card to reorder — clear filters and search to enable dragging.
+          Drag within a section to reorder, then click that section&apos;s Save Order — clear
+          filters and search to enable dragging.
         </p>
       ) : null}
 
-      {/* Gallery */}
       <div className="mt-5">
         {rows === null ? (
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
@@ -444,62 +607,36 @@ export default function ProjectsPage() {
               ? "No projects yet. Create the first one above."
               : "No projects match the current filters."}
           </div>
-        ) : filtersActive ? (
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-            {filtered.map((row) => (
-              <ProjectCard
-                key={row.id}
-                row={row}
-                draggable={false}
-                busy={busyId === row.id}
-                onTogglePublished={() =>
+        ) : (
+          <div className="space-y-6">
+            {GROUP_OPTIONS.map((option) => (
+              <PortfolioGroupSection
+                key={option.value}
+                groupKey={option.value}
+                label={option.label}
+                rows={groupedRows.get(option.value) ?? []}
+                filtersActive={filtersActive}
+                busyId={busyId}
+                onTogglePublished={(row) =>
                   void patch(
                     row,
                     { published: !row.published },
                     row.published ? "Moved to drafts." : "Published.",
                   )
                 }
-                onToggleFeatured={() =>
+                onToggleFeatured={(row) =>
                   void patch(
                     row,
                     { featured: !row.featured },
                     row.featured ? "Removed from featured." : "Marked as featured.",
                   )
                 }
-                onDuplicate={() => void duplicateProject(row)}
-                onDelete={() => setDeleteTarget(row)}
+                onDuplicate={(row) => void duplicateProject(row)}
+                onDelete={(row) => setDeleteTarget(row)}
+                onOrderSaved={handleOrderSaved}
               />
             ))}
           </div>
-        ) : (
-          <SortableGrid
-            items={filtered}
-            onReorder={(next) => void handleReorder(next)}
-            className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
-            renderItem={(row) => (
-              <ProjectCard
-                row={row}
-                draggable
-                busy={busyId === row.id}
-                onTogglePublished={() =>
-                  void patch(
-                    row,
-                    { published: !row.published },
-                    row.published ? "Moved to drafts." : "Published.",
-                  )
-                }
-                onToggleFeatured={() =>
-                  void patch(
-                    row,
-                    { featured: !row.featured },
-                    row.featured ? "Removed from featured." : "Marked as featured.",
-                  )
-                }
-                onDuplicate={() => void duplicateProject(row)}
-                onDelete={() => setDeleteTarget(row)}
-              />
-            )}
-          />
         )}
       </div>
 

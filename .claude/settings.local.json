@@ -14,7 +14,8 @@
       "mcp__TestSprite__testsprite_generate_standardized_prd",
       "mcp__TestSprite__testsprite_generate_frontend_test_plan",
       "mcp__TestSprite__testsprite_generate_code_and_execute",
-      "Bash(node \"C:\\\\Users\\\\Marvel\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\8ddf6bea01b2519d\\\\node_modules\\\\@testsprite\\\\testsprite-mcp\\\\dist\\\\index.js\" generateCodeAndExecute)"
+      "Bash(node \"C:\\\\Users\\\\Marvel\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\8ddf6bea01b2519d\\\\node_modules\\\\@testsprite\\\\testsprite-mcp\\\\dist\\\\index.js\" generateCodeAndExecute)",
+      "Bash(mkdir -p \"C:/Users/Marvel/Desktop/AmeenHaieckWebsite/lib/actions\" && echo done)"
     ]
   }
 }

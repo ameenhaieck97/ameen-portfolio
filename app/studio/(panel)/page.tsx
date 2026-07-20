@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
               <p className="mt-1 text-xs text-ivory/45">Most recently updated projects.</p>
             </div>
             <Link
-              href="/studio/projects"
+              href="/studio/website/portfolio"
               className="inline-flex items-center gap-1 text-sm font-medium text-gold transition-colors hover:text-gold-soft"
             >
               View all
@@ -160,7 +160,7 @@ export default function AdminDashboardPage() {
             ) : recent.length === 0 ? (
               <div className="rounded-2xl border border-white/8 py-12 text-center text-sm text-ivory/55">
                 No projects yet.{" "}
-                <Link href="/studio/projects/new" className="font-medium text-gold hover:text-gold-soft">
+                <Link href="/studio/website/portfolio/new" className="font-medium text-gold hover:text-gold-soft">
                   Create the first one.
                 </Link>
               </div>
@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
                 {recent.map((project) => (
                   <li key={project.id}>
                     <Link
-                      href={`/studio/projects/${project.id}`}
+                      href={`/studio/website/portfolio/${project.id}`}
                       className="glass-reveal flex items-center gap-4 rounded-2xl border border-white/8 px-5 py-3.5 transition-colors hover:border-gold/25"
                     >
                       <span className="relative h-11 w-11 flex-none overflow-hidden rounded-lg border border-white/10 bg-canvas/60">

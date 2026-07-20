@@ -59,7 +59,7 @@ export default function EditProjectPage() {
         <div className="glass rounded-3xl p-10 text-center">
           <p className="text-sm text-ivory/60">This project no longer exists.</p>
           <Link
-            href="/studio/projects"
+            href="/studio/website/portfolio"
             className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-gold hover:text-gold-soft"
           >
             <ArrowLeft size={15} aria-hidden />

@@ -2,13 +2,13 @@
 
 import { EntityManager } from "@/components/admin/EntityManager";
 
-export default function TestimonialsPage() {
+export default function ClientsPage() {
   return (
     <EntityManager
       table="testimonials"
-      title="Testimonials"
-      singular="testimonial"
-      description="Client quotes — only published ones are visible to visitors."
+      title="Clients"
+      singular="client"
+      description="Client quotes and reviews."
       fields={[
         { key: "author", label: "Author", type: "text", required: true },
         { key: "role", label: "Role / Company", type: "text" },
