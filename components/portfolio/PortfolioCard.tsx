@@ -31,7 +31,10 @@ export function PortfolioCard({
 }) {
   const t = useTranslations("portfolio");
   const isExternal = Boolean(item.href);
-  const isLogo = item.image?.endsWith(".svg");
+  // Logo-style cards (centered mark, optionally gold-masked) vs. full-bleed
+  // photos are decided by the project's category, not its file format —
+  // MonoLogo's CSS mask works on any raster/vector image alike.
+  const isLogo = item.category === "brandIdentity" || item.category === "logoDesign";
 
   // A soft, gentle tilt that follows the cursor near the card's edges — a
   // low-stiffness, well-damped spring so it settles smoothly instead of

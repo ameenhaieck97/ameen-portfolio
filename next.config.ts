@@ -43,7 +43,6 @@ const nextConfig: NextConfig = {
         destination: "/studio/website/portfolio/:path*",
         permanent: true,
       },
-      { source: "/studio/testimonials", destination: "/studio/clients", permanent: true },
     ];
   },
 };

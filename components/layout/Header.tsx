@@ -3,18 +3,31 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/cn";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const navKeys = ["about", "skills", "portfolio", "experience", "partners"] as const;
+const navKeys = [
+  "about",
+  "services",
+  "portfolio",
+  "experience",
+  "clients",
+  "education",
+] as const;
+
+// Not part of the translation schema (a11y-only microcopy for the mobile
+// toggle button, not visible content) — kept as a tiny in-component lookup
+// instead of a JSON key.
+const MENU_LABEL = { en: "Menu", ar: "القائمة" };
+const CLOSE_LABEL = { en: "Close", ar: "إغلاق" };
 
 export default function Header() {
   const t = useTranslations("nav");
   const tMeta = useTranslations("meta");
+  const locale = useLocale() as "en" | "ar";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -40,8 +53,13 @@ export default function Header() {
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        <Link
-          href="/"
+        {/* A real navigation Link to "/" is a no-op when already on this
+            single-page site — the router sees no route change and won't
+            scroll to top. A plain anchor to #hero matches the "back to
+            top" link in the footer and always works regardless of scroll
+            position. */}
+        <a
+          href="#hero"
           className="group flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
           <MonoLogo
@@ -52,7 +70,7 @@ export default function Header() {
           <span className="font-display text-lg font-medium tracking-tight text-ivory">
             {tMeta("titleShort")}
           </span>
-        </Link>
+        </a>
 
         <nav className="hidden items-center gap-10 lg:flex">
           {navKeys.map((key) => (
@@ -79,7 +97,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? t("close") : t("menu")}
+          aria-label={open ? CLOSE_LABEL[locale] : MENU_LABEL[locale]}
           aria-expanded={open}
           className="glass flex h-11 w-11 items-center justify-center rounded-full text-ivory lg:hidden"
         >

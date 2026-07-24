@@ -33,6 +33,10 @@ const nameWordVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: EASE } },
 };
 
+// Not part of the translation schema (a11y-only microcopy, not visible
+// content) — kept as a tiny in-component lookup instead of a JSON key.
+const SCROLL_HINT = { en: "Scroll", ar: "تصفح" };
+
 // Fixed (non-random) positions/timings so server and client markup match.
 const particles = [
   { left: "12%", top: "22%", size: 3, duration: 9, delay: 0 },
@@ -46,7 +50,7 @@ const particles = [
 export default function Hero() {
   const t = useTranslations("hero");
   const tMeta = useTranslations("meta");
-  const locale = useLocale();
+  const locale = useLocale() as "en" | "ar";
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -80,7 +84,6 @@ export default function Hero() {
     return () => window.removeEventListener("mousemove", handleMove);
   }, [reduceMotion, mouseX, mouseY]);
 
-  const headingLines = t.raw("headingLines") as string[];
   const nameWords = tMeta("titleShort").split(" ");
 
   return (
@@ -209,33 +212,27 @@ export default function Hero() {
               variants={{ visible: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } } }}
               className="mt-8 max-w-xl font-display text-xl leading-snug text-ivory/80 sm:text-2xl"
             >
-              {headingLines.map((line, i) => (
-                <motion.span
-                  key={`${line}-${i}`}
-                  variants={reduceMotion ? undefined : lineVariants}
-                  className="block"
-                >
-                  {line}
-                </motion.span>
-              ))}
+              <motion.span variants={reduceMotion ? undefined : lineVariants} className="block">
+                {t("heading")}
+              </motion.span>
             </motion.p>
           </RevealItem>
 
           <RevealItem>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-ivory/60 sm:text-lg">
-              {t("tagline")}
+              {t("description")}
             </p>
           </RevealItem>
 
           <RevealItem className="mt-12 flex flex-wrap items-center gap-5">
             <Magnetic>
               <Button href="#portfolio" variant="primary">
-                {t("ctaPrimary")}
+                {t("primaryButton")}
               </Button>
             </Magnetic>
             <Magnetic>
               <Button href="#contact" variant="ghost">
-                {t("ctaSecondary")}
+                {t("secondaryButton")}
               </Button>
             </Magnetic>
           </RevealItem>
@@ -244,7 +241,7 @@ export default function Hero() {
 
       <div className="absolute bottom-10 left-1/2 z-10 -translate-x-1/2">
         <div className="flex flex-col items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-ivory/40">
-          {t("scrollHint")}
+          {SCROLL_HINT[locale]}
           <motion.span
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}

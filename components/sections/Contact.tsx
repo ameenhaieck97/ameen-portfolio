@@ -26,8 +26,8 @@ export default function Contact() {
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
-          heading={t("heading")}
-          subheading={t("subheading")}
+          heading={t("title")}
+          subheading={t("description")}
           align="center"
           index={7}
           size="display"

@@ -245,3 +245,26 @@ html.cursor-none * {
   outline: 2px solid var(--color-gold);
   outline-offset: 3px;
 }
+
+/* Page scrollbar, in the site's own palette instead of the OS default. */
+html {
+  scrollbar-color: var(--color-gold) var(--color-canvas);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-gold);
+  border-radius: 999px;
+  border: 3px solid var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gold-soft);
+}

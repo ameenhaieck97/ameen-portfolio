@@ -2,7 +2,6 @@
 
 import { ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { siteConfig } from "@/data/site";
 import { contact } from "@/data/contact";
@@ -14,7 +13,15 @@ import {
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const navKeys = ["about", "skills", "portfolio", "experience", "partners", "contact"] as const;
+const navKeys = [
+  "about",
+  "services",
+  "portfolio",
+  "experience",
+  "clients",
+  "education",
+  "contact",
+] as const;
 
 const socialIcons = {
   instagram: InstagramIcon,
@@ -35,8 +42,11 @@ export default function Footer() {
         className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 lg:flex-row lg:items-start lg:justify-between lg:px-10"
       >
         <RevealItem variant="blurUp" className="max-w-sm">
-          <Link
-            href="/"
+          {/* Plain anchor (not a router Link) — see Header.tsx for why: a
+              Link to "/" is a no-op on this single-page site when already
+              there, so it never scrolls back to top. */}
+          <a
+            href="#hero"
             className="group inline-flex items-center gap-2.5 transition-opacity hover:opacity-80"
           >
             <MonoLogo
@@ -47,7 +57,7 @@ export default function Footer() {
             <span className="font-display text-lg font-medium tracking-tight text-ivory">
               {tMeta("titleShort")}
             </span>
-          </Link>
+          </a>
           <p className="mt-4 text-sm leading-relaxed text-ivory/60">
             {tf("tagline")}
           </p>

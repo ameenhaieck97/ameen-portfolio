@@ -1,14 +1,16 @@
 import { setRequestLocale } from "next-intl/server";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
-import Skills from "@/components/sections/Skills";
+import Services from "@/components/sections/Services";
 import Ticker from "@/components/sections/Ticker";
 import Portfolio from "@/components/sections/Portfolio";
 import ExperienceImpact from "@/components/sections/ExperienceImpact";
-import Certifications from "@/components/sections/Certifications";
-import Partners from "@/components/sections/Partners";
+import Education from "@/components/sections/Education";
+import Clients from "@/components/sections/Clients";
 import Contact from "@/components/sections/Contact";
 import { getPortfolioItems } from "@/lib/portfolio-data";
+import { getClients } from "@/lib/clients-data";
+import { getCurrentWorkGalleries } from "@/lib/current-work-data";
 
 // The studio calls the revalidatePublicSite Server Action right after every
 // save, so this is only a safety net in case that call is ever missed —
@@ -24,18 +26,22 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const portfolioItems = await getPortfolioItems();
+  const [portfolioItems, clients, currentWorkGalleries] = await Promise.all([
+    getPortfolioItems(),
+    getClients(),
+    getCurrentWorkGalleries(),
+  ]);
 
   return (
     <>
       <Hero />
       <About />
-      <Skills />
+      <Services />
       <Ticker />
       <Portfolio items={portfolioItems} />
-      <ExperienceImpact />
-      <Certifications />
-      <Partners />
+      <ExperienceImpact currentWorkGalleries={currentWorkGalleries} />
+      <Clients items={clients} />
+      <Education />
       <Contact />
     </>
   );

@@ -138,8 +138,8 @@ export default function Portfolio({
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
-          heading={t("heading")}
-          subheading={t("subheading")}
+          heading={t("title")}
+          subheading={t("description")}
           index={3}
         />
 

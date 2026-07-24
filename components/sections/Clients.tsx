@@ -3,18 +3,23 @@ import { Marquee } from "@/components/ui/Marquee";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { partners } from "@/data/partners";
+import { partners, type Partner } from "@/data/partners";
 
-export default function Partners() {
-  const t = useTranslations("partners");
+export default function Clients({
+  items = partners,
+}: {
+  /** Supplied by the server from the CMS; falls back to bundled static data. */
+  items?: Partner[];
+}) {
+  const t = useTranslations("clients");
   const locale = useLocale() as "en" | "ar";
 
   return (
-    <section id="partners" className="relative py-20 sm:py-32 lg:py-36">
+    <section id="clients" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
-          heading={t("heading")}
+          heading={t("title")}
           subheading={t("subheading")}
           align="center"
           index={6}
@@ -25,7 +30,7 @@ export default function Partners() {
           full glass cards from tablet up. */}
       <Reveal variant="fadeIn" delay={0.15} className="mt-10 sm:mt-16">
         <Marquee>
-          {partners.map((partner) => {
+          {items.map((partner) => {
             const name = partner.name[locale];
             return (
               <div

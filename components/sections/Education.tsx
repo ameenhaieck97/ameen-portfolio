@@ -4,16 +4,16 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { certifications } from "@/data/certifications";
 
-export default function Certifications() {
-  const t = useTranslations("certifications");
+export default function Education() {
+  const t = useTranslations("education");
 
   return (
-    <section id="certifications" className="relative py-20 sm:py-32 lg:py-36">
+    <section id="education" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
-          heading={t("heading")}
-          subheading={t("subheading")}
+          heading={t("title")}
+          subheading={t("description")}
           index={5}
         />
 

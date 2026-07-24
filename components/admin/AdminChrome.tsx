@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Building2,
   Globe,
   Home,
   Images,
@@ -12,7 +13,7 @@ import {
   LogOut,
   Mail,
   Menu,
-  MessageSquareQuote,
+  Network,
   PanelBottom,
   Package,
   Percent,
@@ -29,6 +30,7 @@ type NavLink = { href: string; label: string; icon: LucideIcon };
 const WEBSITE_CHILDREN: NavLink[] = [
   { href: "/studio/website/homepage", label: "Homepage", icon: Home },
   { href: "/studio/website/portfolio", label: "Portfolio", icon: LayoutGrid },
+  { href: "/studio/website/current-work", label: "Current Work", icon: Network },
   { href: "/studio/website/packages", label: "Packages", icon: Package },
   { href: "/studio/website/offers", label: "Offers", icon: Percent },
   { href: "/studio/website/about", label: "About", icon: UserCircle },
@@ -143,7 +145,7 @@ export function AdminChrome({ children }: { children: ReactNode }) {
         <NavLinkItem
           href="/studio/clients"
           label="Clients"
-          icon={MessageSquareQuote}
+          icon={Building2}
           active={isActive(pathname, "/studio/clients")}
           onNavigate={closeMobile}
         />

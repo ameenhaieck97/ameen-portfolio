@@ -6,7 +6,7 @@ export default function AboutPage() {
     <ComingSoonPanel
       icon={UserCircle}
       title="About"
-      description="The About section's narrative copy is still hardcoded in the site's code today. What you can already manage — Skills and Experience — lives here for now."
+      description="The About section's narrative copy is still hardcoded in the site's code today. What you can already manage — Skills, Experience, and Testimonials — lives here for now."
     >
       <ComingSoonLinkCard
         href="/studio/skills"
@@ -17,6 +17,11 @@ export default function AboutPage() {
         href="/studio/experience"
         title="Experience"
         description="Career timeline entries — company, role, years, description."
+      />
+      <ComingSoonLinkCard
+        href="/studio/testimonials"
+        title="Testimonials"
+        description="Client quotes and reviews — not yet shown anywhere on the public site."
       />
     </ComingSoonPanel>
   );

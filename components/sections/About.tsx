@@ -4,9 +4,11 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { PlaceholderArt } from "@/components/ui/PlaceholderArt";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/data/site";
+import { cn } from "@/lib/cn";
 
 export default function About() {
   const t = useTranslations("about");
+  const paragraphs = t("description").split("\n\n");
 
   return (
     <section id="about" className="relative py-20 sm:py-32 lg:py-36">
@@ -28,11 +30,19 @@ export default function About() {
         </Reveal>
 
         <Reveal variant="fadeRight" delay={0.15}>
-          <SectionHeading eyebrow={t("eyebrow")} heading={t("heading")} index={1} />
+          <SectionHeading eyebrow={t("eyebrow")} heading={t("title")} index={1} />
 
-          <p className="mt-8 font-display text-2xl leading-relaxed text-ivory/90 sm:text-3xl">
-            {t("paragraph1")}
-          </p>
+          {paragraphs.map((paragraph, i) => (
+            <p
+              key={i}
+              className={cn(
+                "text-lg leading-relaxed text-ivory/65 sm:text-xl",
+                i === 0 ? "mt-8" : "mt-5",
+              )}
+            >
+              {paragraph}
+            </p>
+          ))}
         </Reveal>
       </div>
     </section>

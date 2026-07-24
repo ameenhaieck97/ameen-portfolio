@@ -2,73 +2,100 @@
   "meta": {
     "title": "Ameen Haieck — Graphic Designer",
     "titleShort": "Ameen Haieck",
-    "description": "Ameen Haieck designs visual identities that hold up — branding, editorial design and digital work since 2015."
+    "description": "Graphic designer specializing in brand identity, editorial design, print production, and historical photo restoration. Working with companies, institutions, and media platforms since 2015."
   },
   "nav": {
     "home": "Home",
     "about": "About",
-    "skills": "Skills",
+    "services": "Services",
     "portfolio": "Portfolio",
     "experience": "Experience",
-    "partners": "Partners",
-    "contact": "Contact",
-    "menu": "Menu",
-    "close": "Close"
+    "education": "Education",
+    "clients": "Clients",
+    "contact": "Contact"
   },
   "hero": {
     "eyebrow": "Graphic Designer",
-    "status": "Available for new projects",
-    "headingLines": ["Building visual identities", "that people remember."],
-    "tagline": "Since 2015, I've helped businesses, institutions and organizations transform ideas into meaningful visual identities through branding, editorial design and digital experiences.",
-    "ctaPrimary": "View Portfolio",
-    "ctaSecondary": "Contact Me",
-    "scrollHint": "Scroll"
+    "status": "Available for New Projects",
+    "heading": "I design what gives your brand a distinct identity, creating visual systems built to last.",
+    "description": "Since 2015, I have specialized in brand identity design, visual systems, editorial projects, and institutional communication, working with commercial brands, public institutions, media platforms, and cultural organizations across Iraq and beyond.",
+    "primaryButton": "View Portfolio",
+    "secondaryButton": "Get in Touch"
   },
-  "ticker": {
-    "items": ["Brand Identity", "Arabic Typography", "Social Media", "Print Production", "Visual Systems", "Art Direction"]
-  },
+  "ticker": [
+    "500+ Projects",
+    "Since 2015",
+    "Brand Identity",
+    "Editorial Design",
+    "Arabic Calligraphy",
+    "Historical Photo Restoration",
+    "AI-Powered Design"
+  ],
   "about": {
     "eyebrow": "About",
-    "heading": "A decade shaping how brands are seen",
-    "paragraph1": "Since 2015, I've worked with companies, institutions and organizations across many industries — always starting from the same place: understand the story, then give it a shape that lasts.",
+    "title": "More Than Design... Building Complete Visual Identities.",
+    "description": "My professional journey began in 2015. Since then, I have collaborated with public institutions, commercial companies, media platforms, and cultural organizations on projects ranging from brand identity systems to editorial design, print production, and historical photo restoration.\n\nI believe great design does not begin with colors or logos. It begins with understanding the idea, then transforming it into a clear, consistent, and enduring visual system.",
     "sinceLabel": "Since"
   },
-  "stats": {
-    "items": {
-      "years": "Years of Practice",
-      "projects": "Projects Delivered",
-      "clients": "Clients Served",
-      "satisfaction": "Client Satisfaction"
-    }
-  },
-  "skills": {
-    "eyebrow": "Skills",
-    "heading": "What I Do",
-    "subheading": "Skills built on a decade of real projects, not theory.",
-    "items": {
-      "identitySystems": "Visual identity systems that hold together",
-      "socialMedia": "Social media design, ready to publish",
-      "archivalRestoration": "Restoring historical photographs, frame by frame",
-      "aiAssisted": "AI tools, used to work faster without cutting corners",
-      "clarity": "Turning complicated ideas into simple visuals"
-    }
+  "stats": [
+    { "value": "+500", "label": "Projects" },
+    { "value": "+100", "label": "Clients" },
+    { "value": "Since 2015", "label": "Experience" }
+  ],
+  "services": {
+    "eyebrow": "Services",
+    "title": "Services",
+    "description": "A selection of design services that combine creative expertise, technical precision, and a deep understanding of brands and institutions.",
+    "items": [
+      {
+        "icon": "brand",
+        "title": "Brand Identity",
+        "description": "Building complete visual identity systems including logos, visual assets, and brand guidelines."
+      },
+      {
+        "icon": "editorial",
+        "title": "Editorial Design",
+        "description": "Designing books, magazines, catalogs, reports, and institutional publications."
+      },
+      {
+        "icon": "print",
+        "title": "Print Production",
+        "description": "Preparing print-ready files and supervising production for high-quality printed materials."
+      },
+      {
+        "icon": "social",
+        "title": "Digital Content Design",
+        "description": "Creating professional visual content that strengthens your brand across digital platforms."
+      },
+      {
+        "icon": "calligraphy",
+        "title": "Arabic Calligraphy",
+        "description": "Crafting Arabic lettering and typography with a balance of beauty, readability, and purpose."
+      },
+      {
+        "icon": "restoration",
+        "title": "Historical Photo Restoration",
+        "description": "Restoring, enhancing, and colorizing archival photographs while preserving their authenticity and historical value."
+      }
+    ]
   },
   "currentWork": {
-    "organization": "Al-Mustafa Institute for Religious Guidance and Awareness",
     "period": "2025 — Present",
-    "subheading": "Three projects. Three different visual languages.",
     "comingSoon": "Designs coming soon",
     "categoryLabel": "Project",
-    "projects": {
-      "mujeebCenter": "Al-Mujeeb Center for Religious Knowledge",
-      "najafPodcast": "Najaf Time Podcast",
-      "iliaApp": "Ilia App"
-    }
+    "title": "Media Department · Al-Mustafa Foundation for Guidance & Religious Awareness",
+    "description": "I work within the Foundation's Media Department, contributing to multiple digital platforms by developing visual identities, producing creative assets, designing campaigns, social media content, visual materials, and collaborating closely with content and production teams.",
+    "projects": [
+      "Al-Mustafa Foundation for Guidance & Religious Awareness",
+      "Al-Mujeeb Center for Religious Knowledge",
+      "Najaf Time Podcast",
+      "Ilia App"
+    ]
   },
   "portfolio": {
     "eyebrow": "Portfolio",
-    "heading": "Selected Work",
-    "subheading": "A selection of branding, editorial and visual communication work.",
+    "title": "Selected Projects",
+    "description": "A curated selection of work showcasing my experience in brand identity, editorial design, print production, and institutional visual communication.",
     "viewProject": "View project",
     "openLink": "Visit link",
     "viewAll": "View all",
@@ -86,39 +113,41 @@
       "print": "Print Production"
     }
   },
-  "experienceImpact": {
-    "eyebrow": "Experience",
-    "heading": "Experience & Impact",
-    "subheading": "A few milestones, and the numbers behind them."
-  },
   "experience": {
+    "eyebrow": "Experience",
+    "title": "Professional Journey",
+    "description": "Key milestones that have shaped my professional experience and design philosophy.",
     "present": "Present",
     "items": {
-      "start": { "company": "Started Professional Design Career", "role": "Freelance design work, project by project." },
-      "hudaBeauty": { "company": "International Huda Beauty Project", "role": "Visual design for a global beauty brand." },
-      "printEditorial": { "company": "Print Production & Editorial Design", "role": "Catalogs, campaigns and brand publications." },
-      "almustafa": { "company": "Senior Graphic Designer", "role": "Al-Mustafa Institute" }
+      "mtnSyria": { "company": "MTN Syria", "role": "Designing advertising campaigns and marketing materials." },
+      "syrianAirlines": { "company": "Syrian Arab Airlines", "role": "Advertising campaigns and print designs." },
+      "sportsAwareness": { "company": "What You Don't Know About Sports", "role": "Visual content and social media platform designs." },
+      "doaaAlKhair": { "company": "Doaa Al-Khair Trading Company", "role": "Print production, quality control, and HR & financial management." },
+      "hudaBeautyCatalog": { "company": "Huda Beauty Catalog Project", "role": "Designing a commercial catalog for the Middle East branch in Amman." },
+      "hopeThroughWork": { "company": "Hope Through Work Campaign", "role": "Designed the visual identity and executed campaign materials for the electoral campaign of former Syrian President Bashar al-Assad." },
+      "darAlDiya": { "company": "Dar Al-Diya Print House", "role": "Art direction, print design, and print file management." },
+      "almustafa": { "company": "Al-Mustafa Foundation for Guidance & Religious Awareness", "role": "Leading and executing the visual identity and design content for several projects and digital platforms." }
     }
   },
-  "certifications": {
-    "eyebrow": "Certifications",
-    "heading": "Continuous learning",
-    "subheading": "Formal training behind the practical experience.",
+  "education": {
+    "eyebrow": "Education",
+    "title": "Education & Professional Development",
+    "description": "A continuous journey of academic learning and professional growth across design, Arabic language, and management, helping shape a broader creative perspective.",
     "items": {
       "graphicDesignDiploma": { "title": "Graphic Design Diploma", "issuer": "Dr. Nour Homsi Academy, Turkey", "honor": "Honors" },
       "proofreading": { "title": "Arabic Proofreading Certificate", "issuer": "Arabic Language Academy, Damascus", "honor": "" },
       "hrFinance": { "title": "HR & Financial Management", "issuer": "Qafilat Al-Uloom Academy", "honor": "" }
     }
   },
-  "partners": {
-    "eyebrow": "Partners",
-    "heading": "Companies I've Worked With",
+  "clients": {
+    "eyebrow": "Clients",
+    "title": "Clients & Organizations I've Worked With",
     "subheading": "A selection of the companies and institutions I've worked with over the years."
   },
   "contact": {
     "eyebrow": "Contact",
-    "heading": "Let's build something people will remember.",
-    "subheading": "Whether you're starting from scratch or refreshing what you have, let's build something worth keeping.",
+    "title": "Let's Turn Your Idea into a Visual Identity Worth Remembering.",
+    "description": "Whether you're launching a new brand or refining an existing one, I'd be delighted to help transform your vision into a complete visual experience.",
     "emailLabel": "Email",
     "whatsappLabel": "WhatsApp",
     "socialLabel": "Follow"

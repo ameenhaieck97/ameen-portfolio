@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   animate,
   motion,
@@ -10,7 +10,7 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 import { RevealGroup, RevealItem, Reveal } from "@/components/motion/Reveal";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -18,7 +18,33 @@ import { TiltCard } from "@/components/ui/TiltCard";
 import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/Lightbox";
 import { currentWorkProjects, instituteHub, type CurrentWorkProject } from "@/data/current-work";
 import { experience } from "@/data/experience";
-import { stats } from "@/data/stats";
+
+type StatEntry = { value: string; label: string };
+
+// Not part of the translation schema (this stat is a client-computed
+// addition, not content from the CMS/JSON) — kept as a tiny in-component
+// lookup instead of a JSON key, matching the pattern used elsewhere in this
+// file for non-content microcopy.
+const YEARS_LABEL = { en: "Years of Experience", ar: "سنوات خبرة" };
+
+// Stat values are free-form strings ("+500", "150+", "100%", "Since 2015")
+// rather than bare numbers. A value that's a number with an optional
+// leading and/or trailing symbol (e.g. "+500", "100%") animates as a
+// count-up, preserving whichever side the symbol was written on. A value
+// mentioning a year (e.g. "Since 2015") animates as a count-down from the
+// current year to that year instead, since counting up from 0 wouldn't
+// mean anything for a year.
+function parseStat(value: string): { count: number; prefix: string; suffix: string } | null {
+  const match = /^(\D*)(\d+)(\D*)$/.exec(value.trim());
+  if (!match) return null;
+  const [, prefix, digits, suffix] = match;
+  return { count: Number(digits), prefix, suffix };
+}
+
+function parseYear(value: string): number | null {
+  const match = /(\d{4})/.exec(value);
+  return match ? Number(match[1]) : null;
+}
 
 const LUX_EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -32,7 +58,7 @@ const dotVariants: Variants = {
 // the 3-column grid below closely enough for a decorative connector.
 const BRANCH_POSITIONS = [16.6, 50, 83.4] as const;
 
-function InstituteEcosystem() {
+function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]> }) {
   const tCurrent = useTranslations("currentWork");
   const locale = useLocale() as "en" | "ar";
   const reduceMotion = useReducedMotion();
@@ -41,8 +67,16 @@ function InstituteEcosystem() {
   const show = reduceMotion || isInView;
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const projectLabel = (project: CurrentWorkProject) =>
-    project.id === "institute" ? tCurrent("organization") : tCurrent(`projects.${project.id}`);
+  // The "projects" array is flat: index 0 is the institute hub itself,
+  // followed by each satellite project in the same order as
+  // currentWorkProjects — positional, since these are now plain strings
+  // rather than an object keyed by project id.
+  const projectNames = tCurrent.raw("projects") as string[];
+  const projectLabel = (project: CurrentWorkProject) => {
+    if (project.id === "institute") return projectNames[0];
+    const index = currentWorkProjects.findIndex((p) => p.id === project.id);
+    return projectNames[index + 1];
+  };
 
   const openProject = currentWorkProjects
     .concat(instituteHub)
@@ -50,8 +84,9 @@ function InstituteEcosystem() {
 
   const slides: PortfolioSlide[] = useMemo(() => {
     if (!openProject) return [];
-    if (openProject.designs.length > 0) {
-      return openProject.designs.map((src, i) => ({
+    const designs = galleries[openProject.id] ?? [];
+    if (designs.length > 0) {
+      return designs.map((src, i) => ({
         src,
         alt: projectLabel(openProject),
         title: projectLabel(openProject),
@@ -69,7 +104,7 @@ function InstituteEcosystem() {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openProject?.id, locale]);
+  }, [openProject?.id, locale, galleries]);
 
   return (
     <div ref={containerRef}>
@@ -77,9 +112,9 @@ function InstituteEcosystem() {
         {tCurrent("period")}
       </span>
       <p className="mt-2 font-display text-2xl text-ivory sm:text-3xl">
-        {tCurrent("organization")}
+        {tCurrent("title")}
       </p>
-      <p className="mt-2 max-w-lg text-ivory/60">{tCurrent("subheading")}</p>
+      <p className="mt-2 max-w-lg text-ivory/60">{tCurrent("description")}</p>
 
       {/* Hub — the institute, presented as the same rounded glass panel
           used everywhere else on the site */}
@@ -91,21 +126,20 @@ function InstituteEcosystem() {
       >
         <TiltCard
           onClick={() => setOpenId("institute")}
-          ariaLabel={tCurrent("organization")}
+          ariaLabel={projectNames[0]}
           className="glass flex w-full items-center gap-5 rounded-[1.75rem] p-6 text-start sm:p-7"
         >
           <span className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-gold/10 p-4 text-gold sm:h-20 sm:w-20 sm:p-5">
             <MonoLogo
               src={instituteHub.logo}
-              label={tCurrent("organization")}
+              label={projectNames[0]}
               className="h-full w-full"
             />
           </span>
           <div className="min-w-0">
             <p className="font-display text-lg text-ivory sm:text-xl">
-              {tCurrent("organization")}
+              {projectNames[0]}
             </p>
-            <p className="mt-1 text-sm text-ivory/55">{tCurrent("subheading")}</p>
           </div>
         </TiltCard>
       </motion.div>
@@ -186,7 +220,25 @@ function InstituteEcosystem() {
   );
 }
 
-function CountUp({ value, suffix }: { value: number; suffix: string }) {
+// The dashed gold ring each stat number sits inside — echoes the site's
+// earlier "dashed dial" stat treatment.
+function StatRing({ children }: { children: ReactNode }) {
+  return (
+    <span className="relative flex h-32 w-32 flex-none items-center justify-center rounded-full border-2 border-dashed border-gold/45 sm:h-36 sm:w-36 lg:h-40 lg:w-40">
+      {children}
+    </span>
+  );
+}
+
+function CountUp({
+  value,
+  prefix,
+  suffix,
+}: {
+  value: number;
+  prefix: string;
+  suffix: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
   const reduceMotion = useReducedMotion();
@@ -203,17 +255,56 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
   }, [isInView, reduceMotion, value]);
 
   return (
-    <span ref={ref} className="font-display text-5xl font-medium text-ivory sm:text-6xl lg:text-7xl">
+    <span ref={ref} className="font-display text-3xl font-medium text-ivory sm:text-4xl lg:text-5xl">
+      {prefix ? <span className="text-gold">{prefix}</span> : null}
       {reduceMotion ? value : display}
-      <span className="text-gold">{suffix}</span>
+      {suffix ? <span className="text-gold">{suffix}</span> : null}
     </span>
   );
 }
 
-export default function ExperienceImpact() {
-  const tImpact = useTranslations("experienceImpact");
+// Counts down from the current year to a target year (e.g. "Since 2015") —
+// the same count mechanic as CountUp, just descending, since counting up
+// from 0 wouldn't mean anything for a calendar year.
+function CountDown({ from, to }: { from: number; to: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const reduceMotion = useReducedMotion();
+  const [display, setDisplay] = useState(from);
+
+  useEffect(() => {
+    if (!isInView || reduceMotion) return;
+    const controls = animate(from, to, {
+      duration: 1.8,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (latest) => setDisplay(Math.round(latest)),
+    });
+    return () => controls.stop();
+  }, [isInView, reduceMotion, from, to]);
+
+  return (
+    <span ref={ref} className="font-display text-3xl font-medium text-ivory sm:text-4xl lg:text-5xl">
+      {reduceMotion ? to : display}
+    </span>
+  );
+}
+
+export default function ExperienceImpact({
+  currentWorkGalleries,
+}: {
+  /** Supplied by the server from the CMS; falls back to empty galleries. */
+  currentWorkGalleries?: Record<string, string[]>;
+}) {
   const tExperience = useTranslations("experience");
-  const tStats = useTranslations("stats");
+  const locale = useLocale() as "en" | "ar";
+  const messages = useMessages() as { stats: StatEntry[] };
+  // Lazy state initializer (not a bare call in the render body) so the
+  // current year is read exactly once per mount rather than on every render.
+  const [currentYear] = useState(() => new Date().getFullYear());
+  const stats: StatEntry[] = [
+    { value: `+${currentYear - 2015}`, label: YEARS_LABEL[locale] },
+    ...messages.stats,
+  ];
   const reduceMotion = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -226,15 +317,15 @@ export default function ExperienceImpact() {
     <section id="experience" className="relative py-20 sm:py-32 lg:py-36">
       <div className="mx-auto max-w-4xl px-6 lg:px-10">
         <SectionHeading
-          eyebrow={tImpact("eyebrow")}
-          heading={tImpact("heading")}
-          subheading={tImpact("subheading")}
+          eyebrow={tExperience("eyebrow")}
+          heading={tExperience("title")}
+          subheading={tExperience("description")}
           index={4}
         />
 
         {/* Currently — the Al-Mustafa Institute ecosystem */}
         <Reveal variant="fadeUp" delay={0.1} className="mt-14">
-          <InstituteEcosystem />
+          <InstituteEcosystem galleries={currentWorkGalleries ?? {}} />
         </Reveal>
 
         {/* Career timeline */}
@@ -280,18 +371,33 @@ export default function ExperienceImpact() {
           delay={0.1}
           className="mt-20 grid grid-cols-2 gap-y-12 border-t border-white/8 pt-16 sm:grid-cols-4 sm:divide-x sm:divide-white/8 rtl:sm:divide-x-reverse"
         >
-          {stats.map((stat) => (
-            <RevealItem
-              key={stat.id}
-              variant="blurUp"
-              className="flex flex-col items-center gap-3 text-center"
-            >
-              <CountUp value={stat.value} suffix={stat.suffix} />
-              <p className="text-xs uppercase tracking-[0.2em] text-ivory/55">
-                {tStats(`items.${stat.labelKey}`)}
-              </p>
-            </RevealItem>
-          ))}
+          {stats.map((stat) => {
+            // Check year-shaped values ("Since 2015") first — a 4-digit
+            // year plus surrounding words would otherwise also match the
+            // generic count parser below and never reach the count-down.
+            const targetYear = parseYear(stat.value);
+            const parsed = targetYear ? null : parseStat(stat.value);
+            return (
+              <RevealItem
+                key={stat.label}
+                variant="blurUp"
+                className="flex flex-col items-center gap-4 text-center"
+              >
+                <StatRing>
+                  {targetYear ? (
+                    <CountDown from={currentYear} to={targetYear} />
+                  ) : parsed ? (
+                    <CountUp value={parsed.count} prefix={parsed.prefix} suffix={parsed.suffix} />
+                  ) : (
+                    <span className="font-display text-2xl font-medium text-ivory sm:text-3xl">
+                      {stat.value}
+                    </span>
+                  )}
+                </StatRing>
+                <p className="text-xs uppercase tracking-[0.2em] text-ivory/55">{stat.label}</p>
+              </RevealItem>
+            );
+          })}
         </RevealGroup>
       </div>
     </section>

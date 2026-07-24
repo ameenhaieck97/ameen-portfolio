@@ -1,9 +1,9 @@
-import { useTranslations } from "next-intl";
+import { useMessages } from "next-intl";
 import { Marquee } from "@/components/ui/Marquee";
 
 export default function Ticker() {
-  const t = useTranslations("ticker");
-  const items = t.raw("items") as string[];
+  const messages = useMessages() as { ticker: string[] };
+  const items = messages.ticker;
 
   return (
     <div className="relative border-y border-white/8 py-5">
