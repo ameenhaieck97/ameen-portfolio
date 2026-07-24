@@ -80,6 +80,16 @@ export type FinanceClientSummary = {
   last_payment_date: string | null;
 };
 
+/** Backs the Receipt Creator's automatic "Previous Balance" / "Last Payment Date" fields — one row per project, from the finance_project_summary view. */
+export type FinanceProjectSummary = {
+  project_id: string;
+  client_id: string;
+  total_value: number;
+  total_paid: number;
+  remaining_balance: number;
+  last_payment_date: string | null;
+};
+
 export type FinanceReceiptWithItems = FinanceReceipt & {
   finance_receipt_items: FinanceReceiptItem[];
 };

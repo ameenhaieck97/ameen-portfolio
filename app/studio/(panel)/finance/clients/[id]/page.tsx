@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/admin/Skeleton";
 import { useToast } from "@/components/admin/Toast";
 import { ClientModal } from "@/components/finance/ClientModal";
 import { ProjectModal } from "@/components/finance/ProjectModal";
+import { ReceiptDrawer } from "@/components/finance/ReceiptDrawer";
 import { formatDate, formatUSD } from "@/lib/format";
 import type {
   FinanceClient,
@@ -71,6 +72,7 @@ export default function FinanceClientDetailPage() {
   });
   const [deleteClientOpen, setDeleteClientOpen] = useState(false);
   const [deletingClient, setDeletingClient] = useState(false);
+  const [openReceiptId, setOpenReceiptId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -264,11 +266,21 @@ export default function FinanceClientDetailPage() {
       </section>
 
       <section className="mt-8 glass rounded-3xl p-6">
-        <h2 className="font-display text-lg text-ivory">Financial timeline</h2>
-        <p className="mt-1 text-xs text-ivory/45">
-          Every receipt for this client, most recent first. Full receipt details (and creating new
-          ones) open here in the next phase.
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-lg text-ivory">Financial timeline</h2>
+            <p className="mt-1 text-xs text-ivory/45">
+              Every receipt for this client, most recent first — click one for the full details.
+            </p>
+          </div>
+          <Link
+            href={`/studio/finance/clients/${client.id}/receipts/new`}
+            className="inline-flex h-9 flex-none items-center gap-1.5 rounded-lg border border-white/10 px-3 text-xs font-medium text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
+          >
+            <Plus size={14} aria-hidden />
+            New receipt
+          </Link>
+        </div>
 
         {receipts.length === 0 ? (
           <div className="mt-5 rounded-2xl border border-white/8 py-10 text-center text-sm text-ivory/50">
@@ -277,9 +289,11 @@ export default function FinanceClientDetailPage() {
         ) : (
           <div className="mt-5 space-y-3">
             {receipts.map((receipt) => (
-              <div
+              <button
                 key={receipt.id}
-                className="glass-reveal flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 px-5 py-4"
+                type="button"
+                onClick={() => setOpenReceiptId(receipt.id)}
+                className="glass-reveal flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 px-5 py-4 text-start transition-colors hover:border-gold/25"
               >
                 <div>
                   <p className="font-display text-base text-ivory">
@@ -302,11 +316,20 @@ export default function FinanceClientDetailPage() {
                     <p className="font-medium text-ivory">{formatUSD(receipt.remaining_balance)}</p>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </section>
+
+      <ReceiptDrawer
+        receipts={receipts}
+        openId={openReceiptId}
+        onClose={() => setOpenReceiptId(null)}
+        onNavigate={setOpenReceiptId}
+        clientName={client.name}
+        projectNameById={projectNameById}
+      />
 
       <ClientModal
         open={editClientOpen}
