@@ -45,6 +45,7 @@ export type FinanceReceipt = {
   remaining_balance: number;
   notes: string;
   notes_ar: string;
+  share_token: string;
   created_at: string;
   updated_at: string;
 };
@@ -103,4 +104,33 @@ export type FinanceClientRunningBalance = {
   client_id: string;
   remaining_balance: number;
   last_payment_date: string | null;
+};
+
+/** Shape returned by the get_public_receipt(token) RPC — backs the read-only /receipt/{token} page. Deliberately narrower than FinanceReceiptWithItems: no ids beyond the receipt/items, no client contact info. */
+export type PublicReceiptItem = {
+  id: string;
+  service: string;
+  service_ar: string;
+  unit_price: number;
+  quantity: number;
+  line_total: number;
+};
+
+export type PublicReceipt = {
+  id: string;
+  receipt_number: number;
+  receipt_date: string;
+  client_name: string;
+  project_name: string | null;
+  subtotal: number;
+  discount: number;
+  previous_balance: number;
+  final_total_usd: number;
+  exchange_rate: number;
+  final_total_iqd: number;
+  amount_paid: number;
+  remaining_balance: number;
+  notes: string;
+  notes_ar: string;
+  items: PublicReceiptItem[];
 };

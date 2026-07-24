@@ -1,12 +1,28 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FileImage, Loader2 } from "lucide-react";
+import QRCode from "qrcode";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  FileImage,
+  FileDown,
+  Loader2,
+  Pencil,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { GlassDrawer } from "@/components/admin/GlassDrawer";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { TextAreaField } from "@/components/admin/FormControls";
 import { useToast } from "@/components/admin/Toast";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { exportNodeAsPdf, exportNodeAsPng } from "@/lib/finance/export";
-import { formatDate, formatIQD, formatUSD } from "@/lib/format";
+import { ReceiptView } from "@/components/finance/ReceiptView";
 import type { FinanceReceipt, FinanceReceiptWithItems } from "@/types/finance";
 
 export function ReceiptDrawer({
@@ -16,6 +32,8 @@ export function ReceiptDrawer({
   onNavigate,
   clientName,
   projectNameById,
+  onDeleted,
+  onUpdated,
 }: {
   /** Newest-first, exactly as shown in the Financial Timeline — drives Previous/Next. */
   receipts: FinanceReceipt[];
@@ -24,11 +42,21 @@ export function ReceiptDrawer({
   onNavigate: (id: string) => void;
   clientName: string;
   projectNameById: Map<string, string>;
+  onDeleted: (id: string) => void;
+  onUpdated: (receipt: { id: string; notes: string; notes_ar: string }) => void;
 }) {
   const { toast } = useToast();
   const [receipt, setReceipt] = useState<FinanceReceiptWithItems | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState<"pdf" | "png" | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesDraft, setNotesDraft] = useState({ notes: "", notes_ar: "" });
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
 
   // Clear the previous receipt's content the instant the target id changes,
   // computed directly during render, so stale content never flashes while
@@ -37,6 +65,9 @@ export function ReceiptDrawer({
   if (openId !== prevOpenId) {
     setPrevOpenId(openId);
     setReceipt(null);
+    setQrDataUrl(null);
+    setEditingNotes(false);
+    setShareOpen(false);
   }
 
   useEffect(() => {
@@ -61,6 +92,37 @@ export function ReceiptDrawer({
     };
   }, [openId, toast]);
 
+  // window is unavailable during the server render pass — the guard makes
+  // this "" during SSR and the real URL once mounted client-side, with no
+  // state/effect needed just to hold it.
+  const publicUrl =
+    receipt && typeof window !== "undefined"
+      ? `${window.location.origin}/receipt/${receipt.share_token}`
+      : "";
+
+  useEffect(() => {
+    if (!publicUrl) return;
+    let cancelled = false;
+    void (async () => {
+      const dataUrl = await QRCode.toDataURL(publicUrl, { margin: 1, width: 160 });
+      if (!cancelled) setQrDataUrl(dataUrl);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [publicUrl]);
+
+  useEffect(() => {
+    if (!shareOpen) return;
+    const handleClick = (event: MouseEvent) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+        setShareOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [shareOpen]);
+
   const currentIndex = openId ? receipts.findIndex((item) => item.id === openId) : -1;
   const previousReceipt = currentIndex >= 0 ? receipts[currentIndex + 1] : undefined;
   const nextReceipt = currentIndex > 0 ? receipts[currentIndex - 1] : undefined;
@@ -79,7 +141,56 @@ export function ReceiptDrawer({
       toast("Export failed — please try again.", "error");
     } finally {
       setExporting(null);
+      setShareOpen(false);
     }
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      toast("Link copied.");
+    } catch {
+      toast("Could not copy the link.", "error");
+    }
+    setShareOpen(false);
+  };
+
+  const startEditingNotes = () => {
+    if (!receipt) return;
+    setNotesDraft({ notes: receipt.notes, notes_ar: receipt.notes_ar });
+    setEditingNotes(true);
+  };
+
+  const saveNotes = async () => {
+    if (!receipt) return;
+    setSavingNotes(true);
+    const { error } = await getSupabaseClient()
+      .from("finance_receipts")
+      .update({ notes: notesDraft.notes, notes_ar: notesDraft.notes_ar })
+      .eq("id", receipt.id);
+    setSavingNotes(false);
+    if (error) {
+      toast(error.message, "error");
+      return;
+    }
+    setReceipt((current) => (current ? { ...current, ...notesDraft } : current));
+    onUpdated({ id: receipt.id, ...notesDraft });
+    toast("Notes updated.");
+    setEditingNotes(false);
+  };
+
+  const deleteReceipt = async () => {
+    if (!receipt) return;
+    setDeleting(true);
+    const { error } = await getSupabaseClient().from("finance_receipts").delete().eq("id", receipt.id);
+    setDeleting(false);
+    if (error) {
+      toast(error.message, "error");
+      return;
+    }
+    toast("Receipt deleted.");
+    setDeleteOpen(false);
+    onDeleted(receipt.id);
   };
 
   return (
@@ -107,6 +218,25 @@ export function ReceiptDrawer({
           >
             <ChevronRight size={16} aria-hidden />
           </button>
+          <span className="mx-1 h-5 w-px bg-white/10" aria-hidden />
+          <button
+            type="button"
+            aria-label="Edit notes"
+            disabled={!receipt}
+            onClick={startEditingNotes}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory disabled:opacity-30"
+          >
+            <Pencil size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Delete receipt"
+            disabled={!receipt}
+            onClick={() => setDeleteOpen(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-red-400/10 hover:text-red-300 disabled:opacity-30"
+          >
+            <Trash2 size={15} aria-hidden />
+          </button>
         </div>
       }
     >
@@ -116,116 +246,124 @@ export function ReceiptDrawer({
         </div>
       ) : (
         <div className="space-y-6">
-          <div ref={contentRef} className="space-y-6 rounded-2xl bg-canvas p-6">
-            <div className="flex items-start justify-between gap-4 border-b border-white/8 pb-5">
-              <div>
-                <p className="font-display text-2xl text-ivory">
-                  Receipt #{String(receipt.receipt_number).padStart(4, "0")}
-                </p>
-                <p className="mt-1 text-sm text-ivory/55">{formatDate(receipt.receipt_date, "en")}</p>
+          {editingNotes ? (
+            <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
+              <TextAreaField
+                label="Notes"
+                rows={2}
+                value={notesDraft.notes}
+                onChange={(event) => setNotesDraft((current) => ({ ...current, notes: event.target.value }))}
+              />
+              <TextAreaField
+                label="Notes (Arabic)"
+                dir="rtl"
+                rows={2}
+                value={notesDraft.notes_ar}
+                onChange={(event) => setNotesDraft((current) => ({ ...current, notes_ar: event.target.value }))}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingNotes(false)}
+                  className="h-9 rounded-lg border border-white/10 px-3 text-xs text-ivory/70 transition-colors hover:border-white/25"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void saveNotes()}
+                  disabled={savingNotes}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gold px-3 text-xs font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-60"
+                >
+                  {savingNotes ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Check size={13} aria-hidden />}
+                  Save
+                </button>
               </div>
-              <div className="text-end">
-                <p className="text-xs uppercase tracking-[0.1em] text-ivory/40">Client</p>
-                <p className="mt-0.5 text-sm font-medium text-ivory">{clientName}</p>
-                {receipt.project_id && projectNameById.get(receipt.project_id) ? (
-                  <p className="text-xs text-ivory/45">{projectNameById.get(receipt.project_id)}</p>
-                ) : null}
-              </div>
             </div>
+          ) : null}
 
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-[0.12em] text-ivory/50">Items</p>
-              {receipt.finance_receipt_items.length === 0 ? (
-                <p className="rounded-xl border border-white/8 px-4 py-3 text-sm text-ivory/45">
-                  No line items — this receipt only records a payment.
-                </p>
-              ) : (
-                <div className="overflow-hidden rounded-xl border border-white/8">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-white/8 text-start text-xs uppercase tracking-[0.08em] text-ivory/45">
-                        <th className="px-4 py-2.5 text-start font-medium">Service</th>
-                        <th className="px-4 py-2.5 text-end font-medium">Unit price</th>
-                        <th className="px-4 py-2.5 text-end font-medium">Qty</th>
-                        <th className="px-4 py-2.5 text-end font-medium">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {receipt.finance_receipt_items.map((item) => (
-                        <tr key={item.id} className="border-b border-white/5 last:border-0">
-                          <td className="px-4 py-2.5 text-ivory">{item.service}</td>
-                          <td className="px-4 py-2.5 text-end text-ivory/70">{formatUSD(item.unit_price)}</td>
-                          <td className="px-4 py-2.5 text-end text-ivory/70">{item.quantity}</td>
-                          <td className="px-4 py-2.5 text-end font-medium text-ivory">
-                            {formatUSD(item.line_total)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+          <div ref={contentRef}>
+            <ReceiptView
+              receiptNumber={receipt.receipt_number}
+              receiptDate={receipt.receipt_date}
+              clientName={clientName}
+              projectName={receipt.project_id ? projectNameById.get(receipt.project_id) : null}
+              items={receipt.finance_receipt_items}
+              subtotal={receipt.subtotal}
+              discount={receipt.discount}
+              previousBalance={receipt.previous_balance}
+              amountPaid={receipt.amount_paid}
+              remainingBalance={receipt.remaining_balance}
+              exchangeRate={receipt.exchange_rate}
+              finalTotalIqd={receipt.final_total_iqd}
+              notes={receipt.notes}
+              qrDataUrl={qrDataUrl}
+            />
+          </div>
 
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-xl border border-white/8 p-4 text-sm">
-              <span className="text-ivory/50">Subtotal</span>
-              <span className="text-end text-ivory">{formatUSD(receipt.subtotal)}</span>
-              <span className="text-ivory/50">Discount</span>
-              <span className="text-end text-ivory">{formatUSD(receipt.discount)}</span>
-              <span className="text-ivory/50">Previous balance</span>
-              <span className="text-end text-ivory">{formatUSD(receipt.previous_balance)}</span>
-              <span className="border-t border-white/8 pt-3 text-ivory/50">Amount paid</span>
-              <span className="border-t border-white/8 pt-3 text-end font-medium text-gold">
-                {formatUSD(receipt.amount_paid)}
-              </span>
-              <span className="text-ivory/50">Remaining balance</span>
-              <span className="text-end font-medium text-ivory">{formatUSD(receipt.remaining_balance)}</span>
-              <span className="border-t border-white/8 pt-3 text-ivory/50">Exchange rate</span>
-              <span className="border-t border-white/8 pt-3 text-end text-ivory">
-                {Number(receipt.exchange_rate).toLocaleString("en-US")}
-              </span>
-              <span className="text-ivory/50">IQD total</span>
-              <span className="text-end text-ivory">{formatIQD(receipt.final_total_iqd)}</span>
-            </div>
+          <div className="relative" ref={shareMenuRef}>
+            <button
+              type="button"
+              onClick={() => setShareOpen((open) => !open)}
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm text-ivory/80 transition-colors hover:border-gold/40 hover:text-gold"
+            >
+              <Share2 size={14} aria-hidden />
+              Share
+              <ChevronDown size={14} aria-hidden className={shareOpen ? "rotate-180 transition-transform" : "transition-transform"} />
+            </button>
 
-            {receipt.notes ? (
-              <div>
-                <p className="mb-1.5 text-xs uppercase tracking-[0.12em] text-ivory/50">Notes</p>
-                <p className="text-sm leading-relaxed text-ivory/70">{receipt.notes}</p>
+            {shareOpen ? (
+              <div className="glass-strong absolute bottom-full start-0 z-10 mb-2 w-56 rounded-2xl p-1.5">
+                <button
+                  type="button"
+                  onClick={() => void copyLink()}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
+                >
+                  <Copy size={14} aria-hidden />
+                  Copy link
+                </button>
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setShareOpen(false)}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
+                >
+                  <ExternalLink size={14} aria-hidden />
+                  Open public receipt
+                </a>
+                <button
+                  type="button"
+                  onClick={() => void runExport("pdf")}
+                  disabled={exporting !== null}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory disabled:opacity-60"
+                >
+                  {exporting === "pdf" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <FileDown size={14} aria-hidden />}
+                  Download PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void runExport("png")}
+                  disabled={exporting !== null}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory disabled:opacity-60"
+                >
+                  {exporting === "png" ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <FileImage size={14} aria-hidden />}
+                  Download PNG
+                </button>
               </div>
             ) : null}
           </div>
-
-          <div className="flex flex-wrap gap-2.5">
-            <button
-              type="button"
-              onClick={() => void runExport("pdf")}
-              disabled={exporting !== null}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm text-ivory/80 transition-colors hover:border-gold/40 hover:text-gold disabled:opacity-60"
-            >
-              {exporting === "pdf" ? (
-                <Loader2 size={14} className="animate-spin" aria-hidden />
-              ) : (
-                <Download size={14} aria-hidden />
-              )}
-              Export PDF
-            </button>
-            <button
-              type="button"
-              onClick={() => void runExport("png")}
-              disabled={exporting !== null}
-              className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm text-ivory/80 transition-colors hover:border-gold/40 hover:text-gold disabled:opacity-60"
-            >
-              {exporting === "png" ? (
-                <Loader2 size={14} className="animate-spin" aria-hidden />
-              ) : (
-                <FileImage size={14} aria-hidden />
-              )}
-              Export PNG
-            </button>
-          </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete receipt?"
+        message="This permanently deletes this receipt and its line items. Later receipts' displayed balances won't be recalculated automatically."
+        busy={deleting}
+        onConfirm={() => void deleteReceipt()}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </GlassDrawer>
   );
 }

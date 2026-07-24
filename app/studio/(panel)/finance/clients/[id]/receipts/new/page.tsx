@@ -128,11 +128,10 @@ export default function NewReceiptPage() {
 
   const lineTotal = (item: ItemDraft) => (Number(item.unit_price) || 0) * (Number(item.quantity) || 0);
 
-  // Rows with no service name are dropped on save (see `save` below) — the
-  // subtotal preview must filter the same way, or it could show a number
-  // that doesn't match what actually gets saved.
-  const validItems = useMemo(() => items.filter((item) => item.service.trim() !== ""), [items]);
-  const subtotal = useMemo(() => validItems.reduce((sum, item) => sum + lineTotal(item), 0), [validItems]);
+  // Every row counts, whether or not a service name has been typed in yet —
+  // a row shouldn't silently stop counting toward the totals just because
+  // its description is still blank.
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + lineTotal(item), 0), [items]);
   const finalTotalUsd = subtotal - (Number(discount) || 0);
   const finalTotalIqd = finalTotalUsd * (Number(exchangeRate) || 0);
   // Previous balance/last payment come from the selected project's own
@@ -147,8 +146,8 @@ export default function NewReceiptPage() {
   const remainingBalance = Number(previousBalance) + finalTotalUsd - (Number(amountPaid) || 0);
 
   const save = async () => {
-    if (validItems.length === 0 && (Number(amountPaid) || 0) === 0) {
-      toast("Add at least one item or an amount paid.", "error");
+    if (subtotal === 0 && (Number(amountPaid) || 0) === 0) {
+      toast("This receipt has no charges and no payment — add an amount before saving.", "error");
       return;
     }
 
@@ -157,7 +156,7 @@ export default function NewReceiptPage() {
       p_client_id: params.id,
       p_project_id: projectId || null,
       p_receipt_date: receiptDate,
-      p_items: validItems.map((item) => ({
+      p_items: items.map((item) => ({
         service: item.service.trim(),
         service_ar: item.service_ar,
         unit_price: Number(item.unit_price) || 0,

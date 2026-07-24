@@ -88,7 +88,12 @@ function ProjectCard({
   return (
     <Link
       href={`/studio/website/portfolio/${row.id}`}
-      className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-2xl border border-white/8 bg-canvas-raised transition-colors hover:border-gold/25"
+      className={cn(
+        "group relative flex aspect-[4/5] flex-col overflow-hidden rounded-2xl border border-white/8 bg-canvas-raised transition-colors hover:border-gold/25",
+        draggable && "touch-none cursor-grab active:cursor-grabbing",
+      )}
+      {...(draggable ? dragHandleProps?.attributes : undefined)}
+      {...(draggable ? dragHandleProps?.listeners : undefined)}
     >
       <div className="absolute inset-0">
         {row.cover_image ? (
@@ -109,17 +114,13 @@ function ProjectCard({
       <div className="absolute inset-0 bg-gradient-to-t from-canvas/95 via-canvas/50 to-transparent" />
 
       {draggable ? (
+        // Purely a visual affordance now — the whole card is the drag
+        // surface (dnd-kit's activation distance + its own built-in
+        // click-suppression-after-drag tell a real drag from a real click),
+        // so dragging works from anywhere on the card, not just this corner.
         <span
-          aria-label="Reorder project"
-          onClick={(event) => {
-            // The grip sits inside the card's Link — stop the click from
-            // also navigating to the editor.
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          {...dragHandleProps?.attributes}
-          {...dragHandleProps?.listeners}
-          className="absolute start-2.5 top-2.5 flex h-9 w-9 cursor-grab touch-none items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity active:cursor-grabbing group-hover:opacity-100"
+          aria-hidden
+          className="absolute start-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
         >
           <GripVertical size={15} aria-hidden />
         </span>

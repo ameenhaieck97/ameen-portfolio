@@ -73,6 +73,8 @@ export default function FinanceClientDetailPage() {
   const [deleteClientOpen, setDeleteClientOpen] = useState(false);
   const [deletingClient, setDeletingClient] = useState(false);
   const [openReceiptId, setOpenReceiptId] = useState<string | null>(null);
+  const [deleteProjectTarget, setDeleteProjectTarget] = useState<FinanceProject | null>(null);
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,6 +137,27 @@ export default function FinanceClientDetailPage() {
       return;
     }
     window.location.assign("/studio/finance/clients");
+  };
+
+  const deleteProject = async () => {
+    if (!deleteProjectTarget) return;
+    setDeletingProject(true);
+    const { error } = await getSupabaseClient()
+      .from("finance_projects")
+      .delete()
+      .eq("id", deleteProjectTarget.id);
+    setDeletingProject(false);
+    if (error) {
+      toast(error.message, "error");
+      return;
+    }
+    setState((current) =>
+      current.status === "ready"
+        ? { ...current, projects: current.projects.filter((project) => project.id !== deleteProjectTarget.id) }
+        : current,
+    );
+    toast("Project deleted — its receipts remain, now attached directly to the client.");
+    setDeleteProjectTarget(null);
   };
 
   if (state.status === "loading") {
@@ -254,15 +277,24 @@ export default function FinanceClientDetailPage() {
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {projects.map((project) => (
-              <button
-                key={project.id}
-                type="button"
-                onClick={() => setProjectModal({ open: true, project })}
-                className="glass-reveal flex items-center justify-between gap-3 rounded-xl border border-white/8 px-4 py-3 text-start transition-colors hover:border-gold/25"
-              >
-                <span className="text-sm text-ivory">{project.name}</span>
-                <span className="text-sm font-medium text-gold">{formatUSD(project.total_value)}</span>
-              </button>
+              <div key={project.id} className="group relative">
+                <button
+                  type="button"
+                  onClick={() => setProjectModal({ open: true, project })}
+                  className="glass-reveal flex w-full items-center justify-between gap-3 rounded-xl border border-white/8 px-4 py-3 text-start transition-colors hover:border-gold/25"
+                >
+                  <span className="text-sm text-ivory">{project.name}</span>
+                  <span className="me-8 text-sm font-medium text-gold">{formatUSD(project.total_value)}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-label="Delete project"
+                  onClick={() => setDeleteProjectTarget(project)}
+                  className="absolute end-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-ivory/40 opacity-0 transition-opacity hover:text-red-300 group-hover:opacity-100"
+                >
+                  <Trash2 size={14} aria-hidden />
+                </button>
+              </div>
             ))}
           </div>
         </section>
@@ -332,6 +364,28 @@ export default function FinanceClientDetailPage() {
         onNavigate={setOpenReceiptId}
         clientName={client.name}
         projectNameById={projectNameById}
+        onDeleted={(id) => {
+          setState((current) =>
+            current.status === "ready"
+              ? { ...current, receipts: current.receipts.filter((receipt) => receipt.id !== id) }
+              : current,
+          );
+          setOpenReceiptId(null);
+        }}
+        onUpdated={(updated) => {
+          setState((current) =>
+            current.status === "ready"
+              ? {
+                  ...current,
+                  receipts: current.receipts.map((receipt) =>
+                    receipt.id === updated.id
+                      ? { ...receipt, notes: updated.notes, notes_ar: updated.notes_ar }
+                      : receipt,
+                  ),
+                }
+              : current,
+          );
+        }}
       />
 
       <ClientModal
@@ -367,6 +421,15 @@ export default function FinanceClientDetailPage() {
         busy={deletingClient}
         onConfirm={() => void deleteClient()}
         onCancel={() => setDeleteClientOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={deleteProjectTarget !== null}
+        title="Delete project?"
+        message={`This deletes "${deleteProjectTarget?.name ?? ""}". Its receipts are never deleted — they'll simply attach directly to ${client.name} instead.`}
+        busy={deletingProject}
+        onConfirm={() => void deleteProject()}
+        onCancel={() => setDeleteProjectTarget(null)}
       />
     </div>
   );
