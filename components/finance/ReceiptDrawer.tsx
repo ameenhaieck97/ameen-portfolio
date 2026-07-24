@@ -127,7 +127,7 @@ export function ReceiptDrawer({
               <div className="text-end">
                 <p className="text-xs uppercase tracking-[0.1em] text-ivory/40">Client</p>
                 <p className="mt-0.5 text-sm font-medium text-ivory">{clientName}</p>
-                {projectNameById.get(receipt.project_id) ? (
+                {receipt.project_id && projectNameById.get(receipt.project_id) ? (
                   <p className="text-xs text-ivory/45">{projectNameById.get(receipt.project_id)}</p>
                 ) : null}
               </div>

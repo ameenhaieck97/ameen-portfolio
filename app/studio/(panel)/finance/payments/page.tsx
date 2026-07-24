@@ -9,11 +9,8 @@ import { formatDate, formatUSD } from "@/lib/format";
 import type { FinancePayment } from "@/types/finance";
 
 type PaymentRow = FinancePayment & {
-  finance_projects: {
-    name: string;
-    client_id: string;
-    finance_clients: { name: string } | null;
-  } | null;
+  finance_clients: { name: string } | null;
+  finance_projects: { name: string } | null;
 };
 
 export default function FinancePaymentsPage() {
@@ -25,7 +22,7 @@ export default function FinancePaymentsPage() {
     void (async () => {
       const { data, error } = await getSupabaseClient()
         .from("finance_payments")
-        .select("*, finance_projects(name, client_id, finance_clients(name))")
+        .select("*, finance_clients(name), finance_projects(name)")
         .order("paid_at", { ascending: false })
         .order("created_at", { ascending: false });
       if (cancelled) return;
@@ -67,16 +64,12 @@ export default function FinancePaymentsPage() {
                 className="glass-reveal flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 px-5 py-4"
               >
                 <div>
-                  {payment.finance_projects?.client_id ? (
-                    <Link
-                      href={`/studio/finance/clients/${payment.finance_projects.client_id}`}
-                      className="font-display text-base text-ivory transition-colors hover:text-gold"
-                    >
-                      {payment.finance_projects.finance_clients?.name ?? "Unknown client"}
-                    </Link>
-                  ) : (
-                    <p className="font-display text-base text-ivory">Unknown client</p>
-                  )}
+                  <Link
+                    href={`/studio/finance/clients/${payment.client_id}`}
+                    className="font-display text-base text-ivory transition-colors hover:text-gold"
+                  >
+                    {payment.finance_clients?.name ?? "Unknown client"}
+                  </Link>
                   <p className="mt-0.5 text-xs text-ivory/45">
                     {formatDate(payment.paid_at, "en")}
                     {payment.finance_projects?.name ? ` · ${payment.finance_projects.name}` : ""}

@@ -30,7 +30,9 @@ export type FinanceProject = {
 
 export type FinanceReceipt = {
   id: string;
-  project_id: string;
+  client_id: string;
+  /** Null when this receipt is attached directly to the client — the recurring-client workflow with no formal project. */
+  project_id: string | null;
   receipt_number: number;
   receipt_date: string;
   previous_balance: number;
@@ -61,7 +63,9 @@ export type FinanceReceiptItem = {
 
 export type FinancePayment = {
   id: string;
-  project_id: string;
+  client_id: string;
+  /** Null when this payment isn't tied to a project (recurring-client workflow). */
+  project_id: string | null;
   receipt_id: string | null;
   amount: number;
   paid_at: string;
@@ -92,4 +96,11 @@ export type FinanceProjectSummary = {
 
 export type FinanceReceiptWithItems = FinanceReceipt & {
   finance_receipt_items: FinanceReceiptItem[];
+};
+
+/** Backs the Receipt Creator's "Previous Balance" / "Last Payment Date" when NO project is selected — the client-level equivalent of FinanceProjectSummary, from the finance_client_running_balance view. */
+export type FinanceClientRunningBalance = {
+  client_id: string;
+  remaining_balance: number;
+  last_payment_date: string | null;
 };

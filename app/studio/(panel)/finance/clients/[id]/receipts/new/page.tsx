@@ -14,7 +14,12 @@ import {
   TextField,
 } from "@/components/admin/FormControls";
 import { formatDate, formatUSD } from "@/lib/format";
-import type { FinanceClient, FinanceProject, FinanceProjectSummary } from "@/types/finance";
+import type {
+  FinanceClient,
+  FinanceClientRunningBalance,
+  FinanceProject,
+  FinanceProjectSummary,
+} from "@/types/finance";
 
 type ItemDraft = {
   id: string;
@@ -45,6 +50,7 @@ export default function NewReceiptPage() {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [projectId, setProjectId] = useState("");
   const [projectSummary, setProjectSummary] = useState<FinanceProjectSummary | null>(null);
+  const [runningBalance, setRunningBalance] = useState<FinanceClientRunningBalance | null>(null);
   const [receiptDate, setReceiptDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [items, setItems] = useState<ItemDraft[]>([EMPTY_ITEM()]);
   const [discount, setDiscount] = useState("0");
@@ -59,13 +65,18 @@ export default function NewReceiptPage() {
     let cancelled = false;
     void (async () => {
       const supabase = getSupabaseClient();
-      const [clientResult, projectsResult] = await Promise.all([
+      const [clientResult, projectsResult, runningBalanceResult] = await Promise.all([
         supabase.from("finance_clients").select("*").eq("id", params.id).maybeSingle(),
         supabase
           .from("finance_projects")
           .select("*")
           .eq("client_id", params.id)
           .order("created_at", { ascending: true }),
+        supabase
+          .from("finance_client_running_balance")
+          .select("*")
+          .eq("client_id", params.id)
+          .maybeSingle(),
       ]);
       if (cancelled) return;
       if (clientResult.error || !clientResult.data) {
@@ -74,7 +85,10 @@ export default function NewReceiptPage() {
       }
       const projects = (projectsResult.data ?? []) as FinanceProject[];
       setState({ status: "ready", client: clientResult.data as FinanceClient, projects });
-      if (projects.length > 0) setProjectId(projects[0].id);
+      setRunningBalance((runningBalanceResult.data ?? null) as FinanceClientRunningBalance | null);
+      // Defaults to "no project" (attach directly to the client) even when
+      // projects exist — the recurring-client workflow is the common case,
+      // picking a project is an opt-in action.
     })();
     return () => {
       cancelled = true;
@@ -121,14 +135,18 @@ export default function NewReceiptPage() {
   const subtotal = useMemo(() => validItems.reduce((sum, item) => sum + lineTotal(item), 0), [validItems]);
   const finalTotalUsd = subtotal - (Number(discount) || 0);
   const finalTotalIqd = finalTotalUsd * (Number(exchangeRate) || 0);
-  const previousBalance = projectSummary?.remaining_balance ?? 0;
+  // Previous balance/last payment come from the selected project's own
+  // running total, or — with no project selected — the client-level tally
+  // of project-less receipts (the recurring-client workflow).
+  const previousBalance = projectId
+    ? (projectSummary?.remaining_balance ?? 0)
+    : (runningBalance?.remaining_balance ?? 0);
+  const lastPaymentDate = projectId
+    ? (projectSummary?.last_payment_date ?? null)
+    : (runningBalance?.last_payment_date ?? null);
   const remainingBalance = Number(previousBalance) + finalTotalUsd - (Number(amountPaid) || 0);
 
   const save = async () => {
-    if (!projectId) {
-      toast("Select a project first.", "error");
-      return;
-    }
     if (validItems.length === 0 && (Number(amountPaid) || 0) === 0) {
       toast("Add at least one item or an amount paid.", "error");
       return;
@@ -136,7 +154,8 @@ export default function NewReceiptPage() {
 
     setSaving(true);
     const { error } = await getSupabaseClient().rpc("create_finance_receipt", {
-      p_project_id: projectId,
+      p_client_id: params.id,
+      p_project_id: projectId || null,
       p_receipt_date: receiptDate,
       p_items: validItems.map((item) => ({
         service: item.service.trim(),
@@ -201,7 +220,7 @@ export default function NewReceiptPage() {
         <button
           type="button"
           onClick={() => void save()}
-          disabled={saving || projects.length === 0}
+          disabled={saving}
           className="inline-flex h-11 items-center gap-2 rounded-xl bg-gold px-5 text-sm font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-60"
         >
           {saving ? <Loader2 size={15} className="animate-spin" aria-hidden /> : null}
@@ -211,20 +230,15 @@ export default function NewReceiptPage() {
 
       <h1 className="mt-4 font-display text-3xl text-ivory">New Receipt</h1>
 
-      {projects.length === 0 ? (
-        <div className="mt-6 glass rounded-3xl p-8 text-center text-sm text-ivory/55">
-          {client.name} has no projects yet — add one on their client page before creating a receipt.
-        </div>
-      ) : (
-        <div className="mt-6 space-y-6">
+      <div className="mt-6 space-y-6">
           <section className="glass rounded-3xl p-6">
             <div className="grid gap-5 sm:grid-cols-2">
               <SelectField
-                label="Project"
-                required
+                label="Project (optional)"
                 value={projectId}
                 onChange={(event) => setProjectId(event.target.value)}
               >
+                <option value="">No project — attach directly to {client.name}</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
@@ -253,9 +267,7 @@ export default function NewReceiptPage() {
                   Last payment
                 </p>
                 <p className="rounded-xl border border-white/10 bg-canvas/40 px-4 py-2.5 text-sm text-ivory/80">
-                  {projectSummary?.last_payment_date
-                    ? formatDate(projectSummary.last_payment_date, "en")
-                    : "No payments yet"}
+                  {lastPaymentDate ? formatDate(lastPaymentDate, "en") : "No payments yet"}
                 </p>
               </div>
             </div>
@@ -409,8 +421,7 @@ export default function NewReceiptPage() {
               )}
             </div>
           </section>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

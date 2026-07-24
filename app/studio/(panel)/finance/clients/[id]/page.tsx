@@ -95,17 +95,13 @@ export default function FinanceClientDetailPage() {
       }
 
       const projects = (projectsResult.data ?? []) as FinanceProject[];
-      const projectIds = projects.map((project) => project.id);
 
-      const receiptsResult =
-        projectIds.length > 0
-          ? await supabase
-              .from("finance_receipts")
-              .select("*")
-              .in("project_id", projectIds)
-              .order("receipt_date", { ascending: false })
-              .order("receipt_number", { ascending: false })
-          : { data: [] as FinanceReceipt[] };
+      const receiptsResult = await supabase
+        .from("finance_receipts")
+        .select("*")
+        .eq("client_id", params.id)
+        .order("receipt_date", { ascending: false })
+        .order("receipt_number", { ascending: false });
       if (cancelled) return;
 
       setState({
@@ -196,6 +192,17 @@ export default function FinanceClientDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {projects.length === 0 ? (
+            <button
+              type="button"
+              onClick={() => setProjectModal({ open: true, project: null })}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-sm text-ivory/60 transition-colors hover:border-gold/40 hover:text-gold"
+              title="Most clients don't need one — only add a project for one-time work with a fixed contract value."
+            >
+              <Plus size={14} aria-hidden />
+              Add project
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => setEditClientOpen(true)}
@@ -231,24 +238,20 @@ export default function FinanceClientDetailPage() {
         />
       </div>
 
-      <section className="mt-8 glass rounded-3xl p-6">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-display text-lg text-ivory">Projects</h2>
-          <button
-            type="button"
-            onClick={() => setProjectModal({ open: true, project: null })}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 px-3 text-xs font-medium text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
-          >
-            <Plus size={14} aria-hidden />
-            New project
-          </button>
-        </div>
+      {projects.length > 0 ? (
+        <section className="mt-8 glass rounded-3xl p-6">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="font-display text-lg text-ivory">Projects</h2>
+            <button
+              type="button"
+              onClick={() => setProjectModal({ open: true, project: null })}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 px-3 text-xs font-medium text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
+            >
+              <Plus size={14} aria-hidden />
+              New project
+            </button>
+          </div>
 
-        {projects.length === 0 ? (
-          <p className="mt-4 text-sm text-ivory/50">
-            No projects yet — add one before creating receipts for this client.
-          </p>
-        ) : (
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {projects.map((project) => (
               <button
@@ -262,8 +265,8 @@ export default function FinanceClientDetailPage() {
               </button>
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      ) : null}
 
       <section className="mt-8 glass rounded-3xl p-6">
         <div className="flex items-center justify-between gap-4">
@@ -301,7 +304,7 @@ export default function FinanceClientDetailPage() {
                   </p>
                   <p className="mt-0.5 text-xs text-ivory/45">
                     {formatDate(receipt.receipt_date, "en")}
-                    {projectNameById.get(receipt.project_id)
+                    {receipt.project_id && projectNameById.get(receipt.project_id)
                       ? ` · ${projectNameById.get(receipt.project_id)}`
                       : ""}
                   </p>
