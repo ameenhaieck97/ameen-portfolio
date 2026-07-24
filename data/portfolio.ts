@@ -24,6 +24,16 @@ export type PortfolioItem = {
    * the whole thing collapse into one indistinguishable solid silhouette.
    */
   preserveColor?: boolean;
+  /**
+   * True for simple logo/wordmark uploads that should render centered and
+   * mono-masked (see PortfolioCard/Lightbox) instead of filling the card
+   * edge-to-edge like a photo or poster. Explicit and CMS-controlled —
+   * deliberately not inferred from category or file extension, both of
+   * which produced false positives/negatives for real uploads.
+   */
+  isLogo?: boolean;
+  /** Full gallery for this project, shown in the lightbox. Falls back to [image] when absent. */
+  images?: string[];
 };
 
 export const portfolioItems: PortfolioItem[] = [
@@ -38,6 +48,7 @@ export const portfolioItems: PortfolioItem[] = [
       ar: "شعار نقابة أطباء سوريا",
     },
     image: "/images/portfolio/syrian-doctors-syndicate.svg",
+    isLogo: true,
   },
   {
     id: "ashjanAlTalaqani",
@@ -48,6 +59,7 @@ export const portfolioItems: PortfolioItem[] = [
       ar: "الهوية البصرية لأشجان الطالقاني",
     },
     image: "/images/portfolio/ashjan-al-talaqani.svg",
+    isLogo: true,
   },
   {
     id: "arkan",
@@ -58,6 +70,7 @@ export const portfolioItems: PortfolioItem[] = [
       ar: "الهوية البصرية لأركان",
     },
     image: "/images/portfolio/arkan.svg",
+    isLogo: true,
   },
   {
     id: "syrianTrading",
@@ -68,6 +81,7 @@ export const portfolioItems: PortfolioItem[] = [
       ar: "الهوية البصرية للشركة السورية للتجارة",
     },
     image: "/images/portfolio/syrian-trading-company.svg",
+    isLogo: true,
   },
   {
     id: "dentistsSyndicate",
@@ -78,6 +92,7 @@ export const portfolioItems: PortfolioItem[] = [
       ar: "شعار نقابة أطباء الأسنان السورية",
     },
     image: "/images/portfolio/syrian-dentists-syndicate.svg",
+    isLogo: true,
   },
 
   // Graphic Design — placeholder set until new work is uploaded.

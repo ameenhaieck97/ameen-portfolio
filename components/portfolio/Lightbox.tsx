@@ -12,6 +12,7 @@ export type PortfolioSlide = SlideImage & {
   category: string;
   seed: number;
   preserveColor?: boolean;
+  isLogo?: boolean;
 };
 
 export function PortfolioLightbox({
@@ -76,27 +77,37 @@ export function PortfolioLightbox({
         },
       }}
       render={{
+        ...(slides.length <= 1
+          ? { buttonPrev: () => null, buttonNext: () => null }
+          : {}),
         slide: ({ slide }) => {
           const s = slide as PortfolioSlide;
-          const isLogo = s.src?.endsWith(".svg");
-          if (s.src && !isLogo) return undefined;
+          const isLogo = Boolean(s.isLogo);
           return (
             <div className="relative flex h-full w-full items-center justify-center p-6">
               <div className="glass relative aspect-[4/5] max-h-full w-full max-w-xl overflow-hidden rounded-2xl">
-                {isLogo && s.preserveColor ? (
+                {s.src && isLogo && s.preserveColor ? (
                   <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-10">
                     <Image
-                      src={s.src ?? ""}
+                      src={s.src}
                       alt={s.title}
                       width={280}
                       height={280}
                       className="h-full w-full object-contain"
                     />
                   </div>
-                ) : isLogo ? (
+                ) : s.src && isLogo ? (
                   <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-6">
                     <MonoLogo src={s.src} label={s.title} className="h-full w-full" />
                   </div>
+                ) : s.src ? (
+                  <Image
+                    src={s.src}
+                    alt={s.title}
+                    fill
+                    sizes="(min-width: 640px) 36rem, 100vw"
+                    className="object-cover"
+                  />
                 ) : (
                   <PlaceholderArt seed={s.seed} />
                 )}

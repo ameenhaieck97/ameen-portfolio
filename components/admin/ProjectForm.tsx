@@ -35,6 +35,7 @@ export type ProjectDraft = {
   group_key: string;
   category_key: string;
   preserve_color: boolean;
+  is_logo: boolean;
   technologies: string[];
   featured: boolean;
   published: boolean;
@@ -73,6 +74,7 @@ export const EMPTY_PROJECT_DRAFT: ProjectDraft = {
   group_key: "brandIdentity",
   category_key: "brandIdentity",
   preserve_color: false,
+  is_logo: false,
   technologies: [],
   featured: false,
   published: false,
@@ -96,6 +98,7 @@ export function projectToDraft(project: Project): ProjectDraft {
     group_key: project.group_key ?? "brandIdentity",
     category_key: project.category_key ?? "brandIdentity",
     preserve_color: project.preserve_color ?? false,
+    is_logo: project.is_logo ?? false,
     technologies: project.technologies,
     featured: project.featured,
     published: project.published,
@@ -273,6 +276,7 @@ export function ProjectForm({
       group_key: draft.group_key,
       category_key: draft.category_key,
       preserve_color: draft.preserve_color,
+      is_logo: draft.is_logo,
       technologies: draft.technologies,
       featured: draft.featured,
       published: draft.published,
@@ -602,6 +606,12 @@ export function ProjectForm({
                       type="number"
                       value={draft.sort_order}
                       onChange={(event) => set("sort_order", event.target.value)}
+                    />
+                    <Toggle
+                      label="Display as logo mark"
+                      description="Center the image instead of filling the card — for logos/wordmarks, not photos or posters"
+                      checked={draft.is_logo}
+                      onChange={(next) => set("is_logo", next)}
                     />
                     <Toggle
                       label="Preserve logo colors"

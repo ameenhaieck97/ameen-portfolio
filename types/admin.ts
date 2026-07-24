@@ -70,6 +70,7 @@ export type Project = {
   group_key: PortfolioGroupKey;
   category_key: string;
   preserve_color: boolean;
+  is_logo: boolean;
   technologies: string[];
   featured: boolean;
   published: boolean;

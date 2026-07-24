@@ -117,21 +117,34 @@ export default function Portfolio({
   const locale = useLocale() as "en" | "ar";
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const imageItems = useMemo(
-    () => items.filter((item) => !item.href),
-    [items],
+  // Slides are scoped to the single open project's own gallery — never a
+  // cross-project list — so the lightbox's prev/next arrows cycle through
+  // that project's own images only, instead of jumping into other projects.
+  const openProject = useMemo(
+    () => (openId ? (items.find((item) => item.id === openId) ?? null) : null),
+    [items, openId],
   );
 
-  const slides: PortfolioSlide[] = imageItems.map((item, i) => ({
-    src: item.image ?? "",
-    alt: item.title[locale],
-    title: item.title[locale],
-    category: t(`categories.${item.category}`),
-    seed: i + 1,
-    preserveColor: item.preserveColor,
-  }));
+  const slides: PortfolioSlide[] = useMemo(() => {
+    if (!openProject) return [];
+    const gallery =
+      openProject.images && openProject.images.length > 0
+        ? openProject.images
+        : openProject.image
+          ? [openProject.image]
+          : [];
+    return gallery.map((src, i) => ({
+      src,
+      alt: openProject.title[locale],
+      title: openProject.title[locale],
+      category: t(`categories.${openProject.category}`),
+      seed: i + 1,
+      preserveColor: openProject.preserveColor,
+      isLogo: openProject.isLogo,
+    }));
+  }, [openProject, locale, t]);
 
-  const openIndex = openId ? imageItems.findIndex((item) => item.id === openId) : -1;
+  const openIndex = openProject ? 0 : -1;
 
   return (
     <section id="portfolio" className="relative py-20 sm:py-32 lg:py-36">

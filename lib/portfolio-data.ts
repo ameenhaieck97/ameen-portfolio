@@ -19,7 +19,9 @@ type ProjectRow = {
   group_key: string | null;
   category_key: string | null;
   cover_image: string | null;
+  gallery_images: string[] | null;
   preserve_color: boolean | null;
+  is_logo: boolean | null;
 };
 
 /**
@@ -35,7 +37,9 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
     const supabase = getServerReadClient();
     const { data, error } = await supabase
       .from("projects")
-      .select("id, title, title_ar, group_key, category_key, cover_image, preserve_color")
+      .select(
+        "id, title, title_ar, group_key, category_key, cover_image, gallery_images, preserve_color, is_logo",
+      )
       .eq("published", true)
       .in("group_key", PUBLIC_GROUPS)
       .order("sort_order", { ascending: true })
@@ -53,7 +57,9 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
       group: (row.group_key || "other") as PortfolioGroup,
       title: { en: row.title, ar: row.title_ar || row.title },
       image: row.cover_image || undefined,
+      images: row.gallery_images && row.gallery_images.length > 0 ? row.gallery_images : undefined,
       preserveColor: row.preserve_color || undefined,
+      isLogo: row.is_logo || undefined,
     }));
   } catch (error) {
     console.error("getPortfolioItems: unexpected error, using static fallback:", error);

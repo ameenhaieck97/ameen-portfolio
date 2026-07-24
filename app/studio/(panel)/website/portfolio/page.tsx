@@ -424,6 +424,7 @@ export default function PortfolioPage() {
         group_key: row.group_key,
         category_key: row.category_key,
         preserve_color: row.preserve_color,
+        is_logo: row.is_logo,
         technologies: row.technologies,
         featured: false,
         published: false,
