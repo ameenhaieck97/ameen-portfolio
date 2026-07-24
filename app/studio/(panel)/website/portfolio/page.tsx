@@ -25,7 +25,7 @@ import { safeRevalidate } from "@/lib/revalidate";
 import type { Category, ProjectWithCategory } from "@/types/admin";
 import { GROUP_OPTIONS } from "@/components/admin/ProjectForm";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { SortableGrid } from "@/components/admin/SortableGrid";
+import { SortableGrid, type DragHandleProps } from "@/components/admin/SortableGrid";
 import { useToast } from "@/components/admin/Toast";
 import { cn } from "@/lib/cn";
 
@@ -69,6 +69,7 @@ function IconButton({
 function ProjectCard({
   row,
   draggable,
+  dragHandleProps,
   busy,
   onTogglePublished,
   onToggleFeatured,
@@ -77,6 +78,7 @@ function ProjectCard({
 }: {
   row: ProjectWithCategory;
   draggable: boolean;
+  dragHandleProps?: DragHandleProps;
   busy: boolean;
   onTogglePublished: () => void;
   onToggleFeatured: () => void;
@@ -108,8 +110,16 @@ function ProjectCard({
 
       {draggable ? (
         <span
-          aria-hidden
-          className="absolute start-2.5 top-2.5 flex h-9 w-9 cursor-grab items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+          aria-label="Reorder project"
+          onClick={(event) => {
+            // The grip sits inside the card's Link — stop the click from
+            // also navigating to the editor.
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          {...dragHandleProps?.attributes}
+          {...dragHandleProps?.listeners}
+          className="absolute start-2.5 top-2.5 flex h-9 w-9 cursor-grab touch-none items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity active:cursor-grabbing group-hover:opacity-100"
         >
           <GripVertical size={15} aria-hidden />
         </span>
@@ -285,10 +295,11 @@ function PortfolioGroupSection({
             items={order}
             onReorder={setOrder}
             className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
-            renderItem={(row) => (
+            renderItem={(row, _index, dragHandleProps) => (
               <ProjectCard
                 row={row}
                 draggable
+                dragHandleProps={dragHandleProps}
                 busy={busyId === row.id}
                 onTogglePublished={() => onTogglePublished(row)}
                 onToggleFeatured={() => onToggleFeatured(row)}

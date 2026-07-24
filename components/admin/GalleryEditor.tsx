@@ -95,7 +95,7 @@ export function GalleryEditor({
             items={items}
             onReorder={(next) => onChange(next.map((item) => item.url))}
             className="contents"
-            renderItem={(item) => (
+            renderItem={(item, _index, dragHandleProps) => (
               <div className="group relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-canvas/60">
                 <Image
                   src={item.url}
@@ -105,7 +105,12 @@ export function GalleryEditor({
                   sizes="200px"
                   className="pointer-events-none object-cover"
                 />
-                <span className="absolute start-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-black/55 text-ivory/70 opacity-0 transition-opacity group-hover:opacity-100">
+                <span
+                  aria-label="Reorder image"
+                  {...dragHandleProps.attributes}
+                  {...dragHandleProps.listeners}
+                  className="absolute start-1.5 top-1.5 flex h-7 w-7 cursor-grab touch-none items-center justify-center rounded-lg bg-black/55 text-ivory/70 opacity-0 transition-opacity active:cursor-grabbing group-hover:opacity-100"
+                >
                   <GripVertical size={14} aria-hidden />
                 </span>
                 <button

@@ -12,6 +12,7 @@ import type { Category, Project, Service } from "@/types/admin";
 import { ImageUploader } from "./ImageUploader";
 import { GalleryEditor } from "./GalleryEditor";
 import {
+  LangTabs,
   SelectField,
   TagInput,
   TextAreaField,
@@ -170,32 +171,6 @@ function LivePreviewCard({
           <ArrowUpRight size={14} aria-hidden />
         </span>
       </div>
-    </div>
-  );
-}
-
-function LangTabs({
-  lang,
-  onChange,
-}: {
-  lang: "en" | "ar";
-  onChange: (next: "en" | "ar") => void;
-}) {
-  return (
-    <div className="inline-flex flex-none rounded-full border border-white/10 bg-canvas/40 p-1">
-      {(["en", "ar"] as const).map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => onChange(option)}
-          className={cn(
-            "h-8 rounded-full px-4 text-xs font-medium transition-colors",
-            lang === option ? "bg-gold text-canvas" : "text-ivory/55 hover:text-ivory",
-          )}
-        >
-          {option === "en" ? "English" : "العربية"}
-        </button>
-      ))}
     </div>
   );
 }

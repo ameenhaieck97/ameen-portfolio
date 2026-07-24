@@ -6,8 +6,8 @@ export default function ClientsPage() {
   return (
     <EntityManager
       table="clients"
-      title="Clients"
-      singular="client"
+      title="Partner Logos"
+      singular="logo"
       description="The logo slider shown on the public site — companies and organizations you've worked with."
       fields={[
         { key: "name", label: "Name", type: "text", required: true },

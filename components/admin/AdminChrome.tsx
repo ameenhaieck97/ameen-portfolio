@@ -8,6 +8,7 @@ import {
   Globe,
   Home,
   Images,
+  Landmark,
   LayoutDashboard,
   LayoutGrid,
   LogOut,
@@ -17,8 +18,11 @@ import {
   PanelBottom,
   Package,
   Percent,
+  Receipt,
   Settings,
   UserCircle,
+  Users,
+  Wallet,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -38,8 +42,43 @@ const WEBSITE_CHILDREN: NavLink[] = [
   { href: "/studio/website/footer", label: "Footer", icon: PanelBottom },
 ];
 
+// Internal admin CRM — not part of the public website, kept as its own
+// always-expanded group for the same reason "Website" is one.
+const FINANCE_CHILDREN: NavLink[] = [
+  { href: "/studio/finance/clients", label: "Clients", icon: Users },
+  { href: "/studio/finance/receipts", label: "Receipts", icon: Receipt },
+  { href: "/studio/finance/payments", label: "Payments", icon: Wallet },
+];
+
 function isActive(pathname: string, href: string) {
   return href === "/studio" ? pathname === "/studio" : pathname.startsWith(href);
+}
+
+function NavGroup({
+  icon: Icon,
+  label,
+  active,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  active: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mt-2">
+      <div
+        className={cn(
+          "flex items-center gap-3 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] transition-colors",
+          active ? "text-gold" : "text-ivory/40",
+        )}
+      >
+        <Icon size={14} aria-hidden />
+        {label}
+      </div>
+      <div className="mt-1 flex flex-col gap-1">{children}</div>
+    </div>
+  );
 }
 
 function NavLinkItem({
@@ -99,6 +138,7 @@ export function AdminChrome({ children }: { children: ReactNode }) {
   };
 
   const websiteActive = WEBSITE_CHILDREN.some((child) => isActive(pathname, child.href));
+  const financeActive = FINANCE_CHILDREN.some((child) => isActive(pathname, child.href));
   const closeMobile = () => setMobileOpen(false);
 
   const nav = (
@@ -111,28 +151,29 @@ export function AdminChrome({ children }: { children: ReactNode }) {
         onNavigate={closeMobile}
       />
 
-      <div className="mt-2">
-        <div
-          className={cn(
-            "flex items-center gap-3 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] transition-colors",
-            websiteActive ? "text-gold" : "text-ivory/40",
-          )}
-        >
-          <Globe size={14} aria-hidden />
-          Website
-        </div>
-        <div className="mt-1 flex flex-col gap-1">
-          {WEBSITE_CHILDREN.map((child) => (
-            <NavLinkItem
-              key={child.href}
-              {...child}
-              indented
-              active={isActive(pathname, child.href)}
-              onNavigate={closeMobile}
-            />
-          ))}
-        </div>
-      </div>
+      <NavGroup icon={Globe} label="Website" active={websiteActive}>
+        {WEBSITE_CHILDREN.map((child) => (
+          <NavLinkItem
+            key={child.href}
+            {...child}
+            indented
+            active={isActive(pathname, child.href)}
+            onNavigate={closeMobile}
+          />
+        ))}
+      </NavGroup>
+
+      <NavGroup icon={Landmark} label="Finance" active={financeActive}>
+        {FINANCE_CHILDREN.map((child) => (
+          <NavLinkItem
+            key={child.href}
+            {...child}
+            indented
+            active={isActive(pathname, child.href)}
+            onNavigate={closeMobile}
+          />
+        ))}
+      </NavGroup>
 
       <div className="mt-2 flex flex-col gap-1">
         <NavLinkItem
@@ -144,7 +185,7 @@ export function AdminChrome({ children }: { children: ReactNode }) {
         />
         <NavLinkItem
           href="/studio/clients"
-          label="Clients"
+          label="Partner Logos"
           icon={Building2}
           active={isActive(pathname, "/studio/clients")}
           onNavigate={closeMobile}
