@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -85,6 +85,31 @@ function ProjectCard({
   onDuplicate: () => void;
   onDelete: () => void;
 }) {
+  // Explicit drag-vs-click disambiguation instead of relying on dnd-kit's
+  // built-in "swallow the ghost click after a drag" behavior — that
+  // mechanism didn't reliably intercept Next.js's Link-driven client-side
+  // navigation across two prior attempts. Track the pointer's own travel
+  // distance and, if it moved beyond a small threshold before release,
+  // preventDefault() in the capture phase — Link's own click handler
+  // explicitly checks `event.defaultPrevented` before navigating, so this
+  // reliably blocks it regardless of what dnd-kit itself does internally.
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLAnchorElement>) => {
+    pointerDownPos.current = { x: event.clientX, y: event.clientY };
+    dragHandleProps?.listeners?.onPointerDown?.(event);
+  };
+
+  const handleClickCapture = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const start = pointerDownPos.current;
+    pointerDownPos.current = null;
+    if (!start) return;
+    const distance = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+    if (distance > 6) {
+      event.preventDefault();
+    }
+  };
+
   return (
     <Link
       href={`/studio/website/portfolio/${row.id}`}
@@ -93,7 +118,8 @@ function ProjectCard({
         draggable && "touch-none cursor-grab active:cursor-grabbing",
       )}
       {...(draggable ? dragHandleProps?.attributes : undefined)}
-      {...(draggable ? dragHandleProps?.listeners : undefined)}
+      onPointerDown={draggable ? handlePointerDown : undefined}
+      onClickCapture={draggable ? handleClickCapture : undefined}
     >
       <div className="absolute inset-0">
         {row.cover_image ? (
@@ -114,10 +140,10 @@ function ProjectCard({
       <div className="absolute inset-0 bg-gradient-to-t from-canvas/95 via-canvas/50 to-transparent" />
 
       {draggable ? (
-        // Purely a visual affordance now — the whole card is the drag
-        // surface (dnd-kit's activation distance + its own built-in
-        // click-suppression-after-drag tell a real drag from a real click),
-        // so dragging works from anywhere on the card, not just this corner.
+        // Purely a visual affordance — the whole card is the drag surface
+        // (see handlePointerDown/handleClickCapture above for how drag vs.
+        // click is actually disambiguated), so dragging works from anywhere
+        // on the card, not just this corner.
         <span
           aria-hidden
           className="absolute start-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-black/55 text-ivory/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"

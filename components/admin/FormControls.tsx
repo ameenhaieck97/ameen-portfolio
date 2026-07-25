@@ -12,8 +12,10 @@ import {
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
+// EXPERIMENTAL (Liquid Glass prototype) — was:
+// "w-full rounded-xl border border-white/10 bg-canvas/60 px-4 py-2.5 text-sm text-ivory outline-none transition-colors placeholder:text-ivory/30 focus:border-gold/50"
 const inputClasses =
-  "w-full rounded-xl border border-white/10 bg-canvas/60 px-4 py-2.5 text-sm text-ivory outline-none transition-colors placeholder:text-ivory/30 focus:border-gold/50";
+  "glass-field w-full rounded-xl px-4 py-2.5 text-sm text-ivory outline-none placeholder:text-ivory/30";
 
 export function FieldLabel({
   htmlFor,
