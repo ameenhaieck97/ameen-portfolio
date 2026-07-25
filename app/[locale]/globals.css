@@ -100,91 +100,62 @@ body {
   }
 }
 
-/* ============================================================
-   EXPERIMENTAL v3 — Liquid Glass with real displacement (2026-07-30)
-   Purely visual prototype. Revert:
-   `git checkout -- app/[locale]/globals.css app/[locale]/layout.tsx
-    app/studio/layout.tsx components/admin/FormControls.tsx
-    components/admin/AdminChrome.tsx`
-   ============================================================
-   v2's gradient-only approach was rejected as still reading flat — the
-   reference (Apple's own Liquid Glass reel) shows the content BEHIND the
-   glass visibly bending/warping through it, not just blurring. Gradients
-   alone can't do that; it needs an actual displacement filter sampling and
-   distorting the live backdrop. `backdrop-filter: url(#liquid-glass-distortion)`
-   (defined once as a hidden <svg><filter> in each root layout — see
-   app/[locale]/layout.tsx / app/studio/layout.tsx) runs feTurbulence +
-   feDisplacementMap over whatever renders behind the element, so the
-   refraction genuinely shifts with the real backdrop instead of being a
-   painted-on illusion. Declared as a SECOND backdrop-filter value, after a
-   plain blur fallback — browsers that can't parse `url()` filters here
-   (patchy support outside Chromium) simply drop that one declaration and
-   keep the fallback, so nothing breaks, it's just less dramatic elsewhere.
-   Kept off .glass-reveal, which renders many simultaneous instances in a
-   continuously animating marquee — the one place this filter's cost isn't
-   worth it. */
+/* Liquid-glass material — a physically-motivated take on translucency:
+   a soft internal reflection pooled near the top-left (the "light source"),
+   a diagonal refraction streak crossing the surface at a shallow angle (two
+   overlapping bands, not one flat sheen, so the light reads as passing
+   *through* a curved surface rather than sitting on top of it), a bright
+   but restrained edge catching that same light along the top and left, and
+   a soft inner shadow gathering along the bottom that gives the material
+   real thickness. Every highlight uses the ivory token (never pure white)
+   so reflections stay warm instead of reading as plastic or as a generic
+   frosted panel. Inspired by Apple's Liquid Glass direction, kept
+   deliberately restrained — depth and warmth over glow. */
 .glass {
   background:
-    radial-gradient(80% 80% at 12% -8%, rgba(246, 243, 236, 0.24) 0%, rgba(246, 243, 236, 0.07) 28%, transparent 54%),
-    radial-gradient(55% 55% at 92% 106%, rgba(238, 223, 122, 0.06) 0%, transparent 60%),
+    radial-gradient(120% 120% at 14% -10%, rgba(246, 243, 236, 0.12) 0%, transparent 42%),
     linear-gradient(
-      118deg,
-      transparent 20%,
-      rgba(246, 243, 236, 0.075) 40%,
-      rgba(246, 243, 236, 0.02) 50%,
-      transparent 64%
+      112deg,
+      transparent 24%,
+      rgba(246, 243, 236, 0.05) 42%,
+      rgba(246, 243, 236, 0.018) 52%,
+      transparent 66%
     ),
     linear-gradient(
-      165deg,
-      rgba(246, 243, 236, 0.05) 0%,
-      rgba(238, 223, 122, 0.02) 48%,
-      rgba(246, 243, 236, 0.02) 100%
+      160deg,
+      rgba(246, 243, 236, 0.075) 0%,
+      rgba(238, 223, 122, 0.028) 46%,
+      rgba(246, 243, 236, 0.03) 100%
     );
-  /* The url()-distortion variant of this lives in a raw <style> tag injected
-     by the root layouts, NOT here — Next's CSS pipeline (Lightning CSS)
-     silently drops the entire backdrop-filter property from this file when
-     a second declaration references url(#...), even behind a fallback. A
-     literal <style> tag in the page bypasses that pipeline entirely. */
-  backdrop-filter: blur(18px) saturate(190%) contrast(1.05) brightness(1.04);
-  -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(1.05) brightness(1.04);
-  /* Chromium sometimes never allocates the compositing layer a backdrop-
-     filter needs until *something* triggers a repaint (a hover, a scroll),
-     which reads as "the glass only works when I move my mouse over it".
-     will-change forces that layer to exist from first paint instead. */
+  backdrop-filter: blur(18px) saturate(170%);
   will-change: backdrop-filter;
-  border: 1px solid rgba(246, 243, 236, 0.16);
+  border: 1px solid rgba(246, 243, 236, 0.1);
   box-shadow:
-    inset 0 1.5px 0 rgba(246, 243, 236, 0.55),
-    inset 1px 0 0 rgba(246, 243, 236, 0.14),
-    inset -1px 0 0 rgba(0, 0, 0, 0.18),
-    inset 0 -16px 22px -16px rgba(0, 0, 0, 0.5),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.22),
-    0 3px 10px rgba(0, 0, 0, 0.18),
-    0 24px 56px rgba(0, 0, 0, 0.36);
+    inset 0 1px 0 rgba(246, 243, 236, 0.22),
+    inset 0 0 0 1px rgba(238, 223, 122, 0.045),
+    inset 1px 0 0 rgba(246, 243, 236, 0.04),
+    inset 0 -14px 20px -16px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.18),
+    0 18px 44px rgba(0, 0, 0, 0.3);
   transition: box-shadow 0.5s var(--ease-luxury), border-color 0.5s var(--ease-luxury),
     background 0.5s var(--ease-luxury), transform 0.5s var(--ease-luxury);
 }
 
 .glass-strong {
   background:
-    radial-gradient(80% 80% at 12% -8%, rgba(246, 243, 236, 0.16) 0%, rgba(246, 243, 236, 0.045) 30%, transparent 56%),
-    radial-gradient(55% 55% at 92% 108%, rgba(238, 223, 122, 0.045) 0%, transparent 60%),
+    radial-gradient(120% 120% at 14% -10%, rgba(246, 243, 236, 0.08) 0%, transparent 40%),
     linear-gradient(
       155deg,
-      rgba(52, 49, 49, 0.82) 0%,
-      rgba(41, 39, 38, 0.68) 100%
+      rgba(52, 49, 49, 0.88) 0%,
+      rgba(41, 39, 38, 0.76) 100%
     );
-  backdrop-filter: blur(22px) saturate(190%) contrast(1.05) brightness(1.03);
-  -webkit-backdrop-filter: blur(22px) saturate(190%) contrast(1.05) brightness(1.03);
+  backdrop-filter: blur(22px) saturate(170%);
   will-change: backdrop-filter;
-  border: 1px solid rgba(246, 243, 236, 0.16);
+  border: 1px solid rgba(246, 243, 236, 0.09);
   box-shadow:
-    inset 0 1.5px 0 rgba(246, 243, 236, 0.4),
-    inset 1px 0 0 rgba(246, 243, 236, 0.1),
-    inset -1px 0 0 rgba(0, 0, 0, 0.2),
-    inset 0 -12px 20px -14px rgba(0, 0, 0, 0.5),
-    0 3px 12px rgba(0, 0, 0, 0.2),
-    0 20px 48px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(246, 243, 236, 0.13),
+    inset 0 -10px 18px -14px rgba(0, 0, 0, 0.4),
+    0 14px 38px rgba(0, 0, 0, 0.32);
   transition: box-shadow 0.5s var(--ease-luxury), border-color 0.5s var(--ease-luxury);
 }
 
@@ -192,14 +163,12 @@ body {
    permanent glass surface on every item reads as one solid dark block.
    The glass material only materializes on hover, so by default the item
    sits transparently on the page background and glass becomes a deliberate
-   highlight rather than a default state. No displacement filter here (see
-   note above) — the plain enhanced blur/saturate carries this one. */
+   highlight rather than a default state. */
 .glass-reveal {
   background: transparent;
   backdrop-filter: blur(0.1px) saturate(99.9%);
-  -webkit-backdrop-filter: blur(0.1px) saturate(99.9%);
-  border: 1px solid rgba(246, 243, 236, 0.1);
-  box-shadow: inset 0 1px 0 rgba(246, 243, 236, 0.08);
+  border: 1px solid rgba(246, 243, 236, 0.08);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   transition: background 0.6s var(--ease-luxury), backdrop-filter 0.6s var(--ease-luxury),
     border-color 0.6s var(--ease-luxury), box-shadow 0.6s var(--ease-luxury),
     transform 0.6s var(--ease-luxury);
@@ -207,48 +176,19 @@ body {
 
 .glass-reveal:hover {
   background:
-    radial-gradient(80% 80% at 12% -8%, rgba(246, 243, 236, 0.24) 0%, rgba(246, 243, 236, 0.07) 28%, transparent 54%),
-    radial-gradient(55% 55% at 92% 106%, rgba(238, 223, 122, 0.06) 0%, transparent 60%),
+    radial-gradient(120% 120% at 14% -10%, rgba(246, 243, 236, 0.12) 0%, transparent 42%),
     linear-gradient(
-      165deg,
-      rgba(246, 243, 236, 0.05) 0%,
-      rgba(238, 223, 122, 0.02) 48%,
-      rgba(246, 243, 236, 0.02) 100%
+      160deg,
+      rgba(246, 243, 236, 0.075) 0%,
+      rgba(238, 223, 122, 0.028) 46%,
+      rgba(246, 243, 236, 0.03) 100%
     );
-  backdrop-filter: blur(18px) saturate(190%) contrast(1.05) brightness(1.04);
-  -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(1.05) brightness(1.04);
-  border-color: rgba(246, 243, 236, 0.16);
+  backdrop-filter: blur(18px) saturate(170%);
+  border-color: rgba(246, 243, 236, 0.1);
   box-shadow:
-    inset 0 1.5px 0 rgba(246, 243, 236, 0.5),
-    inset -1px 0 0 rgba(0, 0, 0, 0.18),
-    inset 0 -16px 22px -16px rgba(0, 0, 0, 0.5),
-    0 3px 10px rgba(0, 0, 0, 0.18),
-    0 24px 56px rgba(0, 0, 0, 0.36);
-}
-
-/* Shared translucent surface for form controls (inputs/selects/textareas) —
-   part of the same Liquid Glass system, tuned lighter/flatter than .glass
-   since these are small, dense, and read text-first. */
-.glass-field {
-  background:
-    linear-gradient(165deg, rgba(246, 243, 236, 0.06) 0%, rgba(246, 243, 236, 0.018) 100%);
-  backdrop-filter: blur(14px) saturate(180%) contrast(1.04);
-  -webkit-backdrop-filter: blur(14px) saturate(180%) contrast(1.04);
-  border: 1px solid rgba(246, 243, 236, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(246, 243, 236, 0.12),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
-  transition: border-color 0.35s var(--ease-luxury), box-shadow 0.35s var(--ease-luxury),
-    background 0.35s var(--ease-luxury);
-}
-
-.glass-field:focus,
-.glass-field:focus-within {
-  border-color: rgba(238, 223, 122, 0.55);
-  box-shadow:
-    inset 0 1px 0 rgba(246, 243, 236, 0.16),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.18),
-    0 0 0 3px rgba(238, 223, 122, 0.14);
+    inset 0 1px 0 rgba(246, 243, 236, 0.22),
+    inset 0 -14px 20px -16px rgba(0, 0, 0, 0.4),
+    0 18px 44px rgba(0, 0, 0, 0.3);
 }
 
 .text-balance {

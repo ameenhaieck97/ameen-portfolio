@@ -10,6 +10,7 @@ import {
   useTransform,
   type Variants,
 } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 import { RevealGroup, RevealItem, Reveal } from "@/components/motion/Reveal";
 import { MonoLogo } from "@/components/ui/MonoLogo";
@@ -82,6 +83,8 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
     .concat(instituteHub)
     .find((project) => project.id === openId);
 
+  const galleryCount = (id: string) => galleries[id]?.length ?? 0;
+
   const slides: PortfolioSlide[] = useMemo(() => {
     if (!openProject) return [];
     const designs = galleries[openProject.id] ?? [];
@@ -129,7 +132,7 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
           ariaLabel={projectNames[0]}
           className="glass flex w-full items-center gap-5 rounded-[1.75rem] p-6 text-start sm:p-7"
         >
-          <span className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-gold/10 p-4 text-gold sm:h-20 sm:w-20 sm:p-5">
+          <span className="flex h-16 w-16 flex-none items-center justify-center rounded-2xl bg-gold/10 p-4 text-gold transition-transform duration-500 ease-luxury group-hover:scale-110 sm:h-20 sm:w-20 sm:p-5">
             <MonoLogo
               src={instituteHub.logo}
               label={projectNames[0]}
@@ -140,7 +143,21 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
             <p className="font-display text-lg text-ivory sm:text-xl">
               {projectNames[0]}
             </p>
+            <p className="mt-1 max-h-0 overflow-hidden text-xs text-gold/70 opacity-0 transition-all duration-300 ease-luxury group-hover:max-h-5 group-hover:opacity-100 [@media(hover:none)]:max-h-5 [@media(hover:none)]:opacity-100">
+              {tCurrent("viewSelectedWork")}
+            </p>
           </div>
+          {/* Logical end-* (not right-*) so this sits opposite the logo —
+              the logo is the first flex child, which a row layout places at
+              the inline-start corner (right in RTL, left in LTR); the badge
+              takes the other corner in both directions instead of always
+              landing on the same side as the logo. Visible without hover on
+              touch devices (hover:none), since nothing else there hints
+              these cards are tappable. */}
+          <span className="pointer-events-none absolute end-4 top-4 flex items-center gap-1 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-medium text-gold opacity-0 transition-opacity duration-300 ease-luxury group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+            {galleryCount("institute") > 0 ? <span>{galleryCount("institute")}</span> : null}
+            <ArrowUpRight size={12} aria-hidden />
+          </span>
         </TiltCard>
       </motion.div>
 
@@ -196,15 +213,24 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
               ariaLabel={projectLabel(project)}
               className="glass-reveal flex w-full items-center gap-4 rounded-2xl p-5 text-start sm:flex-col sm:gap-3 sm:p-6 sm:text-center"
             >
-              <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gold/12 p-2.5 text-gold sm:h-14 sm:w-14 sm:p-3">
+              <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gold/12 p-2.5 text-gold transition-transform duration-500 ease-luxury group-hover:scale-110 sm:h-14 sm:w-14 sm:p-3">
                 <MonoLogo
                   src={project.logo}
                   label={projectLabel(project)}
                   className="h-full w-full"
                 />
               </span>
-              <span className="text-sm font-medium leading-snug text-ivory/80">
-                {projectLabel(project)}
+              <span className="flex flex-col sm:items-center">
+                <span className="text-sm font-medium leading-snug text-ivory/80">
+                  {projectLabel(project)}
+                </span>
+                <span className="max-h-0 overflow-hidden text-[11px] text-gold/70 opacity-0 transition-all duration-300 ease-luxury group-hover:max-h-5 group-hover:opacity-100 [@media(hover:none)]:max-h-5 [@media(hover:none)]:opacity-100">
+                  {tCurrent("viewSelectedWork")}
+                </span>
+              </span>
+              <span className="pointer-events-none absolute end-3 top-3 flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-medium text-gold opacity-0 transition-opacity duration-300 ease-luxury group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                {galleryCount(project.id) > 0 ? <span>{galleryCount(project.id)}</span> : null}
+                <ArrowUpRight size={11} aria-hidden />
               </span>
             </TiltCard>
           </motion.div>

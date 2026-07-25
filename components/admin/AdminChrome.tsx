@@ -212,9 +212,8 @@ export function AdminChrome({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh">
-      {/* Desktop sidebar — EXPERIMENTAL (Liquid Glass prototype), was:
-          "border-e border-white/8 bg-gradient-to-b from-canvas-soft/55 via-canvas-soft/35 to-canvas-soft/45 backdrop-blur-xl" */}
-      <aside className="glass sticky top-0 hidden h-dvh w-64 flex-none flex-col rounded-none p-5 lg:flex">
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-dvh w-64 flex-none flex-col border-e border-white/8 bg-gradient-to-b from-canvas-soft/55 via-canvas-soft/35 to-canvas-soft/45 p-5 backdrop-blur-xl lg:flex">
         <Link href="/studio" className="mb-8 block px-2">
           <span className="font-display text-xl text-ivory">Ameen Haieck</span>
           <span className="mt-0.5 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.25em] text-gold">
@@ -252,9 +251,8 @@ export function AdminChrome({ children }: { children: ReactNode }) {
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar — EXPERIMENTAL (Liquid Glass prototype), was:
-            "border-b border-white/8 bg-canvas/75 backdrop-blur-2xl backdrop-saturate-150" */}
-        <header className="glass sticky top-0 z-40 flex h-16 flex-none items-center justify-between gap-4 rounded-none px-4 sm:px-6">
+        {/* Top bar */}
+        <header className="sticky top-0 z-40 flex h-16 flex-none items-center justify-between gap-4 border-b border-white/8 bg-canvas/75 px-4 backdrop-blur-2xl backdrop-saturate-150 sm:px-6">
           <button
             type="button"
             aria-label="Open menu"

@@ -36,26 +36,6 @@ export default function AdminRootLayout({
       className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-canvas text-ivory">
-        {/* EXPERIMENTAL (Liquid Glass prototype) — see app/[locale]/layout.tsx for details. */}
-        <svg aria-hidden="true" focusable="false" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
-          <filter id="liquid-glass-distortion" x="-2%" y="-2%" width="104%" height="104%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.014" numOctaves="2" seed="7" result="noise" />
-            <feGaussianBlur in="noise" stdDeviation="1.5" result="softNoise" />
-            <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="18" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </svg>
-        {/* Raw <style> tag — see app/[locale]/layout.tsx for why this can't live in globals.css. */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              @supports (backdrop-filter: blur(1px)) {
-                .glass, .glass-strong {
-                  backdrop-filter: url(#liquid-glass-distortion) blur(6px) saturate(200%) contrast(1.1) brightness(1.08);
-                }
-              }
-            `,
-          }}
-        />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

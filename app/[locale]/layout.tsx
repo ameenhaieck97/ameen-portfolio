@@ -130,40 +130,6 @@ export default async function LocaleLayout({
       className={`${fontVars} h-full overflow-x-hidden antialiased`}
     >
       <body className="flex min-h-full w-full flex-col overflow-x-hidden bg-canvas text-ivory">
-        {/* EXPERIMENTAL (Liquid Glass prototype) — hidden SVG filter referenced by
-            .glass/.glass-strong's backdrop-filter to genuinely refract/displace
-            whatever renders behind the glass (not just blur it), matching Apple's
-            Liquid Glass. Revert: remove this block + app/studio/layout.tsx's
-            copy + the CSS/component changes noted in globals.css's own comment. */}
-        <svg aria-hidden="true" focusable="false" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
-          {/* Region kept tight to the element's own bounds (was -20%/140%) —
-              a larger region let the filter sample and drag in background
-              pixels from well outside the glass surface, which read as "the
-              wrong background" bleeding through the edges. scale lowered
-              (was 60) so the ripple stays a subtle local wobble instead of a
-              strong pull. */}
-          <filter id="liquid-glass-distortion" x="-2%" y="-2%" width="104%" height="104%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.014" numOctaves="2" seed="7" result="noise" />
-            <feGaussianBlur in="noise" stdDeviation="1.5" result="softNoise" />
-            <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="18" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </svg>
-        {/* Raw <style> tag — deliberately NOT in globals.css. Next's CSS
-            pipeline (Lightning CSS) strips the entire backdrop-filter
-            property when a url(#...) value is present, even as a second
-            fallback declaration; a literal <style> element in the page
-            bypasses that pipeline and reaches the browser unmodified. */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              @supports (backdrop-filter: blur(1px)) {
-                .glass, .glass-strong {
-                  backdrop-filter: url(#liquid-glass-distortion) blur(6px) saturate(200%) contrast(1.1) brightness(1.08);
-                }
-              }
-            `,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
