@@ -133,7 +133,6 @@ export default function NewReceiptPage() {
   // its description is still blank.
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + lineTotal(item), 0), [items]);
   const finalTotalUsd = subtotal - (Number(discount) || 0);
-  const finalTotalIqd = finalTotalUsd * (Number(exchangeRate) || 0);
   // Previous balance/last payment come from the selected project's own
   // running total, or — with no project selected — the client-level tally
   // of project-less receipts (the recurring-client workflow).
@@ -144,6 +143,10 @@ export default function NewReceiptPage() {
     ? (projectSummary?.last_payment_date ?? null)
     : (runningBalance?.last_payment_date ?? null);
   const remainingBalance = Number(previousBalance) + finalTotalUsd - (Number(amountPaid) || 0);
+  // IQD total reflects what the client actually still owes (the full
+  // remaining balance), not just this receipt's own new charge — that's
+  // what's useful to show/hand over in Iraqi dinar.
+  const finalTotalIqd = remainingBalance * (Number(exchangeRate) || 0);
 
   const save = async () => {
     if (subtotal === 0 && (Number(amountPaid) || 0) === 0) {
