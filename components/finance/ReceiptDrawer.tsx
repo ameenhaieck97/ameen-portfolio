@@ -34,6 +34,7 @@ export function ReceiptDrawer({
   projectNameById,
   onDeleted,
   onUpdated,
+  onPaidToggled,
 }: {
   /** Newest-first, exactly as shown in the Financial Timeline — drives Previous/Next. */
   receipts: FinanceReceipt[];
@@ -44,6 +45,7 @@ export function ReceiptDrawer({
   projectNameById: Map<string, string>;
   onDeleted: (id: string) => void;
   onUpdated: (receipt: { id: string; notes: string; notes_ar: string }) => void;
+  onPaidToggled: (id: string, isPaid: boolean) => void;
 }) {
   const { toast } = useToast();
   const [receipt, setReceipt] = useState<FinanceReceiptWithItems | null>(null);
@@ -142,6 +144,22 @@ export function ReceiptDrawer({
     } finally {
       setExporting(null);
       setShareOpen(false);
+    }
+  };
+
+  const togglePaid = async () => {
+    if (!receipt) return;
+    const nextPaid = !receipt.is_paid;
+    setReceipt((current) => (current ? { ...current, is_paid: nextPaid } : current));
+    onPaidToggled(receipt.id, nextPaid);
+    const { error } = await getSupabaseClient()
+      .from("finance_receipts")
+      .update({ is_paid: nextPaid })
+      .eq("id", receipt.id);
+    if (error) {
+      setReceipt((current) => (current ? { ...current, is_paid: !nextPaid } : current));
+      onPaidToggled(receipt.id, !nextPaid);
+      toast(error.message, "error");
     }
   };
 
@@ -301,7 +319,21 @@ export function ReceiptDrawer({
             />
           </div>
 
-          <div className="relative" ref={shareMenuRef}>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void togglePaid()}
+              className={
+                receipt.is_paid
+                  ? "inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-400/15 px-4 text-sm font-medium text-emerald-300 transition-opacity hover:opacity-80"
+                  : "inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-4 text-sm text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
+              }
+            >
+              <Check size={14} aria-hidden />
+              {receipt.is_paid ? "Paid" : "Mark as paid"}
+            </button>
+
+            <div className="relative" ref={shareMenuRef}>
             <button
               type="button"
               onClick={() => setShareOpen((open) => !open)}
@@ -352,6 +384,7 @@ export function ReceiptDrawer({
                 </button>
               </div>
             ) : null}
+            </div>
           </div>
         </div>
       )}

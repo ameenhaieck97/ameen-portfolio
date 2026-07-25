@@ -46,6 +46,7 @@ export type FinanceReceipt = {
   notes: string;
   notes_ar: string;
   share_token: string;
+  is_paid: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -133,4 +134,25 @@ export type PublicReceipt = {
   notes: string;
   notes_ar: string;
   items: PublicReceiptItem[];
+};
+
+/** One row in the get_public_client_statement(token) RPC's "receipts" array — just enough to list + link to that receipt's own /receipt/{share_token} page for full details. */
+export type PublicClientReceipt = {
+  id: string;
+  receipt_number: number;
+  receipt_date: string;
+  final_total_usd: number;
+  remaining_balance: number;
+  is_paid: boolean;
+  share_token: string;
+};
+
+/** Shape returned by the get_public_client_statement(token) RPC — backs the read-only /client/{token} page. */
+export type PublicClientStatement = {
+  client_id: string;
+  client_name: string;
+  client_name_ar: string;
+  total_due: number;
+  last_payment_date: string | null;
+  receipts: PublicClientReceipt[];
 };

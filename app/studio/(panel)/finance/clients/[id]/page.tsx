@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
   Calendar,
+  ChevronDown,
+  Copy,
   CreditCard,
+  ExternalLink,
   Pencil,
   PiggyBank,
   Plus,
   Receipt as ReceiptIcon,
+  Share2,
   Trash2,
   Wallet,
   type LucideIcon,
@@ -75,6 +79,19 @@ export default function FinanceClientDetailPage() {
   const [openReceiptId, setOpenReceiptId] = useState<string | null>(null);
   const [deleteProjectTarget, setDeleteProjectTarget] = useState<FinanceProject | null>(null);
   const [deletingProject, setDeletingProject] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!shareOpen) return;
+    const handleClick = (event: MouseEvent) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+        setShareOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [shareOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,6 +177,35 @@ export default function FinanceClientDetailPage() {
     setDeleteProjectTarget(null);
   };
 
+  const toggleReceiptPaid = async (receipt: FinanceReceipt) => {
+    const nextPaid = !receipt.is_paid;
+    // Optimistic: flip immediately, roll back only if the write fails —
+    // this is a quick one-click status flag, not worth a loading spinner.
+    setState((current) =>
+      current.status === "ready"
+        ? {
+            ...current,
+            receipts: current.receipts.map((r) => (r.id === receipt.id ? { ...r, is_paid: nextPaid } : r)),
+          }
+        : current,
+    );
+    const { error } = await getSupabaseClient()
+      .from("finance_receipts")
+      .update({ is_paid: nextPaid })
+      .eq("id", receipt.id);
+    if (error) {
+      setState((current) =>
+        current.status === "ready"
+          ? {
+              ...current,
+              receipts: current.receipts.map((r) => (r.id === receipt.id ? { ...r, is_paid: receipt.is_paid } : r)),
+            }
+          : current,
+      );
+      toast(error.message, "error");
+    }
+  };
+
   if (state.status === "loading") {
     return (
       <div className="mx-auto max-w-6xl space-y-6">
@@ -192,6 +238,18 @@ export default function FinanceClientDetailPage() {
   }
 
   const { client, summary, projects, receipts } = state;
+
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/client/${client.portal_token}` : "";
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      toast("Link copied.");
+    } catch {
+      toast("Could not copy the link.", "error");
+    }
+    setShareOpen(false);
+  };
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -226,6 +284,39 @@ export default function FinanceClientDetailPage() {
               Add project
             </button>
           ) : null}
+          <div className="relative" ref={shareMenuRef}>
+            <button
+              type="button"
+              onClick={() => setShareOpen((open) => !open)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-sm text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
+            >
+              <Share2 size={14} aria-hidden />
+              Share
+              <ChevronDown size={14} aria-hidden className={shareOpen ? "rotate-180 transition-transform" : "transition-transform"} />
+            </button>
+            {shareOpen ? (
+              <div className="glass-strong absolute end-0 top-full z-10 mt-2 w-56 rounded-2xl p-1.5">
+                <button
+                  type="button"
+                  onClick={() => void copyLink()}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
+                >
+                  <Copy size={14} aria-hidden />
+                  Copy link
+                </button>
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setShareOpen(false)}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-start text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
+                >
+                  <ExternalLink size={14} aria-hidden />
+                  Open client statement
+                </a>
+              </div>
+            ) : null}
+          </div>
           <button
             type="button"
             onClick={() => setEditClientOpen(true)}
@@ -324,16 +415,43 @@ export default function FinanceClientDetailPage() {
         ) : (
           <div className="mt-5 space-y-3">
             {receipts.map((receipt) => (
-              <button
+              <div
                 key={receipt.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => setOpenReceiptId(receipt.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setOpenReceiptId(receipt.id);
+                  }
+                }}
                 className="glass-reveal flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/8 px-5 py-4 text-start transition-colors hover:border-gold/25"
               >
                 <div>
-                  <p className="font-display text-base text-ivory">
-                    Receipt #{String(receipt.receipt_number).padStart(4, "0")}
-                  </p>
+                  <div className="flex items-center gap-2.5">
+                    <p className="font-display text-base text-ivory">
+                      Receipt #{String(receipt.receipt_number).padStart(4, "0")}
+                    </p>
+                    {/* Client-facing paid/unpaid flag — same status shown on the
+                        public /client/{token} statement. Toggled directly here
+                        so it doesn't require opening the drawer for a status
+                        that's checked far more often than the notes are edited. */}
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void toggleReceiptPaid(receipt);
+                      }}
+                      className={
+                        receipt.is_paid
+                          ? "inline-flex items-center rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-emerald-300 transition-opacity hover:opacity-80"
+                          : "inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.1em] text-ivory/60 transition-opacity hover:opacity-80"
+                      }
+                    >
+                      {receipt.is_paid ? "Paid" : "Unpaid"}
+                    </button>
+                  </div>
                   <p className="mt-0.5 text-xs text-ivory/45">
                     {formatDate(receipt.receipt_date, "en")}
                     {receipt.project_id && projectNameById.get(receipt.project_id)
@@ -351,7 +469,7 @@ export default function FinanceClientDetailPage() {
                     <p className="font-medium text-ivory">{formatUSD(receipt.remaining_balance)}</p>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}
@@ -381,6 +499,18 @@ export default function FinanceClientDetailPage() {
                     receipt.id === updated.id
                       ? { ...receipt, notes: updated.notes, notes_ar: updated.notes_ar }
                       : receipt,
+                  ),
+                }
+              : current,
+          );
+        }}
+        onPaidToggled={(id, isPaid) => {
+          setState((current) =>
+            current.status === "ready"
+              ? {
+                  ...current,
+                  receipts: current.receipts.map((receipt) =>
+                    receipt.id === id ? { ...receipt, is_paid: isPaid } : receipt,
                   ),
                 }
               : current,
