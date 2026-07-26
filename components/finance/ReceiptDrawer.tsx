@@ -15,10 +15,11 @@ import {
   Pencil,
   Share2,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import { GlassDrawer } from "@/components/admin/GlassDrawer";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { TextAreaField } from "@/components/admin/FormControls";
+import { TextAreaField, TextField } from "@/components/admin/FormControls";
 import { useToast } from "@/components/admin/Toast";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { exportNodeAsPdf, exportNodeAsPng } from "@/lib/finance/export";
@@ -35,6 +36,7 @@ export function ReceiptDrawer({
   onDeleted,
   onUpdated,
   onPaidToggled,
+  onPaymentUpdated,
 }: {
   /** Newest-first, exactly as shown in the Financial Timeline — drives Previous/Next. */
   receipts: FinanceReceipt[];
@@ -46,6 +48,10 @@ export function ReceiptDrawer({
   onDeleted: (id: string) => void;
   onUpdated: (receipt: { id: string; notes: string; notes_ar: string }) => void;
   onPaidToggled: (id: string, isPaid: boolean) => void;
+  /** Editing "Amount paid" cascades to every later receipt in the same balance
+   * chain (see update_receipt_payment), so the parent's whole receipts list —
+   * not just this one row — needs to be refetched for their balances to stay correct. */
+  onPaymentUpdated: () => void;
 }) {
   const { toast } = useToast();
   const [receipt, setReceipt] = useState<FinanceReceiptWithItems | null>(null);
@@ -55,6 +61,9 @@ export function ReceiptDrawer({
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesDraft, setNotesDraft] = useState({ notes: "", notes_ar: "" });
   const [savingNotes, setSavingNotes] = useState(false);
+  const [editingPayment, setEditingPayment] = useState(false);
+  const [paymentDraft, setPaymentDraft] = useState("");
+  const [savingPayment, setSavingPayment] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -69,6 +78,7 @@ export function ReceiptDrawer({
     setReceipt(null);
     setQrDataUrl(null);
     setEditingNotes(false);
+    setEditingPayment(false);
     setShareOpen(false);
   }
 
@@ -197,6 +207,41 @@ export function ReceiptDrawer({
     setEditingNotes(false);
   };
 
+  const startEditingPayment = () => {
+    if (!receipt) return;
+    setPaymentDraft(String(receipt.amount_paid));
+    setEditingPayment(true);
+  };
+
+  const savePayment = async () => {
+    if (!receipt) return;
+    const nextAmount = Number(paymentDraft);
+    if (!Number.isFinite(nextAmount) || nextAmount < 0) {
+      toast("Enter a valid amount.", "error");
+      return;
+    }
+    setSavingPayment(true);
+    const { data, error } = await getSupabaseClient().rpc("update_receipt_payment", {
+      p_receipt_id: receipt.id,
+      p_amount_paid: nextAmount,
+    });
+    setSavingPayment(false);
+    if (error) {
+      toast(error.message, "error");
+      return;
+    }
+    const updated = data as FinanceReceipt;
+    setReceipt((current) =>
+      current ? { ...current, amount_paid: updated.amount_paid, remaining_balance: updated.remaining_balance } : current,
+    );
+    // Updating this receipt's amount paid shifts every LATER receipt's
+    // previous/remaining balance in the same chain — the parent's whole
+    // receipts list needs a refetch, not just this one row.
+    onPaymentUpdated();
+    toast("Amount paid updated.");
+    setEditingPayment(false);
+  };
+
   const deleteReceipt = async () => {
     if (!receipt) return;
     setDeleting(true);
@@ -239,6 +284,15 @@ export function ReceiptDrawer({
           <span className="mx-1 h-5 w-px bg-white/10" aria-hidden />
           <button
             type="button"
+            aria-label="Edit amount paid"
+            disabled={!receipt}
+            onClick={startEditingPayment}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory disabled:opacity-30"
+          >
+            <Wallet size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
             aria-label="Edit notes"
             disabled={!receipt}
             onClick={startEditingNotes}
@@ -264,6 +318,42 @@ export function ReceiptDrawer({
         </div>
       ) : (
         <div className="space-y-6">
+          {editingPayment ? (
+            <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
+              <TextField
+                label="Amount paid (USD)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={paymentDraft}
+                onChange={(event) => setPaymentDraft(event.target.value)}
+              />
+              <p className="text-xs text-ivory/45">
+                Changing this recalculates this receipt&rsquo;s remaining balance and shifts every later
+                receipt&rsquo;s balance in the same chain by the difference — useful when a receipt was
+                only partially paid and the rest arrives later.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingPayment(false)}
+                  className="h-9 rounded-lg border border-white/10 px-3 text-xs text-ivory/70 transition-colors hover:border-white/25"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void savePayment()}
+                  disabled={savingPayment}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gold px-3 text-xs font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-60"
+                >
+                  {savingPayment ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Check size={13} aria-hidden />}
+                  Save
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           {editingNotes ? (
             <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
               <TextAreaField

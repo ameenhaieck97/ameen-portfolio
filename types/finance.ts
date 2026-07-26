@@ -122,6 +122,8 @@ export type PublicReceipt = {
   receipt_number: number;
   receipt_date: string;
   client_name: string;
+  /** Lets the receipt page link back to that client's full /client/{token} statement. */
+  client_portal_token: string;
   project_name: string | null;
   subtotal: number;
   discount: number;
@@ -131,6 +133,7 @@ export type PublicReceipt = {
   final_total_iqd: number;
   amount_paid: number;
   remaining_balance: number;
+  is_paid: boolean;
   notes: string;
   notes_ar: string;
   items: PublicReceiptItem[];

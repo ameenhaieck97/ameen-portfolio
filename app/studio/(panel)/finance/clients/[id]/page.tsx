@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -93,10 +93,49 @@ export default function FinanceClientDetailPage() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [shareOpen]);
 
+  const loadClient = useCallback(async () => {
+    const supabase = getSupabaseClient();
+    const [clientResult, summaryResult, projectsResult] = await Promise.all([
+      supabase.from("finance_clients").select("*").eq("id", params.id).maybeSingle(),
+      supabase.from("finance_client_summary").select("*").eq("client_id", params.id).maybeSingle(),
+      supabase
+        .from("finance_projects")
+        .select("*")
+        .eq("client_id", params.id)
+        .order("created_at", { ascending: true }),
+    ]);
+
+    if (clientResult.error || !clientResult.data) {
+      setState({ status: "missing" });
+      return;
+    }
+
+    const projects = (projectsResult.data ?? []) as FinanceProject[];
+
+    const receiptsResult = await supabase
+      .from("finance_receipts")
+      .select("*")
+      .eq("client_id", params.id)
+      .order("receipt_date", { ascending: false })
+      .order("receipt_number", { ascending: false });
+
+    setState({
+      status: "ready",
+      client: clientResult.data as FinanceClient,
+      summary: (summaryResult.data ?? null) as FinanceClientSummary | null,
+      projects,
+      receipts: (receiptsResult.data ?? []) as FinanceReceipt[],
+    });
+  }, [params.id]);
+
   useEffect(() => {
+    // Inlined rather than calling loadClient() directly — the lint rule
+    // for effects can't verify a call routed through a useCallback ref is
+    // safe. loadClient itself is reused as a plain on-demand refetch
+    // (never called from inside an effect) after a payment edit.
+    const supabase = getSupabaseClient();
     let cancelled = false;
     void (async () => {
-      const supabase = getSupabaseClient();
       const [clientResult, summaryResult, projectsResult] = await Promise.all([
         supabase.from("finance_clients").select("*").eq("id", params.id).maybeSingle(),
         supabase.from("finance_client_summary").select("*").eq("client_id", params.id).maybeSingle(),
@@ -516,6 +555,7 @@ export default function FinanceClientDetailPage() {
               : current,
           );
         }}
+        onPaymentUpdated={() => void loadClient()}
       />
 
       <ClientModal

@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import QRCode from "qrcode";
 import { getServerReadClient } from "@/lib/supabase/server-read";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -47,6 +49,17 @@ export default async function PublicReceiptPage({
   return (
     <main className="flex min-h-dvh items-center justify-center p-6">
       <div className="w-full max-w-xl">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Link
+            href={`/client/${receipt.client_portal_token}`}
+            className="glass inline-flex flex-none items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-ivory/80 transition-colors hover:text-gold"
+          >
+            <ArrowLeft size={13} aria-hidden />
+            <span dir="rtl">رجوع لكشف الحساب</span>
+            <span aria-hidden>·</span>
+            <span>Back to statement</span>
+          </Link>
+        </div>
         <p className="mb-4 text-center text-xs uppercase tracking-[0.2em] text-gold">
           Ameen Haieck — Graphic Designer
         </p>
