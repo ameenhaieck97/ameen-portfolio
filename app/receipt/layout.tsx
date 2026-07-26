@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "../[locale]/globals.css";
 
 const fraunces = Fraunces({
@@ -12,6 +13,21 @@ const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+// Loaded (not switched on by default — this page stays lang="en") so the
+// bilingual "Back to statement" link's Arabic span, and any future Arabic
+// content here, don't fall back to a system font.
+const rayatAr = localFont({
+  variable: "--font-rayat-ar",
+  display: "swap",
+  src: [
+    { path: "../../fonts/rayat-ar/ITFRayatAr-Light.otf", weight: "300", style: "normal" },
+    { path: "../../fonts/rayat-ar/ITFRayatAr-Regular.otf", weight: "400", style: "normal" },
+    { path: "../../fonts/rayat-ar/ITFRayatAr-Medium.otf", weight: "500", style: "normal" },
+    { path: "../../fonts/rayat-ar/ITFRayatAr-Bold.otf", weight: "700", style: "normal" },
+    { path: "../../fonts/rayat-ar/ITFRayatAr-Black.otf", weight: "900", style: "normal" },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +46,7 @@ export default function ReceiptLayout({ children }: { children: React.ReactNode 
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${manrope.variable} ${rayatAr.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-canvas text-ivory">{children}</body>
     </html>

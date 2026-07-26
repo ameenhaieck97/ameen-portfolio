@@ -102,5 +102,6 @@ export type Settings = {
   phone: string;
   location: string;
   social_links: Partial<SocialLinks>;
+  about_photo_url: string;
   updated_at: string;
 };

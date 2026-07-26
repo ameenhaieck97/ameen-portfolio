@@ -2,6 +2,7 @@ import "server-only";
 import { partners as staticPartners, type Partner } from "@/data/partners";
 import { isSupabaseConfigured } from "./supabase/config";
 import { getServerReadClient } from "./supabase/server-read";
+import { withTimeout } from "./supabase/with-timeout";
 
 type ClientRow = {
   id: string;
@@ -22,11 +23,14 @@ export async function getClients(): Promise<Partner[]> {
 
   try {
     const supabase = getServerReadClient();
-    const { data, error } = await supabase
-      .from("clients")
-      .select("id, name, name_ar, logo_url")
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
+    const { data, error } = await withTimeout(
+      supabase
+        .from("clients")
+        .select("id, name, name_ar, logo_url")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true }),
+      1500,
+    );
 
     if (error) {
       console.error("getClients: Supabase query failed, using static fallback:", error.message);

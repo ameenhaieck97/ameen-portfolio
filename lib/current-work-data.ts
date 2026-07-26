@@ -1,6 +1,7 @@
 import "server-only";
 import { isSupabaseConfigured } from "./supabase/config";
 import { getServerReadClient } from "./supabase/server-read";
+import { withTimeout } from "./supabase/with-timeout";
 
 export const CURRENT_WORK_KEYS = ["institute", "mujeebCenter", "najafPodcast", "iliaApp"] as const;
 export type CurrentWorkKey = (typeof CURRENT_WORK_KEYS)[number];
@@ -22,9 +23,10 @@ export async function getCurrentWorkGalleries(): Promise<CurrentWorkGalleries> {
 
   try {
     const supabase = getServerReadClient();
-    const { data, error } = await supabase
-      .from("current_work_galleries")
-      .select("project_key, gallery_images");
+    const { data, error } = await withTimeout(
+      supabase.from("current_work_galleries").select("project_key, gallery_images"),
+      1500,
+    );
 
     if (error) {
       console.error(

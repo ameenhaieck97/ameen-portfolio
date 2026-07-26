@@ -55,7 +55,9 @@ export default async function PublicReceiptPage({
             className="glass inline-flex flex-none items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-ivory/80 transition-colors hover:text-gold"
           >
             <ArrowLeft size={13} aria-hidden />
-            <span dir="rtl">رجوع لكشف الحساب</span>
+            <span dir="rtl" style={{ fontFamily: "var(--font-rayat-ar), Tahoma, sans-serif" }}>
+              رجوع لكشف الحساب
+            </span>
             <span aria-hidden>·</span>
             <span>Back to statement</span>
           </Link>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/motion/Reveal";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -6,7 +7,12 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/cn";
 
-export default function About() {
+export default function About({
+  photoUrl,
+}: {
+  /** Uploaded from Studio → Settings; falls back to the abstract monogram card when empty. */
+  photoUrl?: string | null;
+}) {
   const t = useTranslations("about");
   const paragraphs = t("description").split("\n\n");
 
@@ -15,17 +21,21 @@ export default function About() {
       <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-20 lg:px-10">
         <Reveal variant="scaleIn">
           <GlassCard className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden">
-            <PlaceholderArt
-              seed={1}
-              monogram={siteConfig.monogram}
-              className="opacity-90"
-            />
-            <div className="glass absolute inset-x-6 bottom-6 flex items-center justify-between rounded-2xl px-5 py-4">
-              <span className="text-xs uppercase tracking-[0.2em] text-ivory/60">
-                {t("sinceLabel")}
-              </span>
-              <span className="font-display text-2xl text-gold">2015</span>
-            </div>
+            {photoUrl ? (
+              <Image
+                src={photoUrl}
+                alt={siteConfig.name}
+                fill
+                sizes="(min-width: 1024px) 24rem, 90vw"
+                className="object-cover"
+              />
+            ) : (
+              <PlaceholderArt
+                seed={1}
+                monogram={siteConfig.monogram}
+                className="opacity-90"
+              />
+            )}
           </GlassCard>
         </Reveal>
 

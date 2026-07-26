@@ -6,6 +6,7 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import { safeRevalidate } from "@/lib/revalidate";
 import type { Settings, SocialLinks } from "@/types/admin";
 import { TextAreaField, TextField } from "@/components/admin/FormControls";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { useToast } from "@/components/admin/Toast";
 
@@ -25,6 +26,7 @@ type SettingsDraft = {
   phone: string;
   location: string;
   social_links: Record<keyof SocialLinks, string>;
+  about_photo_url: string;
 };
 
 const EMPTY_DRAFT: SettingsDraft = {
@@ -41,6 +43,7 @@ const EMPTY_DRAFT: SettingsDraft = {
     x: "",
     youtube: "",
   },
+  about_photo_url: "",
 };
 
 export default function SettingsPage() {
@@ -72,6 +75,7 @@ export default function SettingsPage() {
             ...EMPTY_DRAFT.social_links,
             ...(row?.social_links ?? {}),
           },
+          about_photo_url: row?.about_photo_url ?? "",
         });
       });
   }, []);
@@ -140,6 +144,24 @@ export default function SettingsPage() {
                 value={draft.site_description}
                 onChange={(event) =>
                   setDraft({ ...draft, site_description: event.target.value })
+                }
+              />
+            </div>
+          </section>
+
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">About section photo</h2>
+            <p className="mt-1 text-sm text-ivory/55">
+              Replaces the abstract monogram card next to the About text. Leave empty to keep the
+              default monogram.
+            </p>
+            <div className="mt-5">
+              <ImageUploader
+                label="Photo"
+                folder="settings"
+                value={draft.about_photo_url ? [draft.about_photo_url] : []}
+                onChange={([url]) =>
+                  setDraft({ ...draft, about_photo_url: url ?? "" })
                 }
               />
             </div>

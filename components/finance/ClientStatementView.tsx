@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatDate, formatUSD } from "@/lib/format";
 import type { PublicClientStatement } from "@/types/finance";
@@ -37,6 +37,15 @@ export function ClientStatementView({ statement }: { statement: PublicClientStat
   const t = STRINGS[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
   const clientName = lang === "ar" && statement.client_name_ar ? statement.client_name_ar : statement.client_name;
+
+  // globals.css keys --display-font-family/--body-font-family off
+  // html[lang="ar"] — the layout sets that by default, but toggling the
+  // in-page language needs to flip the real <html> attribute too, or every
+  // element keeps using the Arabic font (or vice versa) after a switch.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = dir;
+  }, [lang, dir]);
 
   return (
     <main dir={dir} className="flex min-h-dvh items-center justify-center p-6">

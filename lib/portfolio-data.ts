@@ -7,6 +7,7 @@ import {
 } from "@/data/portfolio";
 import { isSupabaseConfigured } from "./supabase/config";
 import { getServerReadClient } from "./supabase/server-read";
+import { withTimeout } from "./supabase/with-timeout";
 
 // Only these groups render in the public Portfolio grid. "currentWork" items
 // live in the Experience section and are intentionally excluded here.
@@ -35,15 +36,18 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
 
   try {
     const supabase = getServerReadClient();
-    const { data, error } = await supabase
-      .from("projects")
-      .select(
-        "id, title, title_ar, group_key, category_key, cover_image, gallery_images, preserve_color, is_logo",
-      )
-      .eq("published", true)
-      .in("group_key", PUBLIC_GROUPS)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
+    const { data, error } = await withTimeout(
+      supabase
+        .from("projects")
+        .select(
+          "id, title, title_ar, group_key, category_key, cover_image, gallery_images, preserve_color, is_logo",
+        )
+        .eq("published", true)
+        .in("group_key", PUBLIC_GROUPS)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true }),
+      1500,
+    );
 
     if (error) {
       console.error("getPortfolioItems: Supabase query failed, using static fallback:", error.message);
