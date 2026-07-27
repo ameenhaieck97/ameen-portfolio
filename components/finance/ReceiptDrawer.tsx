@@ -284,15 +284,6 @@ export function ReceiptDrawer({
           <span className="mx-1 h-5 w-px bg-white/10" aria-hidden />
           <button
             type="button"
-            aria-label="Edit amount paid"
-            disabled={!receipt}
-            onClick={startEditingPayment}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory disabled:opacity-30"
-          >
-            <Wallet size={15} aria-hidden />
-          </button>
-          <button
-            type="button"
             aria-label="Edit notes"
             disabled={!receipt}
             onClick={startEditingNotes}
@@ -421,6 +412,15 @@ export function ReceiptDrawer({
             >
               <Check size={14} aria-hidden />
               {receipt.is_paid ? "Paid" : "Mark as paid"}
+            </button>
+
+            <button
+              type="button"
+              onClick={startEditingPayment}
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-white/10 px-4 text-sm text-ivory/70 transition-colors hover:border-gold/40 hover:text-gold"
+            >
+              <Wallet size={14} aria-hidden />
+              Edit amount paid
             </button>
 
             <div className="relative" ref={shareMenuRef}>
