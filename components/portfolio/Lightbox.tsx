@@ -42,9 +42,14 @@ function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
   return (
     <div className="relative flex h-full w-full items-center justify-center p-6">
       <div className="glass flex max-h-full w-full max-w-xl flex-col overflow-hidden rounded-2xl">
+        {/* aspect-ratio (not flex-1) gives this a definite height derived
+            from its own width — a next/image `fill` child is positioned
+            absolutely and contributes no intrinsic size of its own, so
+            without this the image area collapses to ~0px tall (the bug:
+            only the caption below it, which has real content, showed up). */}
         <div
           className={cn(
-            "relative min-h-0 flex-1",
+            "relative aspect-[4/5] w-full",
             zoomable && (zoomed ? "cursor-zoom-out" : "cursor-zoom-in"),
           )}
           onClick={toggleZoom}
