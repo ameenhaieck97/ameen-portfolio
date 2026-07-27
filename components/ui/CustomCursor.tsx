@@ -62,7 +62,12 @@ export function CustomCursor() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full border"
+      // A cursor replacement should always render above every other layer —
+      // the Portfolio lightbox (yet-another-react-lightbox) portals its
+      // backdrop at z-index 9999, well above this element's old z-[100],
+      // which hid the cursor entirely (native cursor is also disabled
+      // site-wide via the "cursor-none" class) whenever the lightbox was open.
+      className="pointer-events-none fixed left-0 top-0 z-[10000] flex items-center justify-center rounded-full border"
       style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
       animate={{
         width: sizes[variant],
