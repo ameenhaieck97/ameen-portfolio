@@ -309,42 +309,6 @@ export function ReceiptDrawer({
         </div>
       ) : (
         <div className="space-y-6">
-          {editingPayment ? (
-            <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
-              <TextField
-                label="Amount paid (USD)"
-                type="number"
-                step="0.01"
-                min="0"
-                value={paymentDraft}
-                onChange={(event) => setPaymentDraft(event.target.value)}
-              />
-              <p className="text-xs text-ivory/45">
-                Changing this recalculates this receipt&rsquo;s remaining balance and shifts every later
-                receipt&rsquo;s balance in the same chain by the difference — useful when a receipt was
-                only partially paid and the rest arrives later.
-              </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingPayment(false)}
-                  className="h-9 rounded-lg border border-white/10 px-3 text-xs text-ivory/70 transition-colors hover:border-white/25"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void savePayment()}
-                  disabled={savingPayment}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gold px-3 text-xs font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-60"
-                >
-                  {savingPayment ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Check size={13} aria-hidden />}
-                  Save
-                </button>
-              </div>
-            </div>
-          ) : null}
-
           {editingNotes ? (
             <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
               <TextAreaField
@@ -476,6 +440,42 @@ export function ReceiptDrawer({
             ) : null}
             </div>
           </div>
+
+          {editingPayment ? (
+            <div className="space-y-4 rounded-2xl border border-gold/25 bg-gold/5 p-4">
+              <TextField
+                label="Amount paid (USD)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={paymentDraft}
+                onChange={(event) => setPaymentDraft(event.target.value)}
+              />
+              <p className="text-xs text-ivory/45">
+                Changing this recalculates this receipt&rsquo;s remaining balance and shifts every later
+                receipt&rsquo;s balance in the same chain by the difference — useful when a receipt was
+                only partially paid and the rest arrives later.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingPayment(false)}
+                  className="h-9 rounded-lg border border-white/10 px-3 text-xs text-ivory/70 transition-colors hover:border-white/25"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void savePayment()}
+                  disabled={savingPayment}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-gold px-3 text-xs font-semibold text-canvas transition-colors hover:bg-gold-soft disabled:opacity-60"
+                >
+                  {savingPayment ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Check size={13} aria-hidden />}
+                  Save
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
 
