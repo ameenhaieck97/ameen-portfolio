@@ -43,6 +43,12 @@ const nextConfig: NextConfig = {
         destination: "/studio/website/portfolio/:path*",
         permanent: true,
       },
+      // Packages was merged into the combined Offers & Packages page.
+      {
+        source: "/studio/website/packages",
+        destination: "/studio/website/offers",
+        permanent: true,
+      },
     ];
   },
 };

@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bell,
   Building2,
   Globe,
   Home,
@@ -16,7 +17,6 @@ import {
   Menu,
   Network,
   PanelBottom,
-  Package,
   Percent,
   Receipt,
   Settings,
@@ -35,8 +35,8 @@ const WEBSITE_CHILDREN: NavLink[] = [
   { href: "/studio/website/homepage", label: "Homepage", icon: Home },
   { href: "/studio/website/portfolio", label: "Portfolio", icon: LayoutGrid },
   { href: "/studio/website/current-work", label: "Current Work", icon: Network },
-  { href: "/studio/website/packages", label: "Packages", icon: Package },
-  { href: "/studio/website/offers", label: "Offers", icon: Percent },
+  { href: "/studio/website/offers", label: "Offers & Packages", icon: Percent },
+  { href: "/studio/website/popup", label: "Popup Manager", icon: Bell },
   { href: "/studio/website/about", label: "About", icon: UserCircle },
   { href: "/studio/website/contact", label: "Contact", icon: Mail },
   { href: "/studio/website/footer", label: "Footer", icon: PanelBottom },

@@ -12,7 +12,7 @@ import { getPortfolioItems } from "@/lib/portfolio-data";
 import { getClients } from "@/lib/clients-data";
 import { getCurrentWorkGalleries } from "@/lib/current-work-data";
 import { getAboutPhotoUrl } from "@/lib/settings-data";
-import { getPromo } from "@/lib/promo-data";
+import { getPromoPopup } from "@/lib/promo-data";
 import { PromoPopup } from "@/components/ui/PromoPopup";
 
 // The studio calls the revalidatePublicSite Server Action right after every
@@ -34,12 +34,12 @@ export default async function HomePage({
     getClients(),
     getCurrentWorkGalleries(),
     getAboutPhotoUrl(),
-    getPromo(),
+    getPromoPopup(),
   ]);
 
   return (
     <>
-      {promo ? <PromoPopup promo={promo} /> : null}
+      {promo ? <PromoPopup payload={promo} /> : null}
       <Hero />
       <About photoUrl={aboutPhotoUrl} />
       <Services />

@@ -94,6 +94,10 @@ export type SocialLinks = {
   youtube: string;
 };
 
+export type PopupType = "offer" | "package" | "custom" | "image_only" | "announcement";
+export type PopupFrequency = "once_per_visitor" | "every_visit" | "until_dismissed";
+export type PopupPriority = "high" | "normal" | "low";
+
 export type Settings = {
   id: number;
   site_title: string;
@@ -103,27 +107,21 @@ export type Settings = {
   location: string;
   social_links: Partial<SocialLinks>;
   about_photo_url: string;
-  /** Whether the featured offer/package popup shows on the public site. */
+  /** Whether the popup shows on the public site at all. */
   promo_enabled: boolean;
-  promo_kind: "offers" | "packages";
-  /** Row id within whichever table promo_kind points at — no FK since it's polymorphic across two tables. */
-  promo_item_id: string | null;
-  updated_at: string;
-};
-
-/** Shared shape for both offers and packages — same fields, two tables, managed via the same EntityManager UI. */
-export type PromoEntity = {
-  id: string;
-  title: string;
-  title_ar: string;
-  description: string;
-  description_ar: string;
-  price: string;
-  price_ar: string;
-  image_url: string;
-  link_url: string;
-  published: boolean;
-  sort_order: number;
-  created_at: string;
+  popup_type: PopupType;
+  popup_frequency: PopupFrequency;
+  popup_delay_seconds: number;
+  popup_priority: PopupPriority;
+  popup_hide_after_cta: boolean;
+  /** Only used when popup_type is "custom" | "image_only" | "announcement" — there's no offer/package row to read content from. */
+  popup_custom_title: string;
+  popup_custom_title_ar: string;
+  popup_custom_description: string;
+  popup_custom_description_ar: string;
+  popup_custom_image_url: string;
+  popup_custom_link_url: string;
+  popup_custom_cta_text: string;
+  popup_custom_cta_text_ar: string;
   updated_at: string;
 };
