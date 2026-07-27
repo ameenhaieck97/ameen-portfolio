@@ -273,3 +273,36 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-gold-soft);
 }
+
+/* Portfolio lightbox (yet-another-react-lightbox): the library pins its
+   prev/next arrows and close button to the *viewport* edges, regardless of
+   how narrow the actual slide card is — on a wide screen the card (capped
+   at max-w-xl, centered) sits far from those edges, so the controls read as
+   disconnected from the image. Pulling them in to a fixed distance from
+   center (clamped so they never go past the viewport edge on small screens,
+   where they're already close) keeps them near the card at any width.
+   !important is deliberate here: this overrides a third-party library
+   stylesheet whose position in the final CSS bundle isn't something this
+   project controls. */
+.yarl__navigation_prev {
+  left: max(0.5rem, calc(50% - 21rem)) !important;
+}
+.yarl__navigation_next {
+  right: max(0.5rem, calc(50% - 21rem)) !important;
+}
+[dir="rtl"] .yarl__navigation_prev {
+  left: unset !important;
+  right: max(0.5rem, calc(50% - 21rem)) !important;
+}
+[dir="rtl"] .yarl__navigation_next {
+  right: unset !important;
+  left: max(0.5rem, calc(50% - 21rem)) !important;
+}
+.yarl__toolbar {
+  top: 1.5rem !important;
+  right: max(0.5rem, calc(50% - 21rem)) !important;
+}
+[dir="rtl"] .yarl__toolbar {
+  right: unset !important;
+  left: max(0.5rem, calc(50% - 21rem)) !important;
+}

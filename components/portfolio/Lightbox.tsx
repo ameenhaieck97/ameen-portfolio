@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Lightbox, { type SlideImage } from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { PlaceholderArt } from "@/components/ui/PlaceholderArt";
 import { MonoLogo } from "@/components/ui/MonoLogo";
+import { cn } from "@/lib/cn";
 
 export type PortfolioSlide = SlideImage & {
   title: string;
@@ -14,6 +15,80 @@ export type PortfolioSlide = SlideImage & {
   preserveColor?: boolean;
   isLogo?: boolean;
 };
+
+// Click (desktop) or double-tap (mobile) toggles a 2x zoom on the photo
+// itself — kept as a self-contained toggle here rather than the library's
+// Zoom plugin, since that plugin takes over rendering any slide it
+// recognizes as an image and would silently drop this component's own
+// glass card / caption / logo / placeholder layouts.
+function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
+  const [zoomed, setZoomed] = useState(false);
+  const lastTapRef = useRef(0);
+  const isLogo = Boolean(s.isLogo);
+  // Logos and the placeholder mark are already shown at their natural,
+  // fully-visible size — zooming them in wouldn't reveal any extra detail
+  // the way it does for an actual photo.
+  const zoomable = Boolean(s.src) && !isLogo;
+
+  const toggleZoom = () => zoomable && setZoomed((z) => !z);
+
+  const handleTouchEnd = () => {
+    if (!zoomable) return;
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) toggleZoom();
+    lastTapRef.current = now;
+  };
+
+  return (
+    <div className="relative flex h-full w-full items-center justify-center p-6">
+      <div className="glass flex max-h-full w-full max-w-xl flex-col overflow-hidden rounded-2xl">
+        <div
+          className={cn(
+            "relative min-h-0 flex-1",
+            zoomable && (zoomed ? "cursor-zoom-out" : "cursor-zoom-in"),
+          )}
+          onClick={toggleZoom}
+          onTouchEnd={handleTouchEnd}
+        >
+          {s.src && isLogo && s.preserveColor ? (
+            <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-10">
+              <Image
+                src={s.src}
+                alt={s.title}
+                width={280}
+                height={280}
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ) : s.src && isLogo ? (
+            <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-6">
+              <MonoLogo src={s.src} label={s.title} className="h-full w-full" />
+            </div>
+          ) : s.src ? (
+            <Image
+              src={s.src}
+              alt={s.title}
+              fill
+              sizes="(min-width: 640px) 36rem, 100vw"
+              className={cn(
+                "object-cover transition-transform duration-500 ease-luxury",
+                zoomed && "scale-[2]",
+              )}
+            />
+          ) : (
+            <PlaceholderArt seed={s.seed} />
+          )}
+        </div>
+        {/* Connected footer, not an overlay on the photo — same card width
+            and corner radius, just its own zone below the image. */}
+        <div className="flex-none border-t border-white/8 px-6 py-4">
+          <p className="text-xs uppercase tracking-[0.2em] text-gold">{s.category}</p>
+          <p className="mt-1 font-display text-2xl text-ivory">{s.title}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function PortfolioLightbox({
   slides,
@@ -80,49 +155,7 @@ export function PortfolioLightbox({
         ...(slides.length <= 1
           ? { buttonPrev: () => null, buttonNext: () => null }
           : {}),
-        slide: ({ slide }) => {
-          const s = slide as PortfolioSlide;
-          const isLogo = Boolean(s.isLogo);
-          return (
-            <div className="relative flex h-full w-full items-center justify-center p-6">
-              <div className="glass relative aspect-[4/5] max-h-full w-full max-w-xl overflow-hidden rounded-2xl">
-                {s.src && isLogo && s.preserveColor ? (
-                  <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-10">
-                    <Image
-                      src={s.src}
-                      alt={s.title}
-                      width={280}
-                      height={280}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ) : s.src && isLogo ? (
-                  <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-6">
-                    <MonoLogo src={s.src} label={s.title} className="h-full w-full" />
-                  </div>
-                ) : s.src ? (
-                  <Image
-                    src={s.src}
-                    alt={s.title}
-                    fill
-                    sizes="(min-width: 640px) 36rem, 100vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <PlaceholderArt seed={s.seed} />
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-canvas/95 to-transparent p-8">
-                  <p className="text-xs uppercase tracking-[0.2em] text-gold">
-                    {s.category}
-                  </p>
-                  <p className="mt-1 font-display text-2xl text-ivory">
-                    {s.title}
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        },
+        slide: ({ slide }) => <LightboxSlide slide={slide as PortfolioSlide} />,
       }}
     />
   );

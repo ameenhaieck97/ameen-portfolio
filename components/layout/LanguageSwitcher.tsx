@@ -10,27 +10,32 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   const nextLocale = locale === "ar" ? "en" : "ar";
 
   return (
+    // dir="ltr" is deliberate and independent of the page's own direction:
+    // EN must always sit physically left and AR physically right, and a
+    // plain flex row here would otherwise visually reverse on Arabic pages
+    // (RTL flips row order), swapping them.
     <Link
       href={pathname}
       locale={nextLocale}
+      dir="ltr"
       className={cn(
-        "glass flex h-10 items-center gap-1 rounded-full px-1 text-xs font-semibold uppercase tracking-wide",
+        "group glass inline-flex h-9 w-fit items-center rounded-full p-1 text-xs font-semibold uppercase tracking-wide",
         className,
       )}
       aria-label={`Switch to ${nextLocale === "ar" ? "Arabic" : "English"}`}
     >
       <span
         className={cn(
-          "rounded-full px-2.5 py-1.5 transition-colors",
-          locale === "en" ? "bg-gold text-canvas" : "text-ivory/60",
+          "flex h-7 items-center justify-center rounded-full px-3 transition-colors",
+          locale === "en" ? "bg-gold text-canvas" : "text-ivory/60 group-hover:text-gold",
         )}
       >
         EN
       </span>
       <span
         className={cn(
-          "rounded-full px-2.5 py-1.5 transition-colors",
-          locale === "ar" ? "bg-gold text-canvas" : "text-ivory/60",
+          "flex h-7 items-center justify-center rounded-full px-3 transition-colors",
+          locale === "ar" ? "bg-gold text-canvas" : "text-ivory/60 group-hover:text-gold",
         )}
       >
         AR
