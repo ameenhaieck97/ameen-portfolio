@@ -21,6 +21,10 @@ export type EntityField = {
   folder?: string;
   /** Hide from the list row summary (still editable in the form) */
   listHidden?: boolean;
+  /** Value a new row starts with, before the admin edits it — e.g. 1 for a
+   * "scale multiplier" field, where the type-based default of 0 would be
+   * wrong (it'd render invisible until someone noticed and fixed it). */
+  defaultValue?: unknown;
 };
 
 type EntityRow = { id: string; sort_order: number } & Record<string, unknown>;
@@ -29,7 +33,13 @@ function emptyDraft(fields: EntityField[]): Record<string, unknown> {
   const draft: Record<string, unknown> = { sort_order: 0 };
   for (const field of fields) {
     draft[field.key] =
-      field.type === "toggle" ? true : field.type === "number" ? 0 : "";
+      "defaultValue" in field
+        ? field.defaultValue
+        : field.type === "toggle"
+          ? true
+          : field.type === "number"
+            ? 0
+            : "";
   }
   return draft;
 }

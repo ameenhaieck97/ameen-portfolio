@@ -103,5 +103,27 @@ export type Settings = {
   location: string;
   social_links: Partial<SocialLinks>;
   about_photo_url: string;
+  /** Whether the featured offer/package popup shows on the public site. */
+  promo_enabled: boolean;
+  promo_kind: "offers" | "packages";
+  /** Row id within whichever table promo_kind points at — no FK since it's polymorphic across two tables. */
+  promo_item_id: string | null;
+  updated_at: string;
+};
+
+/** Shared shape for both offers and packages — same fields, two tables, managed via the same EntityManager UI. */
+export type PromoEntity = {
+  id: string;
+  title: string;
+  title_ar: string;
+  description: string;
+  description_ar: string;
+  price: string;
+  price_ar: string;
+  image_url: string;
+  link_url: string;
+  published: boolean;
+  sort_order: number;
+  created_at: string;
   updated_at: string;
 };

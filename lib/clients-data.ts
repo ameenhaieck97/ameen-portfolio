@@ -9,6 +9,7 @@ type ClientRow = {
   name: string;
   name_ar: string | null;
   logo_url: string | null;
+  logo_scale: number | string | null;
 };
 
 /**
@@ -26,7 +27,7 @@ export async function getClients(): Promise<Partner[]> {
     const { data, error } = await withTimeout(
       supabase
         .from("clients")
-        .select("id, name, name_ar, logo_url")
+        .select("id, name, name_ar, logo_url, logo_scale")
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true }),
       1500,
@@ -42,6 +43,7 @@ export async function getClients(): Promise<Partner[]> {
       id: row.id,
       name: { en: row.name, ar: row.name_ar || row.name },
       logo: row.logo_url || undefined,
+      logoScale: row.logo_scale ? Number(row.logo_scale) : undefined,
     }));
   } catch (error) {
     console.error("getClients: unexpected error, using static fallback:", error);

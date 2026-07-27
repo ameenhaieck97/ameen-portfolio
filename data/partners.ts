@@ -2,6 +2,8 @@ export type Partner = {
   id: string;
   name: { en: string; ar: string };
   logo?: string;
+  /** Compensates for a source logo file that renders visually smaller than its siblings — set from Studio → Clients. */
+  logoScale?: number;
 };
 
 export const partners: Partner[] = [

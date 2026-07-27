@@ -157,5 +157,11 @@
     "tagline": "Graphic Designer — Brand Identity & Visual Communication",
     "rights": "All rights reserved.",
     "backToTop": "Back to top"
+  },
+  "promo": {
+    "offerLabel": "Offer",
+    "packageLabel": "Package",
+    "cta": "Learn more",
+    "close": "Close"
   }
 }

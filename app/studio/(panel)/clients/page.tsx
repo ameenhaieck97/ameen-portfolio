@@ -13,6 +13,12 @@ export default function ClientsPage() {
         { key: "name", label: "Name", type: "text", required: true },
         { key: "name_ar", label: "Name (Arabic)", type: "text" },
         { key: "logo_url", label: "Logo", type: "image", folder: "clients" },
+        {
+          key: "logo_scale",
+          label: "Logo scale (1 = default, e.g. 1.3 = 30% bigger)",
+          type: "number",
+          defaultValue: 1,
+        },
       ]}
     />
   );

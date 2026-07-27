@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { safeRevalidate } from "@/lib/revalidate";
-import type { Settings, SocialLinks } from "@/types/admin";
-import { TextAreaField, TextField } from "@/components/admin/FormControls";
+import type { PromoEntity, Settings, SocialLinks } from "@/types/admin";
+import { SelectField, TextAreaField, TextField, Toggle } from "@/components/admin/FormControls";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { useToast } from "@/components/admin/Toast";
@@ -27,6 +27,9 @@ type SettingsDraft = {
   location: string;
   social_links: Record<keyof SocialLinks, string>;
   about_photo_url: string;
+  promo_enabled: boolean;
+  promo_kind: "offers" | "packages";
+  promo_item_id: string | null;
 };
 
 const EMPTY_DRAFT: SettingsDraft = {
@@ -44,6 +47,9 @@ const EMPTY_DRAFT: SettingsDraft = {
     youtube: "",
   },
   about_photo_url: "",
+  promo_enabled: false,
+  promo_kind: "offers",
+  promo_item_id: null,
 };
 
 export default function SettingsPage() {
@@ -51,6 +57,8 @@ export default function SettingsPage() {
   const [draft, setDraft] = useState<SettingsDraft | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [offers, setOffers] = useState<Pick<PromoEntity, "id" | "title">[] | null>(null);
+  const [packages, setPackages] = useState<Pick<PromoEntity, "id" | "title">[] | null>(null);
 
   useEffect(() => {
     void getSupabaseClient()
@@ -76,8 +84,24 @@ export default function SettingsPage() {
             ...(row?.social_links ?? {}),
           },
           about_photo_url: row?.about_photo_url ?? "",
+          promo_enabled: row?.promo_enabled ?? false,
+          promo_kind: row?.promo_kind ?? "offers",
+          promo_item_id: row?.promo_item_id ?? null,
         });
       });
+  }, []);
+
+  useEffect(() => {
+    void getSupabaseClient()
+      .from("offers")
+      .select("id, title")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => setOffers((data as Pick<PromoEntity, "id" | "title">[] | null) ?? []));
+    void getSupabaseClient()
+      .from("packages")
+      .select("id, title")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => setPackages((data as Pick<PromoEntity, "id" | "title">[] | null) ?? []));
   }, []);
 
   const save = async () => {
@@ -164,6 +188,58 @@ export default function SettingsPage() {
                   setDraft({ ...draft, about_photo_url: url ?? "" })
                 }
               />
+            </div>
+          </section>
+
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">Promo popup</h2>
+            <p className="mt-1 text-sm text-ivory/55">
+              Feature one offer or package as a popup announcement shown to visitors shortly
+              after they open the site.
+            </p>
+            <div className="mt-5 space-y-5">
+              <Toggle
+                label="Show promo popup"
+                description="Turn the popup on or off site-wide."
+                checked={draft.promo_enabled}
+                onChange={(next) => setDraft({ ...draft, promo_enabled: next })}
+              />
+              <div className="grid gap-5 sm:grid-cols-2">
+                <SelectField
+                  label="Type"
+                  value={draft.promo_kind}
+                  onChange={(event) =>
+                    setDraft({
+                      ...draft,
+                      promo_kind: event.target.value as "offers" | "packages",
+                      promo_item_id: null,
+                    })
+                  }
+                >
+                  <option value="offers">Offer</option>
+                  <option value="packages">Package</option>
+                </SelectField>
+                <SelectField
+                  label="Featured item"
+                  value={draft.promo_item_id ?? ""}
+                  onChange={(event) =>
+                    setDraft({ ...draft, promo_item_id: event.target.value || null })
+                  }
+                >
+                  <option value="">— None —</option>
+                  {(draft.promo_kind === "offers" ? offers : packages)?.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
+              {(draft.promo_kind === "offers" ? offers : packages)?.length === 0 ? (
+                <p className="text-xs text-ivory/45">
+                  No {draft.promo_kind} yet — add one under Website →{" "}
+                  {draft.promo_kind === "offers" ? "Offers" : "Packages"} first.
+                </p>
+              ) : null}
             </div>
           </section>
 

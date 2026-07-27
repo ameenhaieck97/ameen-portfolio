@@ -38,11 +38,20 @@ export default function Clients({
                 className="group flex h-20 w-44 flex-none items-center justify-center rounded-2xl px-6 text-center transition-transform duration-700 ease-luxury hover:-translate-y-1 hover:scale-[1.02] sm:h-44 sm:w-80 sm:rounded-[1.75rem] sm:px-10"
               >
                 {partner.logo ? (
-                  <MonoLogo
-                    src={partner.logo}
-                    label={name}
-                    className="h-8 w-[76%] opacity-80 transition-opacity duration-700 ease-luxury group-hover:opacity-100 sm:h-16"
-                  />
+                  <span
+                    className="flex h-8 w-[76%] items-center justify-center sm:h-16"
+                    style={
+                      partner.logoScale && partner.logoScale !== 1
+                        ? { transform: `scale(${partner.logoScale})` }
+                        : undefined
+                    }
+                  >
+                    <MonoLogo
+                      src={partner.logo}
+                      label={name}
+                      className="h-full w-full opacity-80 transition-opacity duration-700 ease-luxury group-hover:opacity-100"
+                    />
+                  </span>
                 ) : (
                   <span className="font-display text-sm tracking-wide text-ivory/65 transition-colors duration-700 ease-luxury group-hover:text-gold sm:text-lg">
                     {name}

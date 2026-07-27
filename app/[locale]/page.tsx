@@ -12,6 +12,8 @@ import { getPortfolioItems } from "@/lib/portfolio-data";
 import { getClients } from "@/lib/clients-data";
 import { getCurrentWorkGalleries } from "@/lib/current-work-data";
 import { getAboutPhotoUrl } from "@/lib/settings-data";
+import { getPromo } from "@/lib/promo-data";
+import { PromoPopup } from "@/components/ui/PromoPopup";
 
 // The studio calls the revalidatePublicSite Server Action right after every
 // save, so this is only a safety net in case that call is ever missed —
@@ -27,15 +29,17 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [portfolioItems, clients, currentWorkGalleries, aboutPhotoUrl] = await Promise.all([
+  const [portfolioItems, clients, currentWorkGalleries, aboutPhotoUrl, promo] = await Promise.all([
     getPortfolioItems(),
     getClients(),
     getCurrentWorkGalleries(),
     getAboutPhotoUrl(),
+    getPromo(),
   ]);
 
   return (
     <>
+      {promo ? <PromoPopup promo={promo} /> : null}
       <Hero />
       <About photoUrl={aboutPhotoUrl} />
       <Services />
