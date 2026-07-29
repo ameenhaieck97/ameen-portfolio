@@ -77,13 +77,19 @@ function emptyPackageDraft(): PackageDraft {
   };
 }
 
+// Row is typed as Offer/Package here (not OfferRow/PackageRow) — but the
+// runtime value always carries the extra `kind` discriminator, since that's
+// how it's constructed in the list fetch below. TypeScript's structural
+// typing doesn't strip it during the rest-destructure, so it must be named
+// explicitly or it silently rides along into the Supabase insert/update
+// payload later and fails with "Could not find the 'kind' column".
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function offerToDraft({ id, created_at, updated_at, ...rest }: Offer): OfferDraft {
+function offerToDraft({ id, created_at, updated_at, kind, ...rest }: OfferRow): OfferDraft {
   return rest;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function packageToDraft({ id, created_at, updated_at, features, ...rest }: Package): PackageDraft {
+function packageToDraft({ id, created_at, updated_at, kind, features, ...rest }: PackageRow): PackageDraft {
   return { ...rest, features: features.map((f) => ({ id: f.id, label: f.label, label_ar: f.label_ar })) };
 }
 
