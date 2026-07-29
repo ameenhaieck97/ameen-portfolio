@@ -87,6 +87,14 @@ function packageToDraft({ id, created_at, updated_at, features, ...rest }: Packa
   return { ...rest, features: features.map((f) => ({ id: f.id, label: f.label, label_ar: f.label_ar })) };
 }
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object" && "message" in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return "Something went wrong.";
+}
+
 const OFFER_STATUS_LABEL: Record<string, string> = {
   draft: "Draft",
   scheduled: "Scheduled",
@@ -239,7 +247,7 @@ export default function OffersAndPackagesPage() {
       reload();
       void safeRevalidate(toast);
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Save failed.", "error");
+      toast(errorMessage(error), "error");
     } finally {
       setSaving(false);
     }
@@ -291,7 +299,7 @@ export default function OffersAndPackagesPage() {
       toast("Duplicated.");
       reload();
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Duplicate failed.", "error");
+      toast(errorMessage(error), "error");
     }
   };
 
