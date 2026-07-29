@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Copy,
   Eye,
+  GripVertical,
   Loader2,
   Package as PackageIcon,
   Pencil,
@@ -17,13 +18,16 @@ import { safeRevalidate } from "@/lib/revalidate";
 import { getEffectiveOfferStatus } from "@/lib/promo-status";
 import { GlassDrawer } from "@/components/admin/GlassDrawer";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { SortableGrid, type DragHandleProps } from "@/components/admin/SortableGrid";
 import { TableSkeleton } from "@/components/admin/Skeleton";
+import { Toggle } from "@/components/admin/FormControls";
 import { useToast } from "@/components/admin/Toast";
 import { OfferForm, type OfferDraft } from "@/components/admin/promo/OfferForm";
 import { PackageForm, type PackageDraft } from "@/components/admin/promo/PackageForm";
 import { PromoPreviewModal } from "@/components/admin/promo/PromoPreviewModal";
 import { PromoAnalyticsPanel } from "@/components/admin/promo/PromoAnalyticsPanel";
 import type { PromoCardProps } from "@/components/ui/PromoCard";
+import type { PageVisibility } from "@/types/admin";
 import type { Offer, Package, PackageFeature } from "@/types/promo";
 import { cn } from "@/lib/cn";
 
@@ -131,6 +135,8 @@ export default function OffersAndPackagesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [previewCard, setPreviewCard] = useState<PromoCardProps | null>(null);
+  const [pagesVisibility, setPagesVisibility] = useState<PageVisibility | null>(null);
+  const [savingVisibility, setSavingVisibility] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,6 +178,53 @@ export default function OffersAndPackagesPage() {
       cancelled = true;
     };
   }, [reloadKey]);
+
+  useEffect(() => {
+    void getSupabaseClient()
+      .from("settings")
+      .select("packages_page_visibility")
+      .eq("id", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        setPagesVisibility(
+          (data as { packages_page_visibility: PageVisibility } | null)?.packages_page_visibility ??
+            "hidden",
+        );
+      });
+  }, []);
+
+  const setVisibility = async (next: PageVisibility) => {
+    setSavingVisibility(true);
+    const { error } = await getSupabaseClient()
+      .from("settings")
+      .upsert({ id: 1, packages_page_visibility: next });
+    setSavingVisibility(false);
+    if (error) {
+      toast(error.message, "error");
+      return;
+    }
+    setPagesVisibility(next);
+    toast(next === "public" ? "Packages page is now public." : "Packages page is now hidden.");
+    void safeRevalidate(toast);
+  };
+
+  const offerRows = useMemo(() => (rows ?? []).filter((r): r is OfferRow => r.kind === "offer"), [rows]);
+  const packageRows = useMemo(
+    () => (rows ?? []).filter((r): r is PackageRow => r.kind === "package"),
+    [rows],
+  );
+
+  const reorderPackages = async (next: PackageRow[]) => {
+    setRows([...offerRows, ...next]);
+    const { error } = await Promise.all(
+      next.map((pkg, index) => getSupabaseClient().from("packages").update({ sort_order: index }).eq("id", pkg.id)),
+    ).then((results) => ({ error: results.find((r) => r.error)?.error ?? null }));
+    if (error) {
+      toast(errorMessage(error), "error");
+      return;
+    }
+    void safeRevalidate(toast);
+  };
 
   const nextSortOrder = useMemo(
     () => (rows && rows.length > 0 ? Math.max(...rows.map((r) => r.sort_order)) + 1 : 0),
@@ -356,6 +409,101 @@ export default function OffersAndPackagesPage() {
     }
   };
 
+  const renderRow = (row: Row, dragHandleProps?: DragHandleProps): ReactNode => {
+    const isOffer = row.kind === "offer";
+    const statusKey = isOffer ? getEffectiveOfferStatus(row) : row.status;
+    const statusLabel = isOffer
+      ? OFFER_STATUS_LABEL[statusKey]
+      : statusKey === "published"
+        ? "Published"
+        : "Draft";
+    const statusClass = isOffer
+      ? OFFER_STATUS_CLASS[statusKey]
+      : statusKey === "published"
+        ? OFFER_STATUS_CLASS.active
+        : OFFER_STATUS_CLASS.draft;
+
+    return (
+      <div className="glass-reveal flex items-center gap-4 rounded-2xl border border-white/8 px-5 py-4">
+        {dragHandleProps ? (
+          <button
+            type="button"
+            aria-label="Drag to reorder"
+            className="flex h-9 w-9 flex-none cursor-grab items-center justify-center rounded-lg text-ivory/40 hover:text-ivory/70 active:cursor-grabbing"
+            {...dragHandleProps.attributes}
+            {...dragHandleProps.listeners}
+          >
+            <GripVertical size={16} aria-hidden />
+          </button>
+        ) : null}
+        <span
+          aria-hidden
+          style={{ backgroundColor: row.accent_color }}
+          className="h-2.5 w-2.5 flex-none rounded-full"
+        />
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-white/5 text-ivory/60">
+          {isOffer ? <Percent size={15} aria-hidden /> : <PackageIcon size={15} aria-hidden />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="truncate text-sm font-medium text-ivory">{row.name || "Untitled"}</p>
+            <span className={cn("flex-none rounded-full px-2 py-0.5 text-[11px] font-medium", statusClass)}>
+              {statusLabel}
+            </span>
+            {row.show_as_popup ? (
+              <span className="flex flex-none items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-medium text-gold">
+                <Star size={10} aria-hidden />
+                Popup
+              </span>
+            ) : null}
+            {!isOffer && row.is_primary ? (
+              <span className="flex-none rounded-full bg-white/8 px-2 py-0.5 text-[11px] font-medium text-ivory/70">
+                Primary
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 truncate text-xs text-ivory/45">
+            {isOffer ? row.offer_value || "—" : `${row.price} ${row.currency}`}
+          </p>
+        </div>
+        <div className="flex flex-none items-center gap-1">
+          <button
+            type="button"
+            aria-label="Preview"
+            onClick={() => openPreview(row)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory"
+          >
+            <Eye size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Duplicate"
+            onClick={() => void duplicate(row)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory"
+          >
+            <Copy size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Edit"
+            onClick={() => openEdit(row)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-gold"
+          >
+            <Pencil size={15} aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Delete"
+            onClick={() => setDeleteTarget(row)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-red-300"
+          >
+            <Trash2 size={15} aria-hidden />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -363,7 +511,8 @@ export default function OffersAndPackagesPage() {
           <h1 className="font-display text-3xl text-ivory">Offers &amp; Packages</h1>
           <p className="mt-1.5 text-sm text-ivory/55">
             Manage every offer and package from one place. Feature one as the homepage popup from
-            Website → Popup Manager.
+            Website → Popup Manager. Drag packages below to set the order they appear in on the
+            public Packages page.
           </p>
         </div>
         <div className="flex gap-3">
@@ -386,6 +535,30 @@ export default function OffersAndPackagesPage() {
         </div>
       </div>
 
+      <div className="glass mt-6 rounded-3xl p-6">
+        <Toggle
+          label="Public Packages page"
+          description="Hidden keeps /packages out of the nav, footer, and sitemap, and marks it noindex — but the direct link still works, so you can share it privately with selected clients."
+          checked={pagesVisibility === "public"}
+          onChange={(next) => void setVisibility(next ? "public" : "hidden")}
+        />
+        {savingVisibility ? (
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-ivory/45">
+            <Loader2 size={12} className="animate-spin" aria-hidden />
+            Saving…
+          </p>
+        ) : (
+          <div className="mt-3 flex gap-4 text-xs text-ivory/45">
+            <a href="/en/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+              View (EN) ↗
+            </a>
+            <a href="/ar/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+              View (AR) ↗
+            </a>
+          </div>
+        )}
+      </div>
+
       <div className="mt-6">
         {rows === null ? (
           <TableSkeleton />
@@ -396,101 +569,19 @@ export default function OffersAndPackagesPage() {
             No offers or packages yet. Add your first one above.
           </div>
         ) : (
-          <ul className="space-y-3">
-            {rows.map((row) => {
-              const isOffer = row.kind === "offer";
-              const statusKey = isOffer ? getEffectiveOfferStatus(row) : row.status;
-              const statusLabel = isOffer
-                ? OFFER_STATUS_LABEL[statusKey]
-                : statusKey === "published"
-                  ? "Published"
-                  : "Draft";
-              const statusClass = isOffer
-                ? OFFER_STATUS_CLASS[statusKey]
-                : statusKey === "published"
-                  ? OFFER_STATUS_CLASS.active
-                  : OFFER_STATUS_CLASS.draft;
-
-              return (
-                <li
-                  key={`${row.kind}-${row.id}`}
-                  className="glass-reveal flex items-center gap-4 rounded-2xl border border-white/8 px-5 py-4"
-                >
-                  <span
-                    aria-hidden
-                    style={{ backgroundColor: row.accent_color }}
-                    className="h-2.5 w-2.5 flex-none rounded-full"
-                  />
-                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-white/5 text-ivory/60">
-                    {isOffer ? <Percent size={15} aria-hidden /> : <PackageIcon size={15} aria-hidden />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="truncate text-sm font-medium text-ivory">
-                        {row.name || "Untitled"}
-                      </p>
-                      <span
-                        className={cn(
-                          "flex-none rounded-full px-2 py-0.5 text-[11px] font-medium",
-                          statusClass,
-                        )}
-                      >
-                        {statusLabel}
-                      </span>
-                      {row.show_as_popup ? (
-                        <span className="flex flex-none items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-medium text-gold">
-                          <Star size={10} aria-hidden />
-                          Popup
-                        </span>
-                      ) : null}
-                      {!isOffer && row.is_primary ? (
-                        <span className="flex-none rounded-full bg-white/8 px-2 py-0.5 text-[11px] font-medium text-ivory/70">
-                          Primary
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-0.5 truncate text-xs text-ivory/45">
-                      {isOffer ? row.offer_value || "—" : `${row.price} ${row.currency}`}
-                    </p>
-                  </div>
-                  <div className="flex flex-none items-center gap-1">
-                    <button
-                      type="button"
-                      aria-label="Preview"
-                      onClick={() => openPreview(row)}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory"
-                    >
-                      <Eye size={15} aria-hidden />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Duplicate"
-                      onClick={() => void duplicate(row)}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-ivory"
-                    >
-                      <Copy size={15} aria-hidden />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      onClick={() => openEdit(row)}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-gold"
-                    >
-                      <Pencil size={15} aria-hidden />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete"
-                      onClick={() => setDeleteTarget(row)}
-                      className="flex h-10 w-10 items-center justify-center rounded-lg text-ivory/60 transition-colors hover:bg-white/5 hover:text-red-300"
-                    >
-                      <Trash2 size={15} aria-hidden />
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="space-y-3">
+            {offerRows.map((row) => (
+              <div key={row.id}>{renderRow(row)}</div>
+            ))}
+            {packageRows.length > 0 ? (
+              <SortableGrid
+                items={packageRows}
+                onReorder={(next) => void reorderPackages(next)}
+                className={cn("flex flex-col gap-3", offerRows.length > 0 && "mt-3")}
+                renderItem={(row, _index, dragHandleProps) => renderRow(row, dragHandleProps)}
+              />
+            ) : null}
+          </div>
         )}
       </div>
 

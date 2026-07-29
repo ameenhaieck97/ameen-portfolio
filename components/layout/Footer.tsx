@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { siteConfig } from "@/data/site";
 import { contact } from "@/data/contact";
+import { Link } from "@/i18n/navigation";
 import {
   BehanceIcon,
   InstagramIcon,
@@ -29,7 +30,7 @@ const socialIcons = {
   linkedin: LinkedinIcon,
 };
 
-export default function Footer() {
+export default function Footer({ packagesVisible = false }: { packagesVisible?: boolean }) {
   const t = useTranslations("nav");
   const tf = useTranslations("footer");
   const tMeta = useTranslations("meta");
@@ -74,6 +75,14 @@ export default function Footer() {
                 {t(key)}
               </a>
             ))}
+            {packagesVisible ? (
+              <Link
+                href="/packages"
+                className="text-sm font-medium text-ivory/70 transition-colors hover:text-gold"
+              >
+                {t("packages")}
+              </Link>
+            ) : null}
           </nav>
         </RevealItem>
 

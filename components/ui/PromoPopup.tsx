@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { PromoCard } from "@/components/ui/PromoCard";
-import { contact } from "@/data/contact";
+import { buildPackageWhatsappLink } from "@/lib/whatsapp-message";
 import { trackPromoEvent } from "@/lib/promo-track";
 import type { PromoPopupPayload } from "@/lib/promo-data";
 
@@ -69,11 +69,7 @@ export function PromoPopup({ payload }: { payload: PromoPopupPayload }) {
 
   let ctaHref = popup.ctaLink;
   if (popup.source === "package" && !ctaHref) {
-    const message =
-      locale === "ar"
-        ? `مرحباً أمين،\nأنا مهتم بباقة ${title}.`
-        : `Hello Ameen,\nI'm interested in the ${title} Package.`;
-    ctaHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(message)}`;
+    ctaHref = buildPackageWhatsappLink(title, locale);
   }
 
   const eyebrow =

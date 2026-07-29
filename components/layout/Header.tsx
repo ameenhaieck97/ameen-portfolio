@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/cn";
+import { Link } from "@/i18n/navigation";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -24,7 +25,7 @@ const navKeys = [
 const MENU_LABEL = { en: "Menu", ar: "القائمة" };
 const CLOSE_LABEL = { en: "Close", ar: "إغلاق" };
 
-export default function Header() {
+export default function Header({ packagesVisible = false }: { packagesVisible?: boolean }) {
   const t = useTranslations("nav");
   const tMeta = useTranslations("meta");
   const locale = useLocale() as "en" | "ar";
@@ -82,6 +83,14 @@ export default function Header() {
               {t(key)}
             </a>
           ))}
+          {packagesVisible ? (
+            <Link
+              href="/packages"
+              className="text-sm font-medium text-ivory/75 transition-colors hover:text-gold"
+            >
+              {t("packages")}
+            </Link>
+          ) : null}
         </nav>
 
         <div className="hidden items-center gap-5 lg:flex">
@@ -125,6 +134,15 @@ export default function Header() {
                   {t(key)}
                 </a>
               ))}
+              {packagesVisible ? (
+                <Link
+                  href="/packages"
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-3 py-3 text-base font-medium text-ivory/85 transition-colors hover:bg-white/5 hover:text-gold"
+                >
+                  {t("packages")}
+                </Link>
+              ) : null}
               <a
                 href="#contact"
                 onClick={() => setOpen(false)}

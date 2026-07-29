@@ -11,6 +11,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SiteBackground } from "@/components/layout/SiteBackground";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { getPackagesPageVisibility } from "@/lib/settings-data";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -97,6 +98,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
   const tMeta = await getTranslations({ locale, namespace: "meta" });
+  const packagesVisible = (await getPackagesPageVisibility()) === "public";
   const dir = locale === "ar" ? "rtl" : "ltr";
   const fontVars =
     locale === "ar"
@@ -140,11 +142,11 @@ export default async function LocaleLayout({
           <a href="#main-content" className="skip-link">
             {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}
           </a>
-          <Header />
+          <Header packagesVisible={packagesVisible} />
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <Footer />
+          <Footer packagesVisible={packagesVisible} />
           <CustomCursor />
         </NextIntlClientProvider>
       </body>

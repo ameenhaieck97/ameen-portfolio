@@ -12,6 +12,7 @@
     "experience": "Experience",
     "education": "Education",
     "clients": "Clients",
+    "packages": "Packages",
     "contact": "Contact"
   },
   "hero": {
@@ -163,5 +164,18 @@
     "packageLabel": "Package",
     "cta": "Learn more",
     "close": "Close"
+  },
+  "packagesPage": {
+    "eyebrow": "Packages",
+    "title": "Packages Built Around Your Brand",
+    "description": "Structured packages that combine strategy, design, and execution — pick the one that matches where your brand is headed.",
+    "empty": "No packages are published yet — check back soon.",
+    "currencyIqd": "IQD",
+    "perMonth": "/ month",
+    "oneTime": "one-time",
+    "mostPopular": "Most Popular",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "cta": "Chat on WhatsApp"
   }
 }

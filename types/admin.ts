@@ -97,6 +97,7 @@ export type SocialLinks = {
 export type PopupType = "offer" | "package" | "custom" | "image_only" | "announcement";
 export type PopupFrequency = "once_per_visitor" | "every_visit" | "until_dismissed";
 export type PopupPriority = "high" | "normal" | "low";
+export type PageVisibility = "public" | "hidden";
 
 export type Settings = {
   id: number;
@@ -123,5 +124,7 @@ export type Settings = {
   popup_custom_link_url: string;
   popup_custom_cta_text: string;
   popup_custom_cta_text_ar: string;
+  /** Controls the public Packages page: "hidden" keeps it out of nav/internal links and noindexes it, but the direct URL still works. */
+  packages_page_visibility: PageVisibility;
   updated_at: string;
 };

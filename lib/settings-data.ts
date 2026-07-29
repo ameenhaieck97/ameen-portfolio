@@ -25,3 +25,27 @@ export async function getAboutPhotoUrl(): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Whether the public Packages page is linked from nav/footer and indexable.
+ * Defaults to "hidden" on any failure — the safer fallback, since the page
+ * should only ever go public through a deliberate Studio action, never by
+ * accident when Supabase is briefly unreachable.
+ */
+export async function getPackagesPageVisibility(): Promise<"public" | "hidden"> {
+  if (!isSupabaseConfigured()) return "hidden";
+
+  try {
+    const supabase = getServerReadClient();
+    const { data, error } = await withTimeout(
+      supabase.from("settings").select("packages_page_visibility").eq("id", 1).maybeSingle(),
+      1500,
+    );
+
+    if (error || !data) return "hidden";
+    return data.packages_page_visibility === "public" ? "public" : "hidden";
+  } catch (error) {
+    console.error("getPackagesPageVisibility: unexpected error, defaulting to hidden:", error);
+    return "hidden";
+  }
+}
