@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { Link } from "@/i18n/navigation";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { SectionLink } from "./SectionLink";
 
 const navKeys = [
   "about",
@@ -54,13 +55,8 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
-        {/* A real navigation Link to "/" is a no-op when already on this
-            single-page site — the router sees no route change and won't
-            scroll to top. A plain anchor to #hero matches the "back to
-            top" link in the footer and always works regardless of scroll
-            position. */}
-        <a
-          href="#hero"
+        <SectionLink
+          hash="hero"
           className="group flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
           <MonoLogo
@@ -71,17 +67,17 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
           <span className="font-display text-lg font-medium tracking-tight text-ivory">
             {tMeta("titleShort")}
           </span>
-        </a>
+        </SectionLink>
 
         <nav className="hidden items-center gap-10 lg:flex">
           {navKeys.map((key) => (
-            <a
+            <SectionLink
               key={key}
-              href={`#${key}`}
+              hash={key}
               className="text-sm font-medium text-ivory/75 transition-colors hover:text-gold"
             >
               {t(key)}
-            </a>
+            </SectionLink>
           ))}
           {packagesVisible ? (
             <Link
@@ -95,12 +91,12 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
 
         <div className="hidden items-center gap-5 lg:flex">
           <LanguageSwitcher />
-          <a
-            href="#contact"
+          <SectionLink
+            hash="contact"
             className="rounded-full bg-gold px-5 py-2.5 text-sm font-medium text-canvas transition-all duration-500 ease-luxury hover:-translate-y-0.5 hover:bg-gold-soft hover:shadow-[0_0_28px_rgba(238,223,122,0.3)]"
           >
             {t("contact")}
-          </a>
+          </SectionLink>
         </div>
 
         <button
@@ -125,14 +121,14 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
           >
             <nav className="flex flex-col gap-1 px-6 pb-8 pt-2">
               {navKeys.map((key) => (
-                <a
+                <SectionLink
                   key={key}
-                  href={`#${key}`}
+                  hash={key}
                   onClick={() => setOpen(false)}
                   className="rounded-xl px-3 py-3 text-base font-medium text-ivory/85 transition-colors hover:bg-white/5 hover:text-gold"
                 >
                   {t(key)}
-                </a>
+                </SectionLink>
               ))}
               {packagesVisible ? (
                 <Link
@@ -143,13 +139,13 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
                   {t("packages")}
                 </Link>
               ) : null}
-              <a
-                href="#contact"
+              <SectionLink
+                hash="contact"
                 onClick={() => setOpen(false)}
                 className="rounded-xl px-3 py-3 text-base font-medium text-gold"
               >
                 {t("contact")}
-              </a>
+              </SectionLink>
               <div className="mt-3 px-3">
                 <LanguageSwitcher />
               </div>

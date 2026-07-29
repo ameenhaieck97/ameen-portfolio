@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   SelectField,
   TextAreaField,
@@ -9,6 +10,7 @@ import {
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { AccentColorPicker } from "@/components/admin/promo/AccentColorPicker";
 import { FeatureListEditor, type FeatureDraft } from "@/components/admin/promo/FeatureListEditor";
+import { FEATURE_TEMPLATES, FEATURE_TEMPLATE_OPTIONS } from "@/data/feature-templates";
 import type { Package } from "@/types/promo";
 
 export type PackageDraft = Omit<Package, "id" | "created_at" | "updated_at" | "features"> & {
@@ -27,8 +29,46 @@ export function PackageForm({
   const set = <K extends keyof PackageDraft>(key: K, value: PackageDraft[K]) =>
     onChange({ ...draft, [key]: value });
 
+  const [template, setTemplate] = useState<(typeof FEATURE_TEMPLATE_OPTIONS)[number]["value"]>("custom");
+
+  const applyTemplate = (value: (typeof FEATURE_TEMPLATE_OPTIONS)[number]["value"]) => {
+    setTemplate(value);
+    if (value === "custom") {
+      set("features", []);
+      return;
+    }
+    set(
+      "features",
+      FEATURE_TEMPLATES[value].features.map((feature) => ({
+        id: crypto.randomUUID(),
+        label: feature.label,
+        label_ar: feature.label_ar,
+      })),
+    );
+  };
+
   return (
     <div className="space-y-5">
+      <div>
+        <SelectField
+          label="Service template"
+          value={template}
+          onChange={(event) =>
+            applyTemplate(event.target.value as (typeof FEATURE_TEMPLATE_OPTIONS)[number]["value"])
+          }
+        >
+          {FEATURE_TEMPLATE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </SelectField>
+        <p className="mt-1.5 text-xs text-ivory/45">
+          Fills in the included-features list below with a starting point for this service — still
+          fully editable afterward. Choose &quot;Custom&quot; to start from an empty list.
+        </p>
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField
           label="Package name"

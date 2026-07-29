@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/SocialIcons";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { SectionLink } from "./SectionLink";
 
 const navKeys = [
   "about",
@@ -43,11 +44,8 @@ export default function Footer({ packagesVisible = false }: { packagesVisible?: 
         className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 lg:flex-row lg:items-start lg:justify-between lg:px-10"
       >
         <RevealItem variant="blurUp" className="max-w-sm">
-          {/* Plain anchor (not a router Link) — see Header.tsx for why: a
-              Link to "/" is a no-op on this single-page site when already
-              there, so it never scrolls back to top. */}
-          <a
-            href="#hero"
+          <SectionLink
+            hash="hero"
             className="group inline-flex items-center gap-2.5 transition-opacity hover:opacity-80"
           >
             <MonoLogo
@@ -58,7 +56,7 @@ export default function Footer({ packagesVisible = false }: { packagesVisible?: 
             <span className="font-display text-lg font-medium tracking-tight text-ivory">
               {tMeta("titleShort")}
             </span>
-          </a>
+          </SectionLink>
           <p className="mt-4 text-sm leading-relaxed text-ivory/60">
             {tf("tagline")}
           </p>
@@ -67,13 +65,13 @@ export default function Footer({ packagesVisible = false }: { packagesVisible?: 
         <RevealItem variant="fadeUp">
           <nav className="flex flex-wrap gap-x-8 gap-y-3">
             {navKeys.map((key) => (
-              <a
+              <SectionLink
                 key={key}
-                href={`#${key}`}
+                hash={key}
                 className="text-sm font-medium text-ivory/70 transition-colors hover:text-gold"
               >
                 {t(key)}
-              </a>
+              </SectionLink>
             ))}
             {packagesVisible ? (
               <Link
@@ -112,13 +110,13 @@ export default function Footer({ packagesVisible = false }: { packagesVisible?: 
         <p>
           © {year} {tMeta("titleShort")}. {tf("rights")}
         </p>
-        <a
-          href="#hero"
+        <SectionLink
+          hash="hero"
           className="inline-flex items-center gap-1.5 text-ivory/60 transition-colors hover:text-gold"
         >
           {tf("backToTop")}
           <ArrowUp size={13} />
-        </a>
+        </SectionLink>
       </div>
     </footer>
   );

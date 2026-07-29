@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { PackageSearch } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { PackageCard } from "@/components/packages/PackageCard";
+import { SectionLink } from "@/components/layout/SectionLink";
 import { getPublishedPackages } from "@/lib/packages-data";
 import { getPackagesPageVisibility } from "@/lib/settings-data";
 
@@ -55,7 +58,26 @@ export default async function PackagesPage({
         />
 
         {packages.length === 0 ? (
-          <p className="mt-16 text-center text-sm text-ivory/55">{t("empty")}</p>
+          <Reveal variant="fadeUp" className="mt-14 sm:mt-20">
+            <GlassCard
+              variant="glass"
+              className="mx-auto flex max-w-xl flex-col items-center gap-5 p-10 text-center sm:p-14"
+            >
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold/10 text-gold">
+                <PackageSearch size={24} aria-hidden />
+              </span>
+              <div>
+                <p className="font-display text-2xl text-ivory">{t("emptyTitle")}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ivory/65">{t("emptyDescription")}</p>
+              </div>
+              <SectionLink
+                hash="contact"
+                className="rounded-full bg-gold px-6 py-3 text-sm font-medium text-canvas transition-all duration-500 ease-luxury hover:-translate-y-0.5 hover:bg-gold-soft hover:shadow-[0_0_28px_rgba(238,223,122,0.3)]"
+              >
+                {t("emptyCta")}
+              </SectionLink>
+            </GlassCard>
+          </Reveal>
         ) : (
           <RevealGroup
             stagger={0.08}
