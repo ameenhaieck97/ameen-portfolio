@@ -123,7 +123,7 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
       <p className="mt-2 font-display text-2xl text-ivory sm:text-3xl">
         {tCurrent("title")}
       </p>
-      <p className="mt-2 max-w-lg text-ivory/60">{tCurrent("description")}</p>
+      <p className="text-pretty mt-2 max-w-lg text-ivory/60">{tCurrent("description")}</p>
 
       {/* Hub — the institute, presented as the same rounded glass panel
           used everywhere else on the site */}
@@ -395,7 +395,7 @@ export default function ExperienceImpact({
                       : item.start}
                   </span>
                 </div>
-                <p className="mt-1.5 text-sm leading-relaxed text-ivory/60">
+                <p className="text-pretty mt-1.5 text-sm leading-relaxed text-ivory/60">
                   {tExperience(`items.${item.id}.role`)}
                 </p>
               </RevealItem>

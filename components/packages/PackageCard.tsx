@@ -63,7 +63,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
 
       <p className="font-display text-2xl text-ivory">{name}</p>
       {shortDescription ? (
-        <p className="mt-2 text-sm leading-relaxed text-ivory/65">{shortDescription}</p>
+        <p className="text-pretty mt-2 text-sm leading-relaxed text-ivory/65">{shortDescription}</p>
       ) : null}
 
       <div className="mt-5 flex items-baseline gap-2">
@@ -130,7 +130,7 @@ export function PackageCard({ pkg }: { pkg: Package }) {
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="overflow-hidden"
               >
-                <p className="mt-3 text-sm leading-relaxed text-ivory/65">{fullDescription}</p>
+                <p className="text-pretty mt-3 text-sm leading-relaxed text-ivory/65">{fullDescription}</p>
               </motion.div>
             ) : null}
           </AnimatePresence>

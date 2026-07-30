@@ -70,7 +70,7 @@ export function SectionHeading({
         <Reveal variant="fadeUp" delay={0.16}>
           <p
             className={cn(
-              "leading-relaxed text-ivory/65",
+              "text-pretty leading-relaxed text-ivory/65",
               size === "display" ? "mt-6 text-xl" : "mt-5 text-lg",
             )}
           >

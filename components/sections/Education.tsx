@@ -41,7 +41,7 @@ export default function Education({ textScale }: { textScale?: number }) {
                   <h3 className="font-display text-base text-ivory sm:text-lg">
                     {t(`items.${id}.title`)}
                   </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-ivory/60 sm:mt-0">
+                  <p className="text-pretty mt-1 text-sm leading-relaxed text-ivory/60 sm:mt-0">
                     {t(`items.${id}.issuer`)}
                   </p>
                   {honor ? (

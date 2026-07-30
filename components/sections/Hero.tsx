@@ -221,7 +221,7 @@ export default function Hero({ textScale }: { textScale?: number }) {
           </RevealItem>
 
           <RevealItem>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-ivory/60 sm:text-lg">
+            <p className="text-pretty mt-6 max-w-2xl text-base leading-relaxed text-ivory/60 sm:text-lg">
               {t("description")}
             </p>
           </RevealItem>

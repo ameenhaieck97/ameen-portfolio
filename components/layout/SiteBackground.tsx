@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useSpring } from "framer-motion";
 
 // Fixed (non-random) positions/timings so server and client markup match,
@@ -30,6 +30,11 @@ const particles = [
  */
 export function SiteBackground() {
   const reduceMotion = useReducedMotion();
+  // Defaults to false so server and first client render match (no
+  // hydration mismatch); flips after mount once we can read the viewport.
+  // Skipping the particle loop on small screens avoids ten permanently
+  // running framer-motion animations on top of the mobile CSS blur savings.
+  const [particlesEnabled, setParticlesEnabled] = useState(false);
 
   // Same cursor-reactive drift as Hero, so the whole site — not just the
   // opening section — responds to the cursor. Desktop fine-pointer only.
@@ -52,6 +57,13 @@ export function SiteBackground() {
     window.addEventListener("mousemove", handleMove);
     return () => window.removeEventListener("mousemove", handleMove);
   }, [reduceMotion, mouseX, mouseY]);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    if (window.matchMedia("(max-width: 767px)").matches) return;
+    const activate = () => setParticlesEnabled(true);
+    activate();
+  }, [reduceMotion]);
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
@@ -107,9 +119,8 @@ export function SiteBackground() {
             background: "radial-gradient(circle, rgba(238,223,122,0.08) 0%, transparent 70%)",
           }}
         />
-        {reduceMotion
-          ? null
-          : particles.map((p, i) => (
+        {particlesEnabled
+          ? particles.map((p, i) => (
               <motion.span
                 key={i}
                 className="absolute rounded-full bg-gold"
@@ -127,7 +138,8 @@ export function SiteBackground() {
                   ease: "easeInOut",
                 }}
               />
-            ))}
+            ))
+          : null}
       </motion.div>
     </div>
   );

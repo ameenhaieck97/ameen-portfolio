@@ -67,7 +67,7 @@ export default function About({
             <p
               key={i}
               className={cn(
-                "text-lg leading-relaxed text-ivory/65 sm:text-xl",
+                "text-pretty text-lg leading-relaxed text-ivory/65 sm:text-xl",
                 i === 0 ? "mt-8" : "mt-5",
               )}
             >

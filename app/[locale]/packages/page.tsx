@@ -86,7 +86,7 @@ export default async function PackagesPage({
               </span>
               <div>
                 <p className="font-display text-2xl text-ivory">{t("emptyTitle")}</p>
-                <p className="mt-3 text-sm leading-relaxed text-ivory/65">{t("emptyDescription")}</p>
+                <p className="text-pretty mt-3 text-sm leading-relaxed text-ivory/65">{t("emptyDescription")}</p>
               </div>
               <SectionLink
                 hash="contact"

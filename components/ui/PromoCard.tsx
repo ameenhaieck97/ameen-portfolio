@@ -132,7 +132,7 @@ export function PromoCard({
         </p>
         <p className="mt-1.5 font-display text-2xl leading-snug text-ivory">{title}</p>
         {description ? (
-          <p className="mt-2 line-clamp-3 text-sm text-ivory/65">{description}</p>
+          <p className="text-pretty mt-2 line-clamp-3 text-sm text-ivory/65">{description}</p>
         ) : null}
 
         {features && features.length > 0 ? (

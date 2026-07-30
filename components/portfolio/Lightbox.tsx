@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Image from "next/image";
 import Lightbox, { type SlideImage } from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -16,13 +16,30 @@ export type PortfolioSlide = SlideImage & {
   isLogo?: boolean;
 };
 
+const PAN_TRANSITION = "transform 500ms cubic-bezier(0.16, 1, 0.3, 1)";
+// Below this many pixels of pointer travel, a press-release is still
+// treated as a tap/click (toggles zoom) rather than a pan gesture.
+const DRAG_THRESHOLD = 6;
+
 // Click (desktop) or double-tap (mobile) toggles a 2x zoom on the photo
 // itself — kept as a self-contained toggle here rather than the library's
 // Zoom plugin, since that plugin takes over rendering any slide it
 // recognizes as an image and would silently drop this component's own
-// glass card / caption / logo / placeholder layouts.
+// glass card / caption / logo / placeholder layouts. Once zoomed, the image
+// can be panned — mouse-drag on desktop, touch-drag on mobile/tablet — via
+// the Pointer Events API, which unifies both input types in one handler set.
 function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
   const [zoomed, setZoomed] = useState(false);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    startPanX: number;
+    startPanY: number;
+  } | null>(null);
+  const wasDragRef = useRef(false);
   const lastTapRef = useRef(0);
   const isLogo = Boolean(s.isLogo);
   // Logos and the placeholder mark are already shown at their natural,
@@ -30,13 +47,70 @@ function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
   // the way it does for an actual photo.
   const zoomable = Boolean(s.src) && !isLogo;
 
-  const toggleZoom = () => zoomable && setZoomed((z) => !z);
+  const toggleZoom = () => {
+    if (!zoomable) return;
+    setZoomed((z) => !z);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const clampPan = (x: number, y: number) => {
+    const el = containerRef.current;
+    if (!el) return { x: 0, y: 0 };
+    // At scale(2) the image element is twice the container's size, so it
+    // overflows by exactly half the container's own width/height on each
+    // side — clamping to that keeps the frame always fully covered.
+    const maxX = el.offsetWidth / 2;
+    const maxY = el.offsetHeight / 2;
+    return {
+      x: Math.min(maxX, Math.max(-maxX, x)),
+      y: Math.min(maxY, Math.max(-maxY, y)),
+    };
+  };
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!zoomed) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { startX: event.clientX, startY: event.clientY, startPanX: pan.x, startPanY: pan.y };
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!isPanning && (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD)) {
+      setIsPanning(true);
+      wasDragRef.current = true;
+    }
+    if (wasDragRef.current) {
+      setPan(clampPan(drag.startPanX + dx, drag.startPanY + dy));
+    }
+  };
+
+  const endDrag = () => {
+    dragRef.current = null;
+    setIsPanning(false);
+  };
 
   const handleTouchEnd = () => {
     if (!zoomable) return;
+    // A pan gesture just ending also fires touchend — swallow that one tap
+    // instead of letting it register toward the double-tap-to-zoom timer.
+    if (wasDragRef.current) {
+      wasDragRef.current = false;
+      return;
+    }
     const now = Date.now();
     if (now - lastTapRef.current < 300) toggleZoom();
     lastTapRef.current = now;
+  };
+
+  const handleClick = () => {
+    if (wasDragRef.current) {
+      wasDragRef.current = false;
+      return;
+    }
+    toggleZoom();
   };
 
   return (
@@ -48,12 +122,19 @@ function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
             without this the image area collapses to ~0px tall (the bug:
             only the caption below it, which has real content, showed up). */}
         <div
+          ref={containerRef}
           className={cn(
-            "relative aspect-[4/5] w-full",
-            zoomable && (zoomed ? "cursor-zoom-out" : "cursor-zoom-in"),
+            "relative aspect-[4/5] w-full select-none",
+            zoomed && "touch-none",
+            zoomable && (zoomed ? (isPanning ? "cursor-grabbing" : "cursor-grab") : "cursor-zoom-in"),
           )}
-          onClick={toggleZoom}
+          onClick={handleClick}
           onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onDragStart={(event) => event.preventDefault()}
         >
           {s.src && isLogo && s.preserveColor ? (
             <div className="flex h-full w-full items-center justify-center bg-canvas-soft p-10">
@@ -75,10 +156,17 @@ function LightboxSlide({ slide: s }: { slide: PortfolioSlide }) {
               alt={s.title}
               fill
               sizes="(min-width: 640px) 36rem, 100vw"
-              className={cn(
-                "object-cover transition-transform duration-500 ease-luxury",
-                zoomed && "scale-[2]",
-              )}
+              draggable={false}
+              className="object-cover"
+              style={{
+                // translate first, scale second — so the translate values
+                // are plain screen pixels (1:1 with pointer movement)
+                // regardless of the zoom factor. No transition while
+                // actively panning, so the image tracks the pointer/finger
+                // exactly instead of trailing behind it.
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomed ? 2 : 1})`,
+                transition: isPanning ? "none" : PAN_TRANSITION,
+              }}
             />
           ) : (
             <PlaceholderArt seed={s.seed} />

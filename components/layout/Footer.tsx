@@ -68,7 +68,7 @@ export default function Footer({
               {tMeta("titleShort")}
             </span>
           </SectionLink>
-          <p className="mt-4 text-sm leading-relaxed text-ivory/60">
+          <p className="text-pretty mt-4 text-sm leading-relaxed text-ivory/60">
             {tf("tagline")}
           </p>
         </RevealItem>

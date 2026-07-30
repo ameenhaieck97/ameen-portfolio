@@ -49,7 +49,7 @@ export default function Services({ textScale }: { textScale?: number }) {
                   <p className="font-display text-base leading-snug text-ivory sm:text-lg">
                     {item.title}
                   </p>
-                  <p className="text-sm leading-relaxed text-ivory/55">{item.description}</p>
+                  <p className="text-pretty text-sm leading-relaxed text-ivory/55">{item.description}</p>
                   <span
                     className="mt-auto h-px w-0 bg-gold transition-all duration-700 ease-luxury group-hover:w-12"
                     aria-hidden

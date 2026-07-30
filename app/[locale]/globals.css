@@ -217,6 +217,15 @@ body {
   text-wrap: balance;
 }
 
+/* Applied to body/description paragraphs (not headings — those use
+   text-balance above). Prevents the browser's default greedy line-wrap from
+   leaving a short orphaned word alone on the last line or producing very
+   uneven line lengths — the browser instead looks ahead and balances the
+   last few lines so each one ends at a more natural point. */
+.text-pretty {
+  text-wrap: pretty;
+}
+
 .grain {
   position: fixed;
   inset: 0;
@@ -320,4 +329,34 @@ html {
 [dir="rtl"] .yarl__toolbar {
   right: unset !important;
   left: max(0.5rem, calc(50% - 21rem)) !important;
+}
+
+/* Mobile performance: backdrop-filter blur is one of the most GPU-expensive
+   CSS operations there is, and this site stacks many simultaneous glass
+   surfaces on top of an animated, heavily-blurred ambient background —
+   fine on a desktop GPU, but it compounds into dropped frames and jank on
+   weaker mobile GPUs. Below the desktop breakpoint, the blur radius shrinks
+   and the "will-change" hint is dropped (it otherwise pins a persistent GPU
+   compositing layer per element, regardless of whether it's animating) so
+   the same glass look costs far less to render. Desktop is untouched. */
+@media (max-width: 767px) {
+  .glass,
+  .glass-strong {
+    backdrop-filter: blur(10px) saturate(140%);
+    will-change: auto;
+  }
+
+  .glass-reveal,
+  .glass-reveal:hover {
+    backdrop-filter: blur(6px) saturate(140%);
+  }
+
+  /* The ambient background bubbles are the single heaviest cost of all:
+     large elements, animated continuously and forever, each needing its own
+     blur(80-90px) recomputed every frame. They're purely decorative
+     atmosphere, so mobile skips them outright rather than paying to render
+     an effect no one is meant to consciously notice. */
+  .bubble {
+    display: none;
+  }
 }
