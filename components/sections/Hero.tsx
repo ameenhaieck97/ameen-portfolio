@@ -15,6 +15,7 @@ import { MonoLogo } from "@/components/ui/MonoLogo";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/cn";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -47,7 +48,7 @@ const particles = [
   { left: "90%", top: "48%", size: 3, duration: 9.5, delay: 1.6 },
 ];
 
-export default function Hero() {
+export default function Hero({ textScale }: { textScale?: number }) {
   const t = useTranslations("hero");
   const tMeta = useTranslations("meta");
   const locale = useLocale() as "en" | "ar";
@@ -90,7 +91,8 @@ export default function Hero() {
     <section
       id="hero"
       ref={sectionRef}
-      className="relative flex min-h-[100vh] items-center overflow-hidden pt-28"
+      className="text-scale-section relative flex min-h-[100vh] items-center overflow-hidden pt-28"
+      style={textScaleStyle(textScale)}
     >
       <motion.div style={{ y: bgY }} className="pointer-events-none absolute inset-0">
         {/* No local gradient here — Hero sits on the same fixed SiteBackground

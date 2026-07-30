@@ -1,4 +1,5 @@
 import "server-only";
+import type { SectionTextScales } from "@/types/admin";
 import { isSupabaseConfigured } from "./supabase/config";
 import { getServerReadClient } from "./supabase/server-read";
 import { withTimeout } from "./supabase/with-timeout";
@@ -47,5 +48,28 @@ export async function getPackagesPageVisibility(): Promise<"public" | "hidden"> 
   } catch (error) {
     console.error("getPackagesPageVisibility: unexpected error, defaulting to hidden:", error);
     return "hidden";
+  }
+}
+
+/**
+ * Per-section font-size multipliers, set from Studio → Settings → Text
+ * sizes. Empty object on any failure — every section then falls back to its
+ * own default (scale 1), never a broken or unreadable size.
+ */
+export async function getSectionTextScales(): Promise<SectionTextScales> {
+  if (!isSupabaseConfigured()) return {};
+
+  try {
+    const supabase = getServerReadClient();
+    const { data, error } = await withTimeout(
+      supabase.from("settings").select("section_text_scale").eq("id", 1).maybeSingle(),
+      1500,
+    );
+
+    if (error || !data?.section_text_scale) return {};
+    return data.section_text_scale as SectionTextScales;
+  } catch (error) {
+    console.error("getSectionTextScales: unexpected error, using defaults:", error);
+    return {};
   }
 }

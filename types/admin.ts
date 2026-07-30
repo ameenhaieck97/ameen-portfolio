@@ -99,6 +99,22 @@ export type PopupFrequency = "once_per_visitor" | "every_visit" | "until_dismiss
 export type PopupPriority = "high" | "normal" | "low";
 export type PageVisibility = "public" | "hidden";
 
+/** One entry per homepage section that supports independent text-size scaling. */
+export const SECTION_KEYS = [
+  "hero",
+  "about",
+  "services",
+  "portfolio",
+  "experience",
+  "education",
+  "clients",
+  "contact",
+  "footer",
+] as const;
+export type SectionKey = (typeof SECTION_KEYS)[number];
+/** Multiplier applied to that section's font sizes — 1 = default, missing = 1. */
+export type SectionTextScales = Partial<Record<SectionKey, number>>;
+
 export type Settings = {
   id: number;
   site_title: string;
@@ -126,5 +142,6 @@ export type Settings = {
   popup_custom_cta_text_ar: string;
   /** Controls the public Packages page: "hidden" keeps it out of nav/internal links and noindexes it, but the direct URL still works. */
   packages_page_visibility: PageVisibility;
+  section_text_scale: SectionTextScales;
   updated_at: string;
 };

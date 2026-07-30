@@ -65,21 +65,36 @@
   animation-direction: reverse;
 }
 
-/* rayat-ar listed as a fallback (not just under html[lang="ar"]) so any
-   Arabic-script text rendered on an English-tagged page — a receipt's
-   service names typed in Arabic, notes, the bilingual "Back to statement"
-   link — automatically picks up the real Arabic font instead of a system
-   default. Browsers fall through a font-family list per-glyph, so Latin
-   text here is completely unaffected; only characters Fraunces/Manrope
-   don't cover reach this fallback. */
+/* One font family (ITF Qomra Arabic, loaded as --font-rayat-ar — see
+   app/[locale]/layout.tsx) used for both display and body text, in both
+   languages: it covers Latin glyphs fully, so there's no need for a
+   separate English typeface anymore. */
 :root {
-  --display-font-family: var(--font-fraunces), var(--font-rayat-ar), Georgia, serif;
-  --body-font-family: var(--font-manrope), var(--font-rayat-ar), system-ui, sans-serif;
+  --display-font-family: var(--font-rayat-ar), Georgia, serif;
+  --body-font-family: var(--font-rayat-ar), system-ui, sans-serif;
 }
 
-html[lang="ar"] {
-  --display-font-family: var(--font-rayat-ar), Tahoma, serif;
-  --body-font-family: var(--font-rayat-ar), Tahoma, sans-serif;
+/* Per-section text size control (Studio → Settings → Text sizes). Each
+   homepage section sets --section-text-scale via inline style; this
+   recomputes Tailwind's own font-size theme tokens for that subtree, so
+   every text-xs..text-9xl utility already used anywhere in the section
+   scales together, with no per-element className changes needed. Line-
+   height tokens are left as Tailwind's defaults — fine for the supported
+   range (roughly 0.7x-1.5x) without needing separate tuning. */
+.text-scale-section {
+  --text-xs: calc(0.75rem * var(--section-text-scale, 1));
+  --text-sm: calc(0.875rem * var(--section-text-scale, 1));
+  --text-base: calc(1rem * var(--section-text-scale, 1));
+  --text-lg: calc(1.125rem * var(--section-text-scale, 1));
+  --text-xl: calc(1.25rem * var(--section-text-scale, 1));
+  --text-2xl: calc(1.5rem * var(--section-text-scale, 1));
+  --text-3xl: calc(1.875rem * var(--section-text-scale, 1));
+  --text-4xl: calc(2.25rem * var(--section-text-scale, 1));
+  --text-5xl: calc(3rem * var(--section-text-scale, 1));
+  --text-6xl: calc(3.75rem * var(--section-text-scale, 1));
+  --text-7xl: calc(4.5rem * var(--section-text-scale, 1));
+  --text-8xl: calc(6rem * var(--section-text-scale, 1));
+  --text-9xl: calc(8rem * var(--section-text-scale, 1));
 }
 
 html {

@@ -4,18 +4,25 @@ import { MonoLogo } from "@/components/ui/MonoLogo";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { partners, type Partner } from "@/data/partners";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 export default function Clients({
   items = partners,
+  textScale,
 }: {
   /** Supplied by the server from the CMS; falls back to bundled static data. */
   items?: Partner[];
+  textScale?: number;
 }) {
   const t = useTranslations("clients");
   const locale = useLocale() as "en" | "ar";
 
   return (
-    <section id="clients" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="clients"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}

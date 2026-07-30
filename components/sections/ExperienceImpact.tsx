@@ -19,6 +19,7 @@ import { TiltCard } from "@/components/ui/TiltCard";
 import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/Lightbox";
 import { currentWorkProjects, instituteHub, type CurrentWorkProject } from "@/data/current-work";
 import { experience } from "@/data/experience";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 type StatEntry = { value: string; label: string };
 
@@ -317,9 +318,11 @@ function CountDown({ from, to }: { from: number; to: number }) {
 
 export default function ExperienceImpact({
   currentWorkGalleries,
+  textScale,
 }: {
   /** Supplied by the server from the CMS; falls back to empty galleries. */
   currentWorkGalleries?: Record<string, string[]>;
+  textScale?: number;
 }) {
   const tExperience = useTranslations("experience");
   const locale = useLocale() as "en" | "ar";
@@ -340,7 +343,11 @@ export default function ExperienceImpact({
   const lineScale = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [0, 1]);
 
   return (
-    <section id="experience" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="experience"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-4xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={tExperience("eyebrow")}

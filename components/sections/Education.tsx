@@ -3,12 +3,17 @@ import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { certifications } from "@/data/certifications";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
-export default function Education() {
+export default function Education({ textScale }: { textScale?: number }) {
   const t = useTranslations("education");
 
   return (
-    <section id="education" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="education"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}

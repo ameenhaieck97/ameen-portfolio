@@ -10,6 +10,7 @@ import {
   LinkedinIcon,
   WhatsappIcon,
 } from "@/components/ui/SocialIcons";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 const socialIcons = {
   instagram: InstagramIcon,
@@ -17,12 +18,16 @@ const socialIcons = {
   linkedin: LinkedinIcon,
 };
 
-export default function Contact() {
+export default function Contact({ textScale }: { textScale?: number }) {
   const t = useTranslations("contact");
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}`;
 
   return (
-    <section id="contact" className="relative py-32 sm:py-48">
+    <section
+      id="contact"
+      className="text-scale-section relative py-32 sm:py-48"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}

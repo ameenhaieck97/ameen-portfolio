@@ -4,11 +4,23 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { safeRevalidate } from "@/lib/revalidate";
-import type { Settings, SocialLinks } from "@/types/admin";
+import { SECTION_KEYS, type SectionKey, type SectionTextScales, type Settings, type SocialLinks } from "@/types/admin";
 import { TextAreaField, TextField } from "@/components/admin/FormControls";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { useToast } from "@/components/admin/Toast";
+
+const SECTION_LABELS: Record<SectionKey, string> = {
+  hero: "Hero",
+  about: "About",
+  services: "Services",
+  portfolio: "Portfolio",
+  experience: "Experience & Impact",
+  education: "Education",
+  clients: "Clients",
+  contact: "Contact",
+  footer: "Footer",
+};
 
 const SOCIAL_KEYS: Array<{ key: keyof SocialLinks; label: string }> = [
   { key: "instagram", label: "Instagram" },
@@ -27,6 +39,7 @@ type SettingsDraft = {
   location: string;
   social_links: Record<keyof SocialLinks, string>;
   about_photo_url: string;
+  section_text_scale: SectionTextScales;
 };
 
 const EMPTY_DRAFT: SettingsDraft = {
@@ -44,6 +57,7 @@ const EMPTY_DRAFT: SettingsDraft = {
     youtube: "",
   },
   about_photo_url: "",
+  section_text_scale: {},
 };
 
 export default function SettingsPage() {
@@ -76,6 +90,7 @@ export default function SettingsPage() {
             ...(row?.social_links ?? {}),
           },
           about_photo_url: row?.about_photo_url ?? "",
+          section_text_scale: row?.section_text_scale ?? {},
         });
       });
   }, []);
@@ -93,6 +108,11 @@ export default function SettingsPage() {
     }
     toast("Settings saved.");
     void safeRevalidate(toast);
+  };
+
+  const setSectionScale = (key: SectionKey, value: number) => {
+    if (!draft) return;
+    setDraft({ ...draft, section_text_scale: { ...draft.section_text_scale, [key]: value } });
   };
 
   return (
@@ -215,6 +235,37 @@ export default function SettingsPage() {
                   }
                 />
               ))}
+            </div>
+          </section>
+
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">Text sizes</h2>
+            <p className="mt-1 text-sm text-ivory/55">
+              Scale the font size of an entire section up or down — 100% is the default design.
+            </p>
+            <div className="mt-5 space-y-4">
+              {SECTION_KEYS.map((key) => {
+                const value = draft.section_text_scale[key] ?? 1;
+                return (
+                  <div key={key} className="flex items-center gap-4">
+                    <span className="w-36 flex-none text-sm text-ivory/80">
+                      {SECTION_LABELS[key]}
+                    </span>
+                    <input
+                      type="range"
+                      min={0.7}
+                      max={1.5}
+                      step={0.05}
+                      value={value}
+                      onChange={(event) => setSectionScale(key, Number(event.target.value))}
+                      className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/10 accent-gold"
+                    />
+                    <span className="w-12 flex-none text-end text-sm tabular-nums text-ivory/60">
+                      {Math.round(value * 100)}%
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </div>

@@ -11,7 +11,7 @@ import Contact from "@/components/sections/Contact";
 import { getPortfolioItems } from "@/lib/portfolio-data";
 import { getClients } from "@/lib/clients-data";
 import { getCurrentWorkGalleries } from "@/lib/current-work-data";
-import { getAboutPhotoUrl } from "@/lib/settings-data";
+import { getAboutPhotoUrl, getSectionTextScales } from "@/lib/settings-data";
 import { getPromoPopup } from "@/lib/promo-data";
 import { PromoPopup } from "@/components/ui/PromoPopup";
 
@@ -29,26 +29,31 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [portfolioItems, clients, currentWorkGalleries, aboutPhotoUrl, promo] = await Promise.all([
-    getPortfolioItems(),
-    getClients(),
-    getCurrentWorkGalleries(),
-    getAboutPhotoUrl(),
-    getPromoPopup(),
-  ]);
+  const [portfolioItems, clients, currentWorkGalleries, aboutPhotoUrl, promo, textScales] =
+    await Promise.all([
+      getPortfolioItems(),
+      getClients(),
+      getCurrentWorkGalleries(),
+      getAboutPhotoUrl(),
+      getPromoPopup(),
+      getSectionTextScales(),
+    ]);
 
   return (
     <>
       {promo ? <PromoPopup payload={promo} /> : null}
-      <Hero />
-      <About photoUrl={aboutPhotoUrl} />
-      <Services />
+      <Hero textScale={textScales.hero} />
+      <About photoUrl={aboutPhotoUrl} textScale={textScales.about} />
+      <Services textScale={textScales.services} />
       <Ticker />
-      <Portfolio items={portfolioItems} />
-      <ExperienceImpact currentWorkGalleries={currentWorkGalleries} />
-      <Clients items={clients} />
-      <Education />
-      <Contact />
+      <Portfolio items={portfolioItems} textScale={textScales.portfolio} />
+      <ExperienceImpact
+        currentWorkGalleries={currentWorkGalleries}
+        textScale={textScales.experience}
+      />
+      <Clients items={clients} textScale={textScales.clients} />
+      <Education textScale={textScales.education} />
+      <Contact textScale={textScales.contact} />
     </>
   );
 }

@@ -6,18 +6,25 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { siteConfig } from "@/data/site";
 import { cn } from "@/lib/cn";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 export default function About({
   photoUrl,
+  textScale,
 }: {
   /** Uploaded from Studio → Settings; falls back to the abstract monogram card when empty. */
   photoUrl?: string | null;
+  textScale?: number;
 }) {
   const t = useTranslations("about");
   const paragraphs = t("description").split("\n\n");
 
   return (
-    <section id="about" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="about"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-20 lg:px-10">
         <Reveal variant="scaleIn">
           <TiltCard className="glass mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[1.75rem]">

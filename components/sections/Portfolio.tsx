@@ -14,6 +14,7 @@ import {
 import { PortfolioCard } from "@/components/portfolio/PortfolioCard";
 import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/Lightbox";
 import { cn } from "@/lib/cn";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 const GROUPS: PortfolioGroup[] = ["brandIdentity", "graphicDesign", "other"];
 const VISIBLE_COUNT = 3;
@@ -109,9 +110,11 @@ function CategoryBlock({
 
 export default function Portfolio({
   items = portfolioItems,
+  textScale,
 }: {
   /** Supplied by the server from the CMS; falls back to bundled static data. */
   items?: PortfolioItem[];
+  textScale?: number;
 }) {
   const t = useTranslations("portfolio");
   const locale = useLocale() as "en" | "ar";
@@ -147,7 +150,11 @@ export default function Portfolio({
   const openIndex = openProject ? 0 : -1;
 
   return (
-    <section id="portfolio" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="portfolio"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}

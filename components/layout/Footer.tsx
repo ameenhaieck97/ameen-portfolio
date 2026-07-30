@@ -14,6 +14,7 @@ import {
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SectionLink } from "./SectionLink";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 const navKeys = [
   "about",
@@ -31,14 +32,20 @@ const socialIcons = {
   linkedin: LinkedinIcon,
 };
 
-export default function Footer({ packagesVisible = false }: { packagesVisible?: boolean }) {
+export default function Footer({
+  packagesVisible = false,
+  textScale,
+}: {
+  packagesVisible?: boolean;
+  textScale?: number;
+}) {
   const t = useTranslations("nav");
   const tf = useTranslations("footer");
   const tMeta = useTranslations("meta");
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-white/8">
+    <footer className="text-scale-section relative border-t border-white/8" style={textScaleStyle(textScale)}>
       <RevealGroup
         stagger={0.1}
         className="mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 lg:flex-row lg:items-start lg:justify-between lg:px-10"

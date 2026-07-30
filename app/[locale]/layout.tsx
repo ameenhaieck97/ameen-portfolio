@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
 import localFont from "next/font/local";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -11,30 +10,22 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SiteBackground } from "@/components/layout/SiteBackground";
 import { CustomCursor } from "@/components/ui/CustomCursor";
-import { getPackagesPageVisibility } from "@/lib/settings-data";
+import { getPackagesPageVisibility, getSectionTextScales } from "@/lib/settings-data";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
+// One typeface sitewide, both languages — ITF Qomra Arabic covers Latin
+// glyphs fully, so English no longer needs a separate font (Fraunces/
+// Manrope). Kept under the "--font-rayat-ar" variable name/folder history —
+// see fonts/rayat-ar/ for the previous Arabic-only font this replaced.
 const rayatAr = localFont({
   variable: "--font-rayat-ar",
   display: "swap",
   src: [
-    { path: "../../fonts/rayat-ar/ITFRayatAr-Light.otf", weight: "300", style: "normal" },
-    { path: "../../fonts/rayat-ar/ITFRayatAr-Regular.otf", weight: "400", style: "normal" },
-    { path: "../../fonts/rayat-ar/ITFRayatAr-Medium.otf", weight: "500", style: "normal" },
-    { path: "../../fonts/rayat-ar/ITFRayatAr-Bold.otf", weight: "700", style: "normal" },
-    { path: "../../fonts/rayat-ar/ITFRayatAr-Black.otf", weight: "900", style: "normal" },
+    { path: "../../fonts/itf-qomra-arabic/ITFQomraArabic-Light.otf", weight: "300", style: "normal" },
+    { path: "../../fonts/itf-qomra-arabic/ITFQomraArabic-Regular.otf", weight: "400", style: "normal" },
+    { path: "../../fonts/itf-qomra-arabic/ITFQomraArabic-Medium.otf", weight: "500", style: "normal" },
+    { path: "../../fonts/itf-qomra-arabic/ITFQomraArabic-Bold.otf", weight: "700", style: "normal" },
+    { path: "../../fonts/itf-qomra-arabic/ITFQomraArabic-Black.otf", weight: "900", style: "normal" },
   ],
 });
 
@@ -99,11 +90,8 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const tMeta = await getTranslations({ locale, namespace: "meta" });
   const packagesVisible = (await getPackagesPageVisibility()) === "public";
+  const textScales = await getSectionTextScales();
   const dir = locale === "ar" ? "rtl" : "ltr";
-  const fontVars =
-    locale === "ar"
-      ? rayatAr.variable
-      : `${fraunces.variable} ${manrope.variable}`;
 
   const personJsonLd = {
     "@context": "https://schema.org",
@@ -129,7 +117,7 @@ export default async function LocaleLayout({
       // <html> before React hydrates; suppress attribute-mismatch warnings
       // for this element only — one level deep, children still validated.
       suppressHydrationWarning
-      className={`${fontVars} h-full overflow-x-hidden antialiased`}
+      className={`${rayatAr.variable} h-full overflow-x-hidden antialiased`}
     >
       <body className="flex min-h-full w-full flex-col overflow-x-hidden bg-canvas text-ivory">
         <script
@@ -146,7 +134,7 @@ export default async function LocaleLayout({
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <Footer packagesVisible={packagesVisible} />
+          <Footer packagesVisible={packagesVisible} textScale={textScales.footer} />
           <CustomCursor />
         </NextIntlClientProvider>
       </body>

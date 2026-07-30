@@ -3,15 +3,20 @@ import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SERVICE_ICONS, type ServiceIconKey } from "@/data/services";
+import { textScaleStyle } from "@/lib/text-scale-style";
 
 type ServiceItem = { icon: ServiceIconKey; title: string; description: string };
 
-export default function Services() {
+export default function Services({ textScale }: { textScale?: number }) {
   const t = useTranslations("services");
   const items = t.raw("items") as ServiceItem[];
 
   return (
-    <section id="services" className="relative py-20 sm:py-32 lg:py-36">
+    <section
+      id="services"
+      className="text-scale-section relative py-20 sm:py-32 lg:py-36"
+      style={textScaleStyle(textScale)}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <SectionHeading
           eyebrow={t("eyebrow")}
