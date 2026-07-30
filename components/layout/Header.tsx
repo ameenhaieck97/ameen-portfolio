@@ -26,7 +26,13 @@ const navKeys = [
 const MENU_LABEL = { en: "Menu", ar: "القائمة" };
 const CLOSE_LABEL = { en: "Close", ar: "إغلاق" };
 
-export default function Header({ packagesVisible = false }: { packagesVisible?: boolean }) {
+export default function Header({
+  packagesVisible = false,
+  offersVisible = false,
+}: {
+  packagesVisible?: boolean;
+  offersVisible?: boolean;
+}) {
   const t = useTranslations("nav");
   const tMeta = useTranslations("meta");
   const locale = useLocale() as "en" | "ar";
@@ -87,6 +93,14 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
               {t("packages")}
             </Link>
           ) : null}
+          {offersVisible ? (
+            <Link
+              href="/offers"
+              className="text-sm font-medium text-ivory/75 transition-colors hover:text-gold"
+            >
+              {t("offers")}
+            </Link>
+          ) : null}
         </nav>
 
         <div className="hidden items-center gap-5 lg:flex">
@@ -137,6 +151,15 @@ export default function Header({ packagesVisible = false }: { packagesVisible?: 
                   className="rounded-xl px-3 py-3 text-base font-medium text-ivory/85 transition-colors hover:bg-white/5 hover:text-gold"
                 >
                   {t("packages")}
+                </Link>
+              ) : null}
+              {offersVisible ? (
+                <Link
+                  href="/offers"
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-3 py-3 text-base font-medium text-ivory/85 transition-colors hover:bg-white/5 hover:text-gold"
+                >
+                  {t("offers")}
                 </Link>
               ) : null}
               <SectionLink

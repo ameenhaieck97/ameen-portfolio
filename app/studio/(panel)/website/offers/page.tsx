@@ -135,8 +135,11 @@ export default function OffersAndPackagesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [previewCard, setPreviewCard] = useState<PromoCardProps | null>(null);
-  const [pagesVisibility, setPagesVisibility] = useState<PageVisibility | null>(null);
-  const [savingVisibility, setSavingVisibility] = useState(false);
+  const [pagesVisibility, setPagesVisibility] = useState<{
+    packages: PageVisibility;
+    offers: PageVisibility;
+  } | null>(null);
+  const [savingVisibility, setSavingVisibility] = useState<"packages" | "offers" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -182,29 +185,35 @@ export default function OffersAndPackagesPage() {
   useEffect(() => {
     void getSupabaseClient()
       .from("settings")
-      .select("packages_page_visibility")
+      .select("packages_page_visibility, offers_page_visibility")
       .eq("id", 1)
       .maybeSingle()
       .then(({ data }) => {
-        setPagesVisibility(
-          (data as { packages_page_visibility: PageVisibility } | null)?.packages_page_visibility ??
-            "hidden",
-        );
+        const row = data as {
+          packages_page_visibility: PageVisibility;
+          offers_page_visibility: PageVisibility;
+        } | null;
+        setPagesVisibility({
+          packages: row?.packages_page_visibility ?? "hidden",
+          offers: row?.offers_page_visibility ?? "hidden",
+        });
       });
   }, []);
 
-  const setVisibility = async (next: PageVisibility) => {
-    setSavingVisibility(true);
+  const setVisibility = async (page: "packages" | "offers", next: PageVisibility) => {
+    setSavingVisibility(page);
+    const column = page === "packages" ? "packages_page_visibility" : "offers_page_visibility";
     const { error } = await getSupabaseClient()
       .from("settings")
-      .upsert({ id: 1, packages_page_visibility: next });
-    setSavingVisibility(false);
+      .upsert({ id: 1, [column]: next });
+    setSavingVisibility(null);
     if (error) {
       toast(error.message, "error");
       return;
     }
-    setPagesVisibility(next);
-    toast(next === "public" ? "Packages page is now public." : "Packages page is now hidden.");
+    setPagesVisibility((current) => (current ? { ...current, [page]: next } : current));
+    const label = page === "packages" ? "Packages" : "Offers";
+    toast(next === "public" ? `${label} page is now public.` : `${label} page is now hidden.`);
     void safeRevalidate(toast);
   };
 
@@ -535,28 +544,54 @@ export default function OffersAndPackagesPage() {
         </div>
       </div>
 
-      <div className="glass mt-6 rounded-3xl p-6">
-        <Toggle
-          label="Public Packages page"
-          description="Hidden keeps /packages out of the nav, footer, and sitemap, and marks it noindex — but the direct link still works, so you can share it privately with selected clients."
-          checked={pagesVisibility === "public"}
-          onChange={(next) => void setVisibility(next ? "public" : "hidden")}
-        />
-        {savingVisibility ? (
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-ivory/45">
-            <Loader2 size={12} className="animate-spin" aria-hidden />
-            Saving…
-          </p>
-        ) : (
-          <div className="mt-3 flex gap-4 text-xs text-ivory/45">
-            <a href="/en/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
-              View (EN) ↗
-            </a>
-            <a href="/ar/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
-              View (AR) ↗
-            </a>
-          </div>
-        )}
+      <div className="glass mt-6 space-y-6 rounded-3xl p-6">
+        <div>
+          <Toggle
+            label="Public Offers page"
+            description="Hidden keeps /offers out of the nav, footer, and sitemap, and marks it noindex — but the direct link still works, so you can share it privately with selected clients."
+            checked={pagesVisibility?.offers === "public"}
+            onChange={(next) => void setVisibility("offers", next ? "public" : "hidden")}
+          />
+          {savingVisibility === "offers" ? (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-ivory/45">
+              <Loader2 size={12} className="animate-spin" aria-hidden />
+              Saving…
+            </p>
+          ) : (
+            <div className="mt-3 flex gap-4 text-xs text-ivory/45">
+              <a href="/en/offers" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+                View (EN) ↗
+              </a>
+              <a href="/ar/offers" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+                View (AR) ↗
+              </a>
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-white/8 pt-6">
+          <Toggle
+            label="Public Packages page"
+            description="Hidden keeps /packages out of the nav, footer, and sitemap, and marks it noindex — but the direct link still works, so you can share it privately with selected clients."
+            checked={pagesVisibility?.packages === "public"}
+            onChange={(next) => void setVisibility("packages", next ? "public" : "hidden")}
+          />
+          {savingVisibility === "packages" ? (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-ivory/45">
+              <Loader2 size={12} className="animate-spin" aria-hidden />
+              Saving…
+            </p>
+          ) : (
+            <div className="mt-3 flex gap-4 text-xs text-ivory/45">
+              <a href="/en/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+                View (EN) ↗
+              </a>
+              <a href="/ar/packages" target="_blank" rel="noreferrer noopener" className="hover:text-gold">
+                View (AR) ↗
+              </a>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-6">

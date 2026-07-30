@@ -1,34 +1,31 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { siteConfig } from "@/data/site";
-import { getPackagesPageVisibility } from "@/lib/settings-data";
+import { getOffersPageVisibility, getPackagesPageVisibility } from "@/lib/settings-data";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+function pageEntries(path: string): MetadataRoute.Sitemap {
   const languages = Object.fromEntries(
-    routing.locales.map((locale) => [locale, `${siteConfig.url}/${locale}`]),
+    routing.locales.map((locale) => [locale, `${siteConfig.url}/${locale}${path}`]),
   );
 
-  const homeEntries: MetadataRoute.Sitemap = routing.locales.map((locale) => ({
-    url: `${siteConfig.url}/${locale}`,
+  return routing.locales.map((locale) => ({
+    url: `${siteConfig.url}/${locale}${path}`,
     lastModified: new Date(),
     changeFrequency: "monthly",
-    priority: locale === routing.defaultLocale ? 1 : 0.9,
+    priority: path === "" ? (locale === routing.defaultLocale ? 1 : 0.9) : 0.7,
     alternates: { languages },
   }));
+}
 
-  const packagesVisible = (await getPackagesPageVisibility()) === "public";
-  if (!packagesVisible) return homeEntries;
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [packagesVisible, offersVisible] = await Promise.all([
+    getPackagesPageVisibility(),
+    getOffersPageVisibility(),
+  ]);
 
-  const packagesLanguages = Object.fromEntries(
-    routing.locales.map((locale) => [locale, `${siteConfig.url}/${locale}/packages`]),
-  );
-  const packagesEntries: MetadataRoute.Sitemap = routing.locales.map((locale) => ({
-    url: `${siteConfig.url}/${locale}/packages`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.7,
-    alternates: { languages: packagesLanguages },
-  }));
-
-  return [...homeEntries, ...packagesEntries];
+  return [
+    ...pageEntries(""),
+    ...(packagesVisible === "public" ? pageEntries("/packages") : []),
+    ...(offersVisible === "public" ? pageEntries("/offers") : []),
+  ];
 }

@@ -10,7 +10,11 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SiteBackground } from "@/components/layout/SiteBackground";
 import { CustomCursor } from "@/components/ui/CustomCursor";
-import { getPackagesPageVisibility, getSectionTextScales } from "@/lib/settings-data";
+import {
+  getOffersPageVisibility,
+  getPackagesPageVisibility,
+  getSectionTextScales,
+} from "@/lib/settings-data";
 import "./globals.css";
 
 // One typeface sitewide, both languages — ITF Qomra Arabic covers Latin
@@ -90,6 +94,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const tMeta = await getTranslations({ locale, namespace: "meta" });
   const packagesVisible = (await getPackagesPageVisibility()) === "public";
+  const offersVisible = (await getOffersPageVisibility()) === "public";
   const textScales = await getSectionTextScales();
   const dir = locale === "ar" ? "rtl" : "ltr";
 
@@ -130,11 +135,15 @@ export default async function LocaleLayout({
           <a href="#main-content" className="skip-link">
             {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}
           </a>
-          <Header packagesVisible={packagesVisible} />
+          <Header packagesVisible={packagesVisible} offersVisible={offersVisible} />
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <Footer packagesVisible={packagesVisible} textScale={textScales.footer} />
+          <Footer
+            packagesVisible={packagesVisible}
+            offersVisible={offersVisible}
+            textScale={textScales.footer}
+          />
           <CustomCursor />
         </NextIntlClientProvider>
       </body>

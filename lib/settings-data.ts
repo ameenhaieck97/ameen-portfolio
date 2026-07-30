@@ -28,27 +28,37 @@ export async function getAboutPhotoUrl(): Promise<string | null> {
 }
 
 /**
- * Whether the public Packages page is linked from nav/footer and indexable.
- * Defaults to "hidden" on any failure — the safer fallback, since the page
- * should only ever go public through a deliberate Studio action, never by
- * accident when Supabase is briefly unreachable.
+ * Shared by every "is this standalone page public?" flag (Packages, Offers,
+ * …) — same column shape, same safe fallback. Defaults to "hidden" on any
+ * failure, since a page should only ever go public through a deliberate
+ * Studio action, never by accident when Supabase is briefly unreachable.
  */
-export async function getPackagesPageVisibility(): Promise<"public" | "hidden"> {
+async function getPageVisibility(column: string): Promise<"public" | "hidden"> {
   if (!isSupabaseConfigured()) return "hidden";
 
   try {
     const supabase = getServerReadClient();
     const { data, error } = await withTimeout(
-      supabase.from("settings").select("packages_page_visibility").eq("id", 1).maybeSingle(),
+      supabase.from("settings").select(column).eq("id", 1).maybeSingle(),
       1500,
     );
 
     if (error || !data) return "hidden";
-    return data.packages_page_visibility === "public" ? "public" : "hidden";
+    return (data as unknown as Record<string, unknown>)[column] === "public" ? "public" : "hidden";
   } catch (error) {
-    console.error("getPackagesPageVisibility: unexpected error, defaulting to hidden:", error);
+    console.error(`getPageVisibility(${column}): unexpected error, defaulting to hidden:`, error);
     return "hidden";
   }
+}
+
+/** Whether the public Packages page is linked from nav/footer and indexable. */
+export async function getPackagesPageVisibility(): Promise<"public" | "hidden"> {
+  return getPageVisibility("packages_page_visibility");
+}
+
+/** Whether the public Offers page is linked from nav/footer and indexable. */
+export async function getOffersPageVisibility(): Promise<"public" | "hidden"> {
+  return getPageVisibility("offers_page_visibility");
 }
 
 /**

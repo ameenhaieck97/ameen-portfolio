@@ -34,9 +34,11 @@ const socialIcons = {
 
 export default function Footer({
   packagesVisible = false,
+  offersVisible = false,
   textScale,
 }: {
   packagesVisible?: boolean;
+  offersVisible?: boolean;
   textScale?: number;
 }) {
   const t = useTranslations("nav");
@@ -86,6 +88,14 @@ export default function Footer({
                 className="text-sm font-medium text-ivory/70 transition-colors hover:text-gold"
               >
                 {t("packages")}
+              </Link>
+            ) : null}
+            {offersVisible ? (
+              <Link
+                href="/offers"
+                className="text-sm font-medium text-ivory/70 transition-colors hover:text-gold"
+              >
+                {t("offers")}
               </Link>
             ) : null}
           </nav>

@@ -142,6 +142,8 @@ export type Settings = {
   popup_custom_cta_text_ar: string;
   /** Controls the public Packages page: "hidden" keeps it out of nav/internal links and noindexes it, but the direct URL still works. */
   packages_page_visibility: PageVisibility;
+  /** Same model as packages_page_visibility, independent switch for the public Offers page. */
+  offers_page_visibility: PageVisibility;
   section_text_scale: SectionTextScales;
   updated_at: string;
 };

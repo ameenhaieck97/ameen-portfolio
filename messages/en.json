@@ -13,6 +13,7 @@
     "education": "Education",
     "clients": "Clients",
     "packages": "Packages",
+    "offers": "Offers",
     "contact": "Contact"
   },
   "hero": {
@@ -179,5 +180,14 @@
     "showMore": "Show more",
     "showLess": "Show less",
     "cta": "Chat on WhatsApp"
+  },
+  "offersPage": {
+    "eyebrow": "Offers",
+    "title": "Current Offers",
+    "description": "Time-limited offers on brand identity, design, and production work — see what's available right now.",
+    "emptyTitle": "No offers running right now",
+    "emptyDescription": "There isn't an active offer at the moment. Feel free to contact me directly for a custom quote tailored to your project.",
+    "emptyCta": "Contact Me",
+    "learnMore": "Learn more"
   }
 }
