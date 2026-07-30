@@ -4,6 +4,12 @@
     "titleShort": "Ameen Haieck",
     "description": "Graphic designer specializing in brand identity, editorial design, print production, and historical photo restoration. Working with companies, institutions, and media platforms since 2015."
   },
+  "maintenance": {
+    "eyebrow": "Under maintenance",
+    "title": "We'll be right back.",
+    "description": "The site is being updated. Please check back shortly.",
+    "contactPrefix": "Need to reach me in the meantime?"
+  },
   "nav": {
     "home": "Home",
     "about": "About",

@@ -11,11 +11,20 @@ import {
   HardDrive,
   ImageOff,
   Layers,
+  LogIn,
+  Package as PackageIcon,
+  Percent,
+  Wallet,
+  WalletCards,
 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { listMediaLibrary } from "@/lib/supabase/storage";
+import { getEffectiveOfferStatus } from "@/lib/promo-status";
+import { formatUSD } from "@/lib/format";
 import type { Project } from "@/types/admin";
+import type { Offer } from "@/types/promo";
 import { Skeleton } from "@/components/admin/Skeleton";
+import { SiteHealthPanel } from "@/components/admin/SiteHealthPanel";
 
 type Stats = {
   total: number;
@@ -26,6 +35,21 @@ type Stats = {
 type StorageStats = {
   count: number;
   bytes: number;
+};
+
+type BusinessStats = {
+  revenueThisMonth: number;
+  outstandingBalance: number;
+  activeOffers: number;
+  packages: number;
+};
+
+type RecentPayment = {
+  id: string;
+  amount: number;
+  paid_at: string;
+  client_id: string;
+  client_name: string;
 };
 
 function formatBytes(bytes: number) {
@@ -50,6 +74,9 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recent, setRecent] = useState<Project[] | null>(null);
   const [storage, setStorage] = useState<StorageStats | null>(null);
+  const [business, setBusiness] = useState<BusinessStats | null>(null);
+  const [recentPayments, setRecentPayments] = useState<RecentPayment[] | null>(null);
+  const [lastLogin, setLastLogin] = useState<string | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -95,6 +122,67 @@ export default function AdminDashboardPage() {
         }),
       )
       .catch(() => setStorage({ count: 0, bytes: 0 }));
+
+    void (async () => {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+
+      const [paymentsThisMonth, outstandingReceipts, offersRes, packagesCount, recentPaymentsRes] =
+        await Promise.all([
+          supabase.from("finance_payments").select("amount").gte("paid_at", monthStart.toISOString()),
+          supabase.from("finance_receipts").select("remaining_balance").eq("is_paid", false),
+          supabase.from("offers").select("id, status, start_date, end_date"),
+          supabase.from("packages").select("*", { count: "exact", head: true }),
+          supabase
+            .from("finance_payments")
+            .select("id, amount, paid_at, client_id, finance_clients(name)")
+            .order("paid_at", { ascending: false })
+            .limit(5),
+        ]);
+
+      if (!paymentsThisMonth.error && !outstandingReceipts.error && !offersRes.error && !packagesCount.error) {
+        const revenueThisMonth = (paymentsThisMonth.data ?? []).reduce(
+          (sum, row) => sum + Number(row.amount),
+          0,
+        );
+        const outstandingBalance = (outstandingReceipts.data ?? []).reduce(
+          (sum, row) => sum + Number(row.remaining_balance),
+          0,
+        );
+        const activeOffers = ((offersRes.data ?? []) as Pick<Offer, "status" | "start_date" | "end_date">[]).filter(
+          (offer) => getEffectiveOfferStatus(offer) === "active",
+        ).length;
+        setBusiness({
+          revenueThisMonth,
+          outstandingBalance,
+          activeOffers,
+          packages: packagesCount.count ?? 0,
+        });
+      }
+
+      if (!recentPaymentsRes.error) {
+        setRecentPayments(
+          ((recentPaymentsRes.data ?? []) as unknown as Array<{
+            id: string;
+            amount: number;
+            paid_at: string;
+            client_id: string;
+            finance_clients: { name: string } | null;
+          }>).map((row) => ({
+            id: row.id,
+            amount: row.amount,
+            paid_at: row.paid_at,
+            client_id: row.client_id,
+            client_name: row.finance_clients?.name ?? "Unknown client",
+          })),
+        );
+      }
+    })();
+
+    void supabase.auth.getUser().then(({ data }) => {
+      setLastLogin(data.user?.last_sign_in_at ?? null);
+    });
   }, []);
 
   const statCards = [
@@ -103,10 +191,38 @@ export default function AdminDashboardPage() {
     { label: "Categories", value: stats?.categories, icon: Layers },
   ] as const;
 
+  const businessCards = [
+    {
+      label: "Revenue This Month",
+      value: business ? formatUSD(business.revenueThisMonth) : undefined,
+      icon: Wallet,
+    },
+    {
+      label: "Outstanding Balance",
+      value: business ? formatUSD(business.outstandingBalance) : undefined,
+      icon: WalletCards,
+    },
+    { label: "Active Offers", value: business?.activeOffers, icon: Percent },
+    { label: "Packages", value: business?.packages, icon: PackageIcon },
+  ] as const;
+
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="font-display text-3xl text-ivory">Dashboard</h1>
-      <p className="mt-1.5 text-sm text-ivory/55">Overview of the portfolio content.</p>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+        <div>
+          <h1 className="font-display text-3xl text-ivory">Dashboard</h1>
+          <p className="mt-1.5 text-sm text-ivory/55">Overview of the portfolio content.</p>
+        </div>
+        <p className="flex items-center gap-1.5 text-xs text-ivory/45">
+          <LogIn size={13} aria-hidden />
+          Last login:{" "}
+          {lastLogin === undefined
+            ? "…"
+            : lastLogin
+              ? new Date(lastLogin).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })
+              : "—"}
+        </p>
+      </div>
 
       {error ? (
         <div className="glass mt-6 rounded-3xl border border-red-400/20 p-6 text-sm leading-relaxed text-red-300">
@@ -131,6 +247,26 @@ export default function AdminDashboardPage() {
             <p className="mt-1.5 text-xs uppercase tracking-[0.15em] text-ivory/50">{label}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {businessCards.map(({ label, value, icon: Icon }) => (
+          <div key={label} className="glass rounded-2xl p-5 transition-transform duration-300 hover:-translate-y-0.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold/10 text-gold">
+              <Icon size={15} aria-hidden />
+            </span>
+            {value === undefined ? (
+              <Skeleton className="mt-4 h-7 w-16" />
+            ) : (
+              <p className="mt-4 font-display text-2xl text-ivory">{value}</p>
+            )}
+            <p className="mt-1 text-[11px] uppercase tracking-[0.13em] text-ivory/50">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6">
+        <SiteHealthPanel />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
@@ -213,27 +349,64 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Storage usage */}
-        <div className="glass rounded-3xl p-6">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gold/10 text-gold">
-            <HardDrive size={18} aria-hidden />
-          </span>
-          <h2 className="mt-5 font-display text-xl text-ivory">Storage Usage</h2>
-          {storage === null ? (
-            <Skeleton className="mt-4 h-9 w-24" />
-          ) : (
-            <p className="mt-4 font-display text-3xl text-ivory">{formatBytes(storage.bytes)}</p>
-          )}
-          <p className="mt-1.5 text-xs text-ivory/50">
-            {storage === null ? "Loading…" : `${storage.count} image${storage.count === 1 ? "" : "s"} in the library`}
-          </p>
-          <Link
-            href="/studio/media"
-            className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-gold transition-colors hover:text-gold-soft"
-          >
-            Open Media Library
-            <ArrowUpRight size={14} aria-hidden />
-          </Link>
+        <div className="flex flex-col gap-6">
+          {/* Recent payments */}
+          <div className="glass rounded-3xl p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-xl text-ivory">Recent Payments</h2>
+              <Link
+                href="/studio/finance/payments"
+                className="inline-flex items-center gap-1 text-sm font-medium text-gold transition-colors hover:text-gold-soft"
+              >
+                View all
+                <ArrowUpRight size={14} aria-hidden />
+              </Link>
+            </div>
+            <div className="mt-4 space-y-2.5">
+              {recentPayments === null ? (
+                Array.from({ length: 3 }, (_, index) => <Skeleton key={index} className="h-12 w-full" />)
+              ) : recentPayments.length === 0 ? (
+                <p className="py-4 text-center text-xs text-ivory/50">No payments recorded yet.</p>
+              ) : (
+                recentPayments.map((payment) => (
+                  <Link
+                    key={payment.id}
+                    href={`/studio/finance/clients/${payment.client_id}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-white/8 px-3.5 py-2.5 transition-colors hover:border-gold/25"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-ivory">{payment.client_name}</p>
+                      <p className="text-[11px] text-ivory/45">{timeAgo(payment.paid_at)}</p>
+                    </div>
+                    <p className="flex-none text-sm font-medium text-gold">{formatUSD(payment.amount)}</p>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Storage usage */}
+          <div className="glass rounded-3xl p-6">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gold/10 text-gold">
+              <HardDrive size={18} aria-hidden />
+            </span>
+            <h2 className="mt-5 font-display text-xl text-ivory">Storage Usage</h2>
+            {storage === null ? (
+              <Skeleton className="mt-4 h-9 w-24" />
+            ) : (
+              <p className="mt-4 font-display text-3xl text-ivory">{formatBytes(storage.bytes)}</p>
+            )}
+            <p className="mt-1.5 text-xs text-ivory/50">
+              {storage === null ? "Loading…" : `${storage.count} image${storage.count === 1 ? "" : "s"} in the library`}
+            </p>
+            <Link
+              href="/studio/media"
+              className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-gold transition-colors hover:text-gold-soft"
+            >
+              Open Media Library
+              <ArrowUpRight size={14} aria-hidden />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

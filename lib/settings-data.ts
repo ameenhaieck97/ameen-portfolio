@@ -62,6 +62,29 @@ export async function getOffersPageVisibility(): Promise<"public" | "hidden"> {
 }
 
 /**
+ * Whether the public site is in maintenance mode. Defaults to false on any
+ * failure — a Supabase hiccup should never accidentally take the live site
+ * offline.
+ */
+export async function getMaintenanceMode(): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+
+  try {
+    const supabase = getServerReadClient();
+    const { data, error } = await withTimeout(
+      supabase.from("settings").select("maintenance_mode").eq("id", 1).maybeSingle(),
+      1500,
+    );
+
+    if (error || !data) return false;
+    return data.maintenance_mode === true;
+  } catch (error) {
+    console.error("getMaintenanceMode: unexpected error, defaulting to off:", error);
+    return false;
+  }
+}
+
+/**
  * Per-section font-size multipliers, set from Studio → Settings → Text
  * sizes. Empty object on any failure — every section then falls back to its
  * own default (scale 1), never a broken or unreadable size.

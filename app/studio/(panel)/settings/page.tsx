@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { safeRevalidate } from "@/lib/revalidate";
 import { SECTION_KEYS, type SectionKey, type SectionTextScales, type Settings, type SocialLinks } from "@/types/admin";
-import { TextAreaField, TextField } from "@/components/admin/FormControls";
+import { TextAreaField, TextField, Toggle } from "@/components/admin/FormControls";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Skeleton } from "@/components/admin/Skeleton";
 import { useToast } from "@/components/admin/Toast";
@@ -40,6 +40,7 @@ type SettingsDraft = {
   social_links: Record<keyof SocialLinks, string>;
   about_photo_url: string;
   section_text_scale: SectionTextScales;
+  maintenance_mode: boolean;
 };
 
 const EMPTY_DRAFT: SettingsDraft = {
@@ -58,6 +59,7 @@ const EMPTY_DRAFT: SettingsDraft = {
   },
   about_photo_url: "",
   section_text_scale: {},
+  maintenance_mode: false,
 };
 
 export default function SettingsPage() {
@@ -91,6 +93,7 @@ export default function SettingsPage() {
           },
           about_photo_url: row?.about_photo_url ?? "",
           section_text_scale: row?.section_text_scale ?? {},
+          maintenance_mode: row?.maintenance_mode ?? false,
         });
       });
   }, []);
@@ -148,6 +151,22 @@ export default function SettingsPage() {
         </div>
       ) : (
         <div className="mt-6 space-y-6">
+          <section className="glass rounded-3xl p-6">
+            <h2 className="font-display text-lg text-ivory">Maintenance mode</h2>
+            <p className="mt-1 text-sm text-ivory/55">
+              Shows visitors a &ldquo;back soon&rdquo; page instead of the site. Studio stays
+              reachable so you can turn it back off.
+            </p>
+            <div className="mt-5">
+              <Toggle
+                label="Maintenance mode"
+                description={draft.maintenance_mode ? "Public site is currently offline." : "Public site is live."}
+                checked={draft.maintenance_mode}
+                onChange={(next) => setDraft({ ...draft, maintenance_mode: next })}
+              />
+            </div>
+          </section>
+
           <section className="glass rounded-3xl p-6">
             <h2 className="font-display text-lg text-ivory">Site</h2>
             <div className="mt-5 grid gap-5">

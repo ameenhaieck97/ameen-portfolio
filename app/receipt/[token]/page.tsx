@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import QRCode from "qrcode";
@@ -6,6 +7,13 @@ import { getServerReadClient } from "@/lib/supabase/server-read";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { ReceiptView } from "@/components/finance/ReceiptView";
 import type { PublicReceipt } from "@/types/finance";
+
+// Token-secured, per-receipt financial document — never indexable, even
+// though the route itself stays reachable to anyone holding the link.
+export const metadata: Metadata = {
+  title: "Receipt — Ameen Haieck",
+  robots: { index: false, follow: false },
+};
 
 async function getPublicReceipt(token: string): Promise<PublicReceipt | null> {
   if (!isSupabaseConfigured()) return null;

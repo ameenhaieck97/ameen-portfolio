@@ -59,6 +59,23 @@ export function BehanceIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function TelegramIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M21 4 3.5 11.2c-.7.3-.7 1.3.1 1.5l4.4 1.3 1.7 5.1c.2.7 1.1.9 1.6.3l2.4-2.6 4.5 3.3c.6.5 1.6.1 1.7-.6L23 5.1c.1-.8-.7-1.4-1.4-1.1Z" />
+      <path d="M8 13.9 17.5 7 10.3 15" />
+    </svg>
+  );
+}
+
 export function WhatsappIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

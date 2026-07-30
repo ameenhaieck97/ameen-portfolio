@@ -5,5 +5,6 @@ export const contact = {
     { key: "instagram", href: "https://instagram.com/ameenhaieck" },
     { key: "behance", href: "https://behance.net/ameenhaieck" },
     { key: "linkedin", href: "#" }, // TODO: add real LinkedIn profile URL
+    { key: "telegram", href: "https://t.me/ameenhaieck" },
   ] as const,
 };

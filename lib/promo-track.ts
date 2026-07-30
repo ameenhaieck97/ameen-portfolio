@@ -3,14 +3,18 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { PromoEventType } from "@/types/promo";
 
+export type TrackableItemKind = "offers" | "packages" | "portfolio" | "current_work";
+
 /**
- * Fire-and-forget analytics event for a promo item. Anon writes are allowed
- * by RLS (insert-only, no select) precisely so this can run unauthenticated
- * from the public site — a failure here must never block or throw in the
- * caller's UI flow, so errors are swallowed after a console warning.
+ * Fire-and-forget analytics event for a trackable public-site item (promo
+ * offers/packages, but also Portfolio projects and Current Work cards). Anon
+ * writes are allowed by RLS (insert-only, no select) precisely so this can
+ * run unauthenticated from the public site — a failure here must never block
+ * or throw in the caller's UI flow, so errors are swallowed after a console
+ * warning.
  */
 export function trackPromoEvent(
-  itemKind: "offers" | "packages",
+  itemKind: TrackableItemKind,
   itemId: string,
   eventType: PromoEventType,
 ) {

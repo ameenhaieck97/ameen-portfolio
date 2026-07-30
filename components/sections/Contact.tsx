@@ -8,6 +8,7 @@ import {
   BehanceIcon,
   InstagramIcon,
   LinkedinIcon,
+  TelegramIcon,
   WhatsappIcon,
 } from "@/components/ui/SocialIcons";
 import { textScaleStyle } from "@/lib/text-scale-style";
@@ -16,6 +17,7 @@ const socialIcons = {
   instagram: InstagramIcon,
   behance: BehanceIcon,
   linkedin: LinkedinIcon,
+  telegram: TelegramIcon,
 };
 
 export default function Contact({ textScale }: { textScale?: number }) {

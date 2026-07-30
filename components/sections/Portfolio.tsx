@@ -15,6 +15,7 @@ import { PortfolioCard } from "@/components/portfolio/PortfolioCard";
 import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/Lightbox";
 import { cn } from "@/lib/cn";
 import { textScaleStyle } from "@/lib/text-scale-style";
+import { trackPromoEvent } from "@/lib/promo-track";
 
 const GROUPS: PortfolioGroup[] = ["brandIdentity", "graphicDesign", "other"];
 const VISIBLE_COUNT = 3;
@@ -149,6 +150,11 @@ export default function Portfolio({
 
   const openIndex = openProject ? 0 : -1;
 
+  const handleOpen = (id: string) => {
+    setOpenId(id);
+    trackPromoEvent("portfolio", id, "view");
+  };
+
   return (
     <section
       id="portfolio"
@@ -169,7 +175,7 @@ export default function Portfolio({
               key={group}
               group={group}
               allItems={items}
-              onOpen={setOpenId}
+              onOpen={handleOpen}
             />
           ))}
         </div>

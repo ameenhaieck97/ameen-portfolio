@@ -10,6 +10,7 @@ import {
   BehanceIcon,
   InstagramIcon,
   LinkedinIcon,
+  TelegramIcon,
 } from "@/components/ui/SocialIcons";
 import { MonoLogo } from "@/components/ui/MonoLogo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -30,6 +31,7 @@ const socialIcons = {
   instagram: InstagramIcon,
   behance: BehanceIcon,
   linkedin: LinkedinIcon,
+  telegram: TelegramIcon,
 };
 
 export default function Footer({

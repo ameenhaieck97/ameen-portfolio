@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { getServerReadClient } from "@/lib/supabase/server-read";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { ClientStatementView } from "@/components/finance/ClientStatementView";
 import type { PublicClientStatement } from "@/types/finance";
+
+// Token-secured, per-client financial statement — never indexable, even
+// though the route itself stays reachable to anyone holding the link.
+export const metadata: Metadata = {
+  title: "Client Statement — Ameen Haieck",
+  robots: { index: false, follow: false },
+};
 
 async function getPublicClientStatement(token: string): Promise<PublicClientStatement | null> {
   if (!isSupabaseConfigured()) return null;

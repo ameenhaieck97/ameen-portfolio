@@ -145,5 +145,7 @@ export type Settings = {
   /** Same model as packages_page_visibility, independent switch for the public Offers page. */
   offers_page_visibility: PageVisibility;
   section_text_scale: SectionTextScales;
+  /** When true, app/[locale]/** shows a maintenance page to visitors instead of the normal site. Studio stays reachable. */
+  maintenance_mode: boolean;
   updated_at: string;
 };

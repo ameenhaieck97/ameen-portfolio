@@ -27,10 +27,28 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
-    alternates: { canonical: `/${locale}/offers` },
+    alternates: {
+      canonical: `/${locale}/offers`,
+      languages: { en: "/en/offers", ar: "/ar/offers" },
+    },
     // Hidden means "shareable by direct link only" — the page itself stays
     // reachable, it just shouldn't surface in search results while private.
     robots: visibility === "hidden" ? { index: false, follow: false } : undefined,
+    // openGraph/twitter don't deep-merge with the layout's — once a page sets
+    // its own openGraph object, the layout's opengraph-image file convention
+    // no longer auto-attaches, so the image is repeated here explicitly.
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: `/${locale}/offers`,
+      images: [`/${locale}/opengraph-image`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+      images: [`/${locale}/opengraph-image`],
+    },
   };
 }
 

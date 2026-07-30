@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
@@ -8,9 +8,11 @@ import { siteConfig } from "@/data/site";
 import { contact } from "@/data/contact";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { MaintenancePage } from "@/components/layout/MaintenancePage";
 import { SiteBackground } from "@/components/layout/SiteBackground";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import {
+  getMaintenanceMode,
   getOffersPageVisibility,
   getPackagesPageVisibility,
   getSectionTextScales,
@@ -33,6 +35,10 @@ const rayatAr = localFont({
   ],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#343131",
+};
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -45,7 +51,10 @@ export async function generateMetadata({
   params: Promise<LayoutParams>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "meta" });
+  const [t, maintenanceMode] = await Promise.all([
+    getTranslations({ locale, namespace: "meta" }),
+    getMaintenanceMode(),
+  ]);
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -75,6 +84,8 @@ export async function generateMetadata({
       title: t("title"),
       description: t("description"),
     },
+    // The maintenance placeholder should never rank in search results.
+    robots: maintenanceMode ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -93,9 +104,11 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
   const tMeta = await getTranslations({ locale, namespace: "meta" });
+  const tMaintenance = await getTranslations({ locale, namespace: "maintenance" });
   const packagesVisible = (await getPackagesPageVisibility()) === "public";
   const offersVisible = (await getOffersPageVisibility()) === "public";
   const textScales = await getSectionTextScales();
+  const maintenanceMode = await getMaintenanceMode();
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   const personJsonLd = {
@@ -132,19 +145,30 @@ export default async function LocaleLayout({
         <div className="grain" aria-hidden />
         <SiteBackground />
         <NextIntlClientProvider messages={messages}>
-          <a href="#main-content" className="skip-link">
-            {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}
-          </a>
-          <Header packagesVisible={packagesVisible} offersVisible={offersVisible} />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <Footer
-            packagesVisible={packagesVisible}
-            offersVisible={offersVisible}
-            textScale={textScales.footer}
-          />
-          <CustomCursor />
+          {maintenanceMode ? (
+            <MaintenancePage
+              eyebrow={tMaintenance("eyebrow")}
+              title={tMaintenance("title")}
+              description={tMaintenance("description")}
+              contactPrefix={tMaintenance("contactPrefix")}
+            />
+          ) : (
+            <>
+              <a href="#main-content" className="skip-link">
+                {locale === "ar" ? "تخطَّ إلى المحتوى" : "Skip to content"}
+              </a>
+              <Header packagesVisible={packagesVisible} offersVisible={offersVisible} />
+              <main id="main-content" className="flex-1">
+                {children}
+              </main>
+              <Footer
+                packagesVisible={packagesVisible}
+                offersVisible={offersVisible}
+                textScale={textScales.footer}
+              />
+              <CustomCursor />
+            </>
+          )}
         </NextIntlClientProvider>
       </body>
     </html>

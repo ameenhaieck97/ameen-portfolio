@@ -45,6 +45,7 @@ export function MediaGrid({
   const [items, setItems] = useState<MediaItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [folder, setFolder] = useState("all");
   const [refreshKey, setRefreshKey] = useState(0);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MediaItem | null>(null);
@@ -72,11 +73,22 @@ export function MediaGrid({
     };
   }, [refreshKey, reloadSignal]);
 
+  const folderOf = (path: string) => (path.includes("/") ? path.split("/")[0] : "(root)");
+
+  const folders = useMemo(() => {
+    if (!items) return [];
+    return Array.from(new Set(items.map((item) => folderOf(item.path)))).sort();
+  }, [items]);
+
   const filtered = useMemo(() => {
     if (!items) return [];
     const q = query.trim().toLowerCase();
-    return q ? items.filter((item) => item.path.toLowerCase().includes(q)) : items;
-  }, [items, query]);
+    return items.filter((item) => {
+      if (folder !== "all" && folderOf(item.path) !== folder) return false;
+      if (q && !item.path.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [items, query, folder]);
 
   const copyUrl = async (item: MediaItem) => {
     try {
@@ -122,6 +134,21 @@ export function MediaGrid({
             className="h-11 w-full rounded-xl border border-white/10 bg-canvas/60 ps-10 pe-4 text-sm text-ivory outline-none transition-colors placeholder:text-ivory/30 focus:border-gold/50"
           />
         </div>
+        {folders.length > 1 ? (
+          <select
+            aria-label="Filter by folder"
+            value={folder}
+            onChange={(event) => setFolder(event.target.value)}
+            className="h-11 rounded-xl border border-white/10 bg-canvas/60 px-3 text-sm text-ivory outline-none transition-colors focus:border-gold/50"
+          >
+            <option value="all">All folders</option>
+            {folders.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <button
           type="button"
           aria-label="Refresh"
@@ -143,7 +170,7 @@ export function MediaGrid({
           </p>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-white/8 py-14 text-center text-sm text-ivory/50">
-            {query ? "No images match your search." : "No images uploaded yet."}
+            {query || folder !== "all" ? "No images match your filters." : "No images uploaded yet."}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

@@ -20,6 +20,7 @@ import { PortfolioLightbox, type PortfolioSlide } from "@/components/portfolio/L
 import { currentWorkProjects, instituteHub, type CurrentWorkProject } from "@/data/current-work";
 import { experience } from "@/data/experience";
 import { textScaleStyle } from "@/lib/text-scale-style";
+import { trackPromoEvent } from "@/lib/promo-track";
 
 type StatEntry = { value: string; label: string };
 
@@ -68,6 +69,10 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
   const isInView = useInView(containerRef, { once: true, margin: "-15% 0px" });
   const show = reduceMotion || isInView;
   const [openId, setOpenId] = useState<string | null>(null);
+  const handleOpen = (id: string) => {
+    setOpenId(id);
+    trackPromoEvent("current_work", id, "view");
+  };
 
   // The "projects" array is flat: index 0 is the institute hub itself,
   // followed by each satellite project in the same order as
@@ -129,7 +134,7 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
         className="mt-10"
       >
         <TiltCard
-          onClick={() => setOpenId("institute")}
+          onClick={() => handleOpen("institute")}
           ariaLabel={projectNames[0]}
           className="glass flex w-full items-center gap-5 rounded-[1.75rem] p-6 text-start sm:p-7"
         >
@@ -210,7 +215,7 @@ function InstituteEcosystem({ galleries }: { galleries: Record<string, string[]>
             transition={{ duration: 0.7, delay: 0.6 + i * 0.1, ease: LUX_EASE }}
           >
             <TiltCard
-              onClick={() => setOpenId(project.id)}
+              onClick={() => handleOpen(project.id)}
               ariaLabel={projectLabel(project)}
               className="glass-reveal flex w-full items-center gap-4 rounded-2xl p-5 text-start sm:flex-col sm:gap-3 sm:p-6 sm:text-center"
             >
